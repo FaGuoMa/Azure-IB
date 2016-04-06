@@ -9,12 +9,22 @@ import datetime as dt
 import time
 from classes.ib_util import IBUtil
 from classes.stock_data import StockData
+#import our ML class call (btw, API key in clear = not smart)
+from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 #from params.strategy_parameters import StrategyParameters
-#from classes.chart import Chart
+
 import threading
 import sys
 import os
+import logging
+import numpy as np
+import talib as ta
+
+if os.path.exists(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt")):
+    os.remove(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"))
+logging.basicConfig(filename=os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
+
 
 #this will need be checked
 
@@ -38,16 +48,19 @@ class HFTModel:
         self.symbols = None  # List of current symbols
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
-        self.ohlc = None # I need another store for minute data (I think)        
+        self.ohlc = None # I need another store for minute data (I think)
+        self.buffer = list()        
         self.trade_qty = 0
         self.order_id = 0
         self.lock = threading.Lock()
         #addition for hdf store
         self.data_path = os.path.normpath("/Users/maxime_back/Documents/avocado/data.csv")
         self.ohlc_path = os.path.normpath("/Users/maxime_back/Documents/avocado/ohlc.csv")
-        self.last_trim = dt.datetime.now()
-
-
+        self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
+        #range/trend flag
+        self.flag = None
+        self.ml = MLcall()
+        self.last_ml_call = None
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
@@ -83,7 +96,7 @@ class HFTModel:
         stock_symbol = self.symbols
         contract = self.ib_util.create_stock_contract(stock_symbol)
         self.stocks_data[stock_symbol] = StockData(contract)
-        print "contracts initated"
+        
 
     def __request_streaming_data(self, ib_conn):
         # Stream market data. Of note: this enumerate can probably be simplified
@@ -94,7 +107,7 @@ class HFTModel:
                                stock_data.contract,
                                datatype.GENERIC_TICKS_NONE,
                                datatype.SNAPSHOT_NONE)
-            time.sleep(5)
+#            time.sleep(5)
 
         # Stream account updates DEACTIVATED FOR NOW
 #        ib_conn.reqAccountUpdates(True, self.account_code)
@@ -115,9 +128,11 @@ class HFTModel:
                     datatype.RTH_ALL,
                     datatype.DATEFORMAT_STRING)
                 time.sleep(1)
+#usingthe lock at the end of the cycle
         finally:
-            self.lock.release()
-            self.last_trim = dt.datetime.now()
+            pass
+#            self.lock.release()
+#            self.last_trim = dt.datetime.now()
 
 #    def __wait_for_download_completion(self):
 #        is_waiting = True
@@ -177,7 +192,7 @@ class HFTModel:
             print msg
 
     def __on_historical_data(self, msg):
-        print msg
+
 
         ticker_index = msg.reqId
 
@@ -187,12 +202,23 @@ class HFTModel:
             self.__add_historical_data(ticker_index, msg)
 
     def __on_historical_data_completed(self, ticker_index):
-        self.lock.acquire()
-        try:
-            symbol = self.symbols#[ticker_index]
-            self.stocks_data[symbol].is_storing_data = False
-        finally:
-            self.lock.release()
+        self.lock.release()
+#        try:
+#            symbol = self.symbols#[ticker_index]
+#            self.stocks_data[symbol].is_storing_data = False
+#        finally:
+#            self.lock.release()
+#        print 'historical lock released with last tstp: %s' % str(self.ohlc.index[-1])
+            #set marker for trim because the
+        self.last_trim = self.ohlc.index[-1]+self.moving_window_period
+        print "trim time properly set now %s" % self.last_trim
+        self.__run_indicators(self.ohlc)        
+        self.ohlc.to_csv(self.ohlc_path)
+        #call Azure
+        self.flag = self.ml.call_ml(self.ohlc)
+        self.last_ml_call = self.last_trim + 5*self.moving_window_period #hackish way to say 5mn
+        print self.flag
+#        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
 
     def __add_historical_data(self, ticker_index, msg):
         timestamp = dt.datetime.strptime(msg.date, datatype.DATE_TIME_FORMAT)
@@ -231,9 +257,10 @@ class HFTModel:
         if field_type == datatype.FIELD_BID_SIZE:
             bid_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), bid_size, 6)
-#now to trim the serie every 60 second        
-        if dt.datetime.now() > self.last_trim + self.moving_window_period:
+#now to trim the serie every 60 second (logic in trims_serie)     
+        if not self.lock.locked():
             self.__trim_data_series()
+            
 
         # Post-bootstrap - make trading decisions
 #        if self.strategy_params.is_bootstrap_completed():
@@ -243,70 +270,100 @@ class HFTModel:
 
     def __add_market_data(self, ticker_index, timestamp, value, col):
         if col == 1:
-            self.prices.loc[timestamp, "price"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values ## Not sure how to handle this one
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "price": float(value)})
+#            
         elif col ==2:
-            self.prices.loc[timestamp, "size"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "size": float(value)})
         elif col ==3:
-            self.prices.loc[timestamp, "ask_price"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "ask_price": float(value)})
         elif col ==4:
-            self.prices.loc[timestamp, "ask_size"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "ask_size": float(value)})
         elif col ==5:
-            self.prices.loc[timestamp, "bid_price"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "bid_price": float(value)})
         elif col ==6:
-            self.prices.loc[timestamp, "bid_size"] = float(value)
-#            self.prices = self.prices.fillna(method='ffill')  # Clear NaN values
-            self.prices.sort_index(inplace=True)
+            self.buffer.append({'time':timestamp, "bid_size": float(value)})
 
     def __stream_to_ohlc(self):
-#        stream = stream[["price","size"]]
-#        stream.is_copy = False
-#        stream.dropna(inplace=True, how='all')
-        
         try:
             new_ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))
 # very likely fuckery to be checked at the cutoff
-            t_stmp = self.prices.first_valid_index().replace(second=0, microsecond=0)        
-            new_ohlc.loc[t_stmp, "open"] = float(self.prices['price'].dropna().head(1))
-            new_ohlc.loc[t_stmp, "close"] = float(self.prices['price'].dropna().tail(1))
-            new_ohlc.loc[t_stmp, "high"] = float(self.prices['price'].max())
-            new_ohlc.loc[t_stmp, "low"] = float(self.prices['price'].min())
-            new_ohlc.loc[t_stmp, "low"] = float(self.prices['price'].min())
-            new_ohlc.loc[t_stmp, "volume"] = float(self.prices['size'].sum())
-            new_ohlc.loc[t_stmp, "count"] = float(self.prices['size'].count())
+            t_stmp1 = self.last_trim
+            logging.debug("tstp 1 ok")
+            t_stmp2 =t_stmp1 + self.moving_window_period
+            logging.debug("tstp 2 ok")
+            intm2 = self.prices.truncate(after=t_stmp2, before=t_stmp1)
+            logging.debug("truncate  ok.Shape: %s", intm2.shape)
+            new_ohlc.loc[t_stmp2, "open"] = float(intm2['price'].dropna().head(1))
+            logging.debug("open ok")
+            new_ohlc.loc[t_stmp2, "close"] = float(intm2['price'].dropna().tail(1))
+            logging.debug("close ok")
+            new_ohlc.loc[t_stmp2, "high"] = float(intm2['price'].max())
+            logging.debug("hi  ok")
+            new_ohlc.loc[t_stmp2, "low"] = float(intm2['price'].min())
+            logging.debug("lo ok")
+        
+            new_ohlc.loc[t_stmp2, "volume"] = float(intm2['size'].sum())
+            logging.debug("vol ok")
+            new_ohlc.loc[t_stmp2, "count"] = float(intm2['size'].count())
+            logging.debug("cnt  ok")
             return new_ohlc
         except Exception, e:
             print "fuck:", e
-            print self.prices
+            new_ohlc.to_csv(os.path.normpath("/Users/maxime_back/Documents/avocado/new_ohlc.csv"))
+            
+    def __run_indicators(self, ohlc):
+        #hardcoding ML munging parameters now
+        ohlc['returns']=ta.ROC(np.asarray(ohlc['close']).astype(float))
+        ohlc['sma']=ta.SMA(np.asarray(ohlc['close']).astype(float), 10)
+        ohlc['lma']=ta.SMA(np.asarray(ohlc['close']).astype(float), 120)
+        ohlc['rsi']=ta.RSI(np.asarray(ohlc['close']).astype(float))
+        ohlc['atr']=ta.ATR(np.asarray(ohlc['high']).astype(float),np.asarray(ohlc['low']).astype(float),np.asarray(ohlc['close']).astype(float),10)
+        ohlc['monday'] = np.where(ohlc.index.weekday == 0,1,0)
+#bellow is because I don't know how to np.where with multiple conditions        
+        ohlc['roll'] = np.where(ohlc.index.month % 3 == 0,1,0)
+#hackish as balls:
+        ohlc.index = ohlc.index.tz_localize("Singapore")
+        ohlc["busy"] = np.where(ohlc.index.tz_convert("America/Chicago").hour >= 9,np.where(ohlc.index.tz_convert("America/Chicago").hour <= 14,1,0),0)
+                
+        
         
 
 
     def __trim_data_series(self):
-        print "trim started"
+#        print 'check trim cycle tine considered: %s' % str(self.ohlc.index[-1])        
+        if dt.datetime.now() > self.last_trim + self.moving_window_period:
+            print "time condition trim met again"
+            intm = pd.DataFrame(self.buffer).set_index('time')
+            logging.debug("converted list")
+            self.prices = self.prices.append(intm)
+            logging.debug("appended new prices")
+            
+ #           print self.ohlc.shape
+            self.ohlc = self.ohlc.append(self.__stream_to_ohlc())
+            #probably could be optimized            
+            self.__run_indicators(self.ohlc)
+            with open(self.ohlc_path, 'a') as f:
+                    self.ohlc.tail(1).to_csv(f, header=False)
+#            print "appended new ohlc. tstp is now:" % str(self.ohlc.index[-1])
+            self.buffer = list()
+            self.last_trim = self.last_trim + self.moving_window_period
+            print "cleaned buffer"
+#            print self.ohlc.shape
+            #store the cutoff (t - 3 moving windows to csv)
+            if dt.datetime.now() > self.prices.index[-1] - 3*self.moving_window_period:
+                with open(self.data_path, 'a') as f:
+                    self.prices[self.prices.index <= self.prices.index[-1] - 3*self.moving_window_period].to_csv(f, header=False)
+             #store the cutoff (t - 3 moving windows to csv)
+                self.prices = self.prices.truncate(before=self.prices.index[-1] - 3*self.moving_window_period)
+        if dt.datetime.now() > self.last_ml_call:
+            self.flag = self.ml.call_ml(self.ohlc)
+            print self.flag
+            self.last_ml_call = self.last_ml_call + 5*self.moving_window_period
+#        else:
+#        
+#            print len(self.buffer)
         
-        cutoff_timestamp = dt.datetime.now()
-        #clean up for overlap of tick vs 1mn ohlc bar
-        self.prices = self.prices[self.prices.index >= self.last_trim]
         
-        with open(self.data_path, 'a') as f:
-            self.prices[self.prices.index <= cutoff_timestamp].to_csv(f, header=False)
-        #append new ohlc row ++ cutoff probably ficked
-        
-        self.ohlc = self.ohlc.append(self.__stream_to_ohlc())
-        
-
-        self.prices = self.prices[self.prices.index >= cutoff_timestamp]
-#        self.strategy_params.trim_indicators_series(cutoff_timestamp)
-
     @staticmethod
     def __print_elapsed_time(start_time):
         elapsed_time = time.time() - start_time
@@ -319,7 +376,7 @@ class HFTModel:
 
     def start(self, symbols, trade_qty):
         print "HFT model started."
-        
+        logging.debug("started requests")
 
 #        self.trade_qty = trade_qty
 
@@ -329,13 +386,13 @@ class HFTModel:
         print "init stock"
         self.__request_streaming_data(self.conn)
 
-        print self.conn
+ 
         start_time = time.time()
         self.__request_historical_data(self.conn)
 #maybe I can do without this dd lock (or maybe not, we shall see)
 #       self.__wait_for_download_completion()
 #        self.strategy_params.set_bootstrap_completed()
-        self.ohlc.to_csv(self.ohlc_path)
+#        self.ohlc.to_csv(self.ohlc_path)
         self.__print_elapsed_time(start_time)
 
         print "Calculating strategy parameters..."
@@ -351,16 +408,14 @@ class HFTModel:
         
                 
 
-        except Exception, e:
-            print "Exception:", e
+        except (Exception, KeyboardInterrupt):
+            print "Exception:"
             print "Cancelling...",
             self.__cancel_market_data_request()
 
             print "Disconnecting..."
             self.conn.disconnect()
             time.sleep(1)
-            self.prices.to_hdf(self.store)
-            self.store.close()
         
 
             print "Disconnected."
