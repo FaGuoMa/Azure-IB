@@ -39,7 +39,7 @@ class DataParser:
         clean = raw.drop(["Datetime"], 1)
         if padding == True:
            clean.fillna(method="pad", inplace=True)
-            clean.dropna(axis=0, inplace=True)
+           clean.dropna(axis=0, inplace=True)
         end_time = time.clock()
         print("Import Complete. ", clean.shape[0], " Lines Read in {:.2f}".format(end_time - start_time), "sec")
         return clean

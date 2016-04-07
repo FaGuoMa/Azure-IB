@@ -10,6 +10,8 @@ Author: Derek Wong
 
 import decimal
 
+FIVEPLACES = decimal.Decimal("0.00001")
+
 class Zscore:
     """
     Zscore class function
@@ -22,11 +24,11 @@ class Zscore:
         init_flag = initial flag ("trend", "range")
     """
     def __init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
-        self.bid = decimal.Decimal(init_bid)
-        self.ask = decimal.Decimal(init_ask)
-        self.zscore = decimal.Decimal(init_zscore)
-        self.mean = decimal.Decimal(init_mean)
-        self.stdev = decimal.Decimal(init_stdev)
+        self.bid = decimal.Decimal(init_bid).quantize(FIVEPLACES)
+        self.ask = decimal.Decimal(init_ask).quantize(FIVEPLACES)
+        self.zscore = decimal.Decimal(init_zscore).quantize(FIVEPLACES)
+        self.mean = decimal.Decimal(init_mean).quantize(FIVEPLACES)
+        self.stdev = decimal.Decimal(init_stdev).quantize(FIVEPLACES)
         self.state = init_state
         self.flag = init_flag
         self.mid_price = self.calc_mid_price(init_bid, init_ask)
@@ -57,7 +59,7 @@ class Zscore:
 
     def calc_mid_price(self, bid, ask):
         # update the mid price by using average of bid/ask
-        mid_price = decimal.Decimal((bid + ask) / 2)
+        mid_price = decimal.Decimal((bid + ask) / 2).quantize(FIVEPLACES)
         self.mid_price = mid_price
         return mid_price
 
@@ -66,8 +68,8 @@ class Zscore:
         self.hist_bid = self.bid
         self.hist_ask = self.ask
 
-        self.bid = new_bid
-        self.ask = new_ask
+        self.bid = decimal.Decimal(new_bid).quantize(FIVEPLACES)
+        self.ask = decimal.Decimal(new_ask).quantize(FIVEPLACES)
 
         self.mid_price = self.calc_mid_price(bid=new_bid, ask=new_ask)
 
