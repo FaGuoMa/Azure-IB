@@ -184,6 +184,62 @@ class Zscore:
             self.signal = "BOT"
             self.state = "FLAT"
 
+    def stops_calc(self):
+        # calculate any stop trade conditions
+        if self.state == "FLAT":
+            pass
+
+        #stop distance is 1/2 of the zscore trigger threshold
+        stop_dist = self.z_threshold/2
+
+        # Long Trend Stop
+        if self.state == "LONG" and self.flag == "trend" \
+                and stop_dist >= self.zscore:
+
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "SLD"
+            self.state = "FLAT"
+
+        # Short Trend Stop
+        if self.state == "short" and self.flag == "trend" \
+                and -stop_dist <= self.zscore:
+
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "BOT"
+            self.state = "FLAT"
+
+        # Long range Stop
+        if self.state == "LONG" and self.flag == "range" \
+                and stop_dist+self.z_threshold <= self.zscore:
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "SLD"
+            self.state = "FLAT"
+
+        # Short range Stop
+        if self.state == "short" and self.flag == "trend" \
+                and -stop_dist-self.z_threshold >= self.zscore:
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "BOT"
+            self.state = "FLAT"
+
+    def print_status(self):
+        # print states and status
+        print "State:{state} Signal:{signal} Flag: {flag} Mid:{mid} Zscore:{zscore}".format(state=self.state,
+                                                                                            signal=self.signal,
+                                                                                            flag=self.flag,
+                                                                                            mid=self.mid_price,
+                                                                                            zscore=self.zscore)
+
+
+
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
 
@@ -193,8 +249,14 @@ class Zscore:
         # calculate the new z score for the given tick mid price
         self.calc_zscore(self.mid_price)
 
+        # calculate stops
+        self.stops_calc()
+
         # run algo calc based on object self values
         self.algo_calc()
+
+        #print status
+        self.print_status()
 
     def on_minute(self, new_mean, new_stdev, new_flag):
         # update the parameters every minute
