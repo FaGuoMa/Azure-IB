@@ -2,7 +2,7 @@
 
 """
 from models.hft_model import HFTModel
-
+import time
 if __name__ == "__main__":
     model = HFTModel(host='localhost',
                      port=4001,
@@ -11,5 +11,5 @@ if __name__ == "__main__":
                      evaluation_time_secs=20,
                      resample_interval_secs='30s')
     model.start("CL", 100)
-time.sleep(65)
-model.conn.disconnect()
+    time.sleep(330)
+    model.conn.disconnect()
