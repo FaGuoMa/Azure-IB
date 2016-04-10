@@ -37,14 +37,13 @@ class HFTModel:
                  resample_interval_secs='30s',
                  moving_window_period=dt.timedelta(seconds=60)):
         self.moving_window_period = moving_window_period
-#        self.chart = Chart()
         self.ib_util = IBUtil()
 
         # Store parameters for this model
 #        self.strategy_params = StrategyParameters(evaluation_time_secs,
 #                                                  resample_interval_secs)
 
-        self.stocks_data = {}  # Dictionary storing StockData objects.
+        self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
         self.symbols = None  # List of current symbols
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
@@ -131,24 +130,6 @@ class HFTModel:
 #usingthe lock at the end of the cycle
         finally:
             pass
-#            self.lock.release()
-#            self.last_trim = dt.datetime.now()
-
-#    def __wait_for_download_completion(self):
-#        is_waiting = True
-#        while is_waiting:
-#            is_waiting = False
-#
-#            self.lock.acquire()
-#            try:
-#                for symbol in self.stocks_data.keys():
-#                    if self.stocks_data[symbol].is_storing_data:
-#                        is_waiting = True
-#            finally:
-#                self.lock.release()
-#
-#            if is_waiting:
-#                time.sleep(1)
 
 
 #    def __on_portfolio_update(self, msg):
@@ -203,13 +184,7 @@ class HFTModel:
 
     def __on_historical_data_completed(self, ticker_index):
         self.lock.release()
-#        try:
-#            symbol = self.symbols#[ticker_index]
-#            self.stocks_data[symbol].is_storing_data = False
-#        finally:
-#            self.lock.release()
-#        print 'historical lock released with last tstp: %s' % str(self.ohlc.index[-1])
-            #set marker for trim because the
+
         self.last_trim = self.ohlc.index[-1]+self.moving_window_period
         print "trim time properly set now %s" % self.last_trim
         self.__run_indicators(self.ohlc)        
@@ -334,6 +309,7 @@ class HFTModel:
         if dt.datetime.now() > self.last_trim + self.moving_window_period:
             print "time condition trim met again"
             intm = pd.DataFrame(self.buffer).set_index('time')
+            self.buffer = list()            
             logging.debug("converted list")
             self.prices = self.prices.append(intm)
             logging.debug("appended new prices")
@@ -345,7 +321,7 @@ class HFTModel:
             with open(self.ohlc_path, 'a') as f:
                     self.ohlc.tail(1).to_csv(f, header=False)
 #            print "appended new ohlc. tstp is now:" % str(self.ohlc.index[-1])
-            self.buffer = list()
+            
             self.last_trim = self.last_trim + self.moving_window_period
             print "cleaned buffer"
 #            print self.ohlc.shape
