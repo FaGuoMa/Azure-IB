@@ -13,7 +13,7 @@ from classes.stock_data import StockData
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 #from params.strategy_parameters import StrategyParameters
-
+from algos.ZscoreEventDriven import Zscore
 import threading
 import sys
 import os
@@ -21,9 +21,9 @@ import logging
 import numpy as np
 import talib as ta
 
-if os.path.exists(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt")):
-    os.remove(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"))
-logging.basicConfig(filename=os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
+if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
+    os.remove(os.path.join(os.path.curdir,"log.txt"))
+logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 
 #this will need be checked
@@ -53,13 +53,16 @@ class HFTModel:
         self.order_id = 0
         self.lock = threading.Lock()
         #addition for hdf store
-        self.data_path = os.path.normpath("/Users/maxime_back/Documents/avocado/data.csv")
-        self.ohlc_path = os.path.normpath("/Users/maxime_back/Documents/avocado/ohlc.csv")
+        self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
+        self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
         self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
         #range/trend flag
         self.flag = None
         self.ml = MLcall()
         self.last_ml_call = None
+        self.last_trade = None
+        self.last_bid = None
+        self.last_ask = None
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
@@ -217,18 +220,21 @@ class HFTModel:
         if field_type == datatype.FIELD_LAST_PRICE:
             last_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), last_price, 1)
+            self.last_trade = last_price
         if field_type == datatype.FIELD_LAST_SIZE:
             last_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), last_size, 2)
         if field_type == datatype.FIELD_ASK_PRICE:
             ask_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), ask_price, 3)
+            self.last_ask = ask_price
         if field_type == datatype.FIELD_ASK_SIZE:
             ask_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), ask_size, 4)
         if field_type == datatype.FIELD_BID_PRICE:
             bid_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), bid_price, 5)
+            self.last_bid = bid_price
         if field_type == datatype.FIELD_BID_SIZE:
             bid_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), bid_size, 6)
@@ -284,7 +290,7 @@ class HFTModel:
             return new_ohlc
         except Exception, e:
             print "fuck:", e
-            new_ohlc.to_csv(os.path.normpath("/Users/maxime_back/Documents/avocado/new_ohlc.csv"))
+            new_ohlc.to_csv(os.path.normpath(os.path.join(os.path.curdir,"new_ohlc.csv")))
             
     def __run_indicators(self, ohlc):
         #hardcoding ML munging parameters now
@@ -373,8 +379,10 @@ class HFTModel:
 
         print "Calculating strategy parameters..."
         start_time = time.time()
-#        self.__calculate_strategy_params()
-#        self.__print_elapsed_time(start_time)
+        time.sleep(20)
+        #spawn the middleware
+        #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
+        trader = Zscore()        
 
         print "Trading started."
         try:
