@@ -13,7 +13,7 @@ from classes.stock_data import StockData
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 #from params.strategy_parameters import StrategyParameters
-
+from algos.ZscoreEventDriven import Zscore
 import threading
 import sys
 import os
@@ -21,9 +21,15 @@ import logging
 import numpy as np
 import talib as ta
 
+<<<<<<< HEAD
 if os.path.exists(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt")):
     os.remove(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"))
 logging.basicConfig(filename=os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
+=======
+if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
+    os.remove(os.path.join(os.path.curdir,"log.txt"))
+logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
+>>>>>>> 56b67fd5125d26d5c3317f6223b58d0d5c153708
 
 
 #this will need be checked
@@ -37,14 +43,13 @@ class HFTModel:
                  resample_interval_secs='30s',
                  moving_window_period=dt.timedelta(seconds=60)):
         self.moving_window_period = moving_window_period
-#        self.chart = Chart()
         self.ib_util = IBUtil()
 
         # Store parameters for this model
 #        self.strategy_params = StrategyParameters(evaluation_time_secs,
 #                                                  resample_interval_secs)
 
-        self.stocks_data = {}  # Dictionary storing StockData objects.
+        self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
         self.symbols = None  # List of current symbols
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
@@ -54,13 +59,21 @@ class HFTModel:
         self.order_id = 0
         self.lock = threading.Lock()
         #addition for hdf store
+<<<<<<< HEAD
         self.data_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/data.csv")
         self.ohlc_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/ohlc.csv")
+=======
+        self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
+        self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
+>>>>>>> 56b67fd5125d26d5c3317f6223b58d0d5c153708
         self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
         #range/trend flag
         self.flag = None
         self.ml = MLcall()
         self.last_ml_call = None
+        self.last_trade = None
+        self.last_bid = None
+        self.last_ask = None
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
@@ -131,24 +144,6 @@ class HFTModel:
 #usingthe lock at the end of the cycle
         finally:
             pass
-#            self.lock.release()
-#            self.last_trim = dt.datetime.now()
-
-#    def __wait_for_download_completion(self):
-#        is_waiting = True
-#        while is_waiting:
-#            is_waiting = False
-#
-#            self.lock.acquire()
-#            try:
-#                for symbol in self.stocks_data.keys():
-#                    if self.stocks_data[symbol].is_storing_data:
-#                        is_waiting = True
-#            finally:
-#                self.lock.release()
-#
-#            if is_waiting:
-#                time.sleep(1)
 
 
 #    def __on_portfolio_update(self, msg):
@@ -203,13 +198,7 @@ class HFTModel:
 
     def __on_historical_data_completed(self, ticker_index):
         self.lock.release()
-#        try:
-#            symbol = self.symbols#[ticker_index]
-#            self.stocks_data[symbol].is_storing_data = False
-#        finally:
-#            self.lock.release()
-#        print 'historical lock released with last tstp: %s' % str(self.ohlc.index[-1])
-            #set marker for trim because the
+
         self.last_trim = self.ohlc.index[-1]+self.moving_window_period
         print "trim time properly set now %s" % self.last_trim
         self.__run_indicators(self.ohlc)        
@@ -242,18 +231,21 @@ class HFTModel:
         if field_type == datatype.FIELD_LAST_PRICE:
             last_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), last_price, 1)
+            self.last_trade = last_price
         if field_type == datatype.FIELD_LAST_SIZE:
             last_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), last_size, 2)
         if field_type == datatype.FIELD_ASK_PRICE:
             ask_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), ask_price, 3)
+            self.last_ask = ask_price
         if field_type == datatype.FIELD_ASK_SIZE:
             ask_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), ask_size, 4)
         if field_type == datatype.FIELD_BID_PRICE:
             bid_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(), bid_price, 5)
+            self.last_bid = bid_price
         if field_type == datatype.FIELD_BID_SIZE:
             bid_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(), bid_size, 6)
@@ -309,7 +301,7 @@ class HFTModel:
             return new_ohlc
         except Exception, e:
             print "fuck:", e
-            new_ohlc.to_csv(os.path.normpath("/Users/maxime_back/Documents/avocado/new_ohlc.csv"))
+            new_ohlc.to_csv(os.path.normpath(os.path.join(os.path.curdir,"new_ohlc.csv")))
             
     def __run_indicators(self, ohlc):
         #hardcoding ML munging parameters now
@@ -334,6 +326,7 @@ class HFTModel:
         if dt.datetime.now() > self.last_trim + self.moving_window_period:
             print "time condition trim met again"
             intm = pd.DataFrame(self.buffer).set_index('time')
+            self.buffer = list()            
             logging.debug("converted list")
             self.prices = self.prices.append(intm)
             logging.debug("appended new prices")
@@ -345,7 +338,7 @@ class HFTModel:
             with open(self.ohlc_path, 'a') as f:
                     self.ohlc.tail(1).to_csv(f, header=False)
 #            print "appended new ohlc. tstp is now:" % str(self.ohlc.index[-1])
-            self.buffer = list()
+            
             self.last_trim = self.last_trim + self.moving_window_period
             print "cleaned buffer"
 #            print self.ohlc.shape
@@ -397,8 +390,10 @@ class HFTModel:
 
         print "Calculating strategy parameters..."
         start_time = time.time()
-#        self.__calculate_strategy_params()
-#        self.__print_elapsed_time(start_time)
+        time.sleep(20)
+        #spawn the middleware
+        #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
+        trader = Zscore()        
 
         print "Trading started."
         try:
