@@ -3,6 +3,7 @@
 """
 from models.hft_model import HFTModel
 import time
+
 if __name__ == "__main__":
     model = HFTModel(host='localhost',
                      port=4001,

@@ -255,7 +255,7 @@ class Zscore:
         # run algo calc based on object self values
         self.algo_calc()
 
-        #print status
+        #print statu
         self.print_status()
 
     def on_minute(self, new_mean, new_stdev, new_flag):

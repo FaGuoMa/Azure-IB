@@ -21,9 +21,9 @@ import logging
 import numpy as np
 import talib as ta
 
-if os.path.exists(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt")):
-    os.remove(os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"))
-logging.basicConfig(filename=os.path.normpath("/Users/maxime_back/Documents/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
+if os.path.exists(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt")):
+    os.remove(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"))
+logging.basicConfig(filename=os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 
 #this will need be checked
@@ -54,8 +54,8 @@ class HFTModel:
         self.order_id = 0
         self.lock = threading.Lock()
         #addition for hdf store
-        self.data_path = os.path.normpath("/Users/maxime_back/Documents/avocado/data.csv")
-        self.ohlc_path = os.path.normpath("/Users/maxime_back/Documents/avocado/ohlc.csv")
+        self.data_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/data.csv")
+        self.ohlc_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/ohlc.csv")
         self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
         #range/trend flag
         self.flag = None
