@@ -9,6 +9,7 @@ Author: Derek Wong
 #update v0.2 refactored into a class and takes bbo. use decimal package to prevent float errors
 
 import decimal
+import execution_handler
 
 FIVEPLACES = decimal.Decimal("0.00001")
 
@@ -49,6 +50,20 @@ class Zscore:
 
         self.hist_state = self.state
         self.hist_signal = self.signal
+
+        #initialize order handler
+        self.execution = ExecutionHandler()
+
+    def init_execution_handler(self, symbol, sec_type, exch, prim_exch, curr):
+        # initialize the execution handler for the given contract
+
+        #set contract parameters
+        self.contract = self.execution.create_contract(symbol, sec_type, exch, prim_exch, curr)
+
+        #create buy and sell orders
+        self.buy_order = self.execution.create_order(order_type = "MKT", quantity=1, action="BUY")
+        self.sell_order = self.execution.create_order(order_type = "MKT", quantity=1, action="SELL")
+
 
     def set_parameters(self, n_sma=30, n_stdev=30, z_threshold=2, z_close_thresh=0.2):
         # parameter initializations if we decide to calculate internally
@@ -255,7 +270,15 @@ class Zscore:
         # run algo calc based on object self values
         self.algo_calc()
 
-        #print statu
+        #check to see if signal changed
+        if self.signal != self.hist_signal:
+            if self.signal == "BOT":
+                self.execution.execute_order(self.contract, self.buy_order)
+            elif self.signal == "SLD":
+                self.execution.execute_order(self.contract, self.sell_order)
+
+
+        #print status
         self.print_status()
 
     def on_minute(self, new_mean, new_stdev, new_flag):
