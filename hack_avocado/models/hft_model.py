@@ -20,6 +20,7 @@ import os
 import logging
 import numpy as np
 import talib as ta
+from math import sqrt
 
 <<<<<<< HEAD
 if os.path.exists(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt")):
@@ -74,6 +75,10 @@ class HFTModel:
         self.last_trade = None
         self.last_bid = None
         self.last_ask = None
+        self.cur_mean = None
+        self.cur_sd = None
+        self.cur_zscore = None
+        self.trader = None
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
@@ -252,7 +257,10 @@ class HFTModel:
 #now to trim the serie every 60 second (logic in trims_serie)     
         if not self.lock.locked():
             self.__trim_data_series()
-            
+        #update Zscore spawn
+        if 'trader' in locals:
+            self.trader.on_tick(self.last_bid,self.last_ask)
+                
 
         # Post-bootstrap - make trading decisions
 #        if self.strategy_params.is_bootstrap_completed():
@@ -280,24 +288,24 @@ class HFTModel:
             new_ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))
 # very likely fuckery to be checked at the cutoff
             t_stmp1 = self.last_trim
-            logging.debug("tstp 1 ok")
+            
             t_stmp2 =t_stmp1 + self.moving_window_period
-            logging.debug("tstp 2 ok")
+            
             intm2 = self.prices.truncate(after=t_stmp2, before=t_stmp1)
             logging.debug("truncate  ok.Shape: %s", intm2.shape)
             new_ohlc.loc[t_stmp2, "open"] = float(intm2['price'].dropna().head(1))
-            logging.debug("open ok")
+            
             new_ohlc.loc[t_stmp2, "close"] = float(intm2['price'].dropna().tail(1))
-            logging.debug("close ok")
+            
             new_ohlc.loc[t_stmp2, "high"] = float(intm2['price'].max())
-            logging.debug("hi  ok")
+            
             new_ohlc.loc[t_stmp2, "low"] = float(intm2['price'].min())
-            logging.debug("lo ok")
+            
         
             new_ohlc.loc[t_stmp2, "volume"] = float(intm2['size'].sum())
-            logging.debug("vol ok")
+            
             new_ohlc.loc[t_stmp2, "count"] = float(intm2['size'].count())
-            logging.debug("cnt  ok")
+            
             return new_ohlc
         except Exception, e:
             print "fuck:", e
@@ -318,7 +326,28 @@ class HFTModel:
         ohlc["busy"] = np.where(ohlc.index.tz_convert("America/Chicago").hour >= 9,np.where(ohlc.index.tz_convert("America/Chicago").hour <= 14,1,0),0)
                 
         
-        
+    def __update_norm_params(self):
+        print " updating feeder params for zscore"
+        prices = self.prices["price"]
+        print " got prices"
+        prices = prices.dropna()
+        prices = prices[prices.index > prices.index[-1] - dt.timedelta(seconds=60)]
+        last_price = prices.iloc[-1]
+
+        self.cur_mean = np.mean(prices)
+        logging.debug("updated mean")
+        prices = prices.diff()
+        prices = prices.dropna()
+        prices = prices**2
+
+        tdiffs = list()
+        for i in range(1,len(prices)):
+            tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
+        prices = prices.ix[1:]
+        self.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
+        logging.debug("updated sd")
+        self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
+
 
 
     def __trim_data_series(self):
@@ -341,13 +370,18 @@ class HFTModel:
             
             self.last_trim = self.last_trim + self.moving_window_period
             print "cleaned buffer"
-#            print self.ohlc.shape
+#           #update parameters for the zscore
+            self.__update_norm_params()
+            #on minute method
+            self.trader.on_minute(self.cur_mean,self.cur_sd,self.flag)
+
             #store the cutoff (t - 3 moving windows to csv)
             if dt.datetime.now() > self.prices.index[-1] - 3*self.moving_window_period:
                 with open(self.data_path, 'a') as f:
                     self.prices[self.prices.index <= self.prices.index[-1] - 3*self.moving_window_period].to_csv(f, header=False)
              #store the cutoff (t - 3 moving windows to csv)
                 self.prices = self.prices.truncate(before=self.prices.index[-1] - 3*self.moving_window_period)
+                self.prices.to_pickle(os.path.join(os.path.curdir,"prices.pickl"))
         if dt.datetime.now() > self.last_ml_call:
             self.flag = self.ml.call_ml(self.ohlc)
             print self.flag
@@ -390,10 +424,17 @@ class HFTModel:
 
         print "Calculating strategy parameters..."
         start_time = time.time()
-        time.sleep(20)
+        time.sleep(100)
+        # test existence of parameters
+        print "mean"
+        print self.cur_mean
+        print "sd"
+        print self.cur_sd
+        print "zscore"
+        print self.cur_zscore
         #spawn the middleware
         #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
-        trader = Zscore()        
+        self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)        
 
         print "Trading started."
         try:

@@ -2,12 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fbe68d56-aaa7-4a2d-a429-b57c6004b00a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Azure-IB.iml" afterPath="$PROJECT_DIR$/.idea/Azure-IB.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hack_avocado/prices.pickl" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hack_avocado/data.csv" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hack_avocado/log.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hack_avocado/ohlc.csv" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/algos/CL1Comdty.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/algos/DataParser.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/algos/zscore.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/algos/zscore_rev.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/hack_avocado.zip" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/algos/ZscoreEventDriven.py" afterPath="$PROJECT_DIR$/algos/ZscoreEventDriven.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" afterPath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/main.py" afterPath="$PROJECT_DIR$/hack_avocado/main.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/models/hft_model.py" afterPath="$PROJECT_DIR$/hack_avocado/models/hft_model.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/log.txt" afterPath="$PROJECT_DIR$/log.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ohlc.csv" afterPath="$PROJECT_DIR$/ohlc.csv" />
     </list>
     <ignored path="Azure-IB.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,19 +37,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="DataParser.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-              <folding>
-                <element signature="e#79#98#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ZscoreEventDriven.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ZscoreEventDriven.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="5060">
@@ -50,7 +47,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/main.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="140">
@@ -65,10 +62,11 @@
       <file leaf-file-name="hft_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="156">
-              <caret line="25" column="100" selection-start-line="25" selection-start-column="100" selection-end-line="25" selection-end-column="100" />
+            <state relative-caret-position="420">
+              <caret line="27" column="100" selection-start-line="27" selection-start-column="100" selection-end-line="27" selection-end-column="100" />
               <folding>
                 <element signature="e#95#114#0" expanded="true" />
+                <marker date="1460465192014" expanded="true" signature="0:94" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
               </folding>
             </state>
           </provider>
@@ -88,7 +86,6 @@
         <option value="$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/ext/AnyWrapper.py" />
         <option value="$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/ext/EWrapper.py" />
         <option value="$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/opt/receiver.py" />
-        <option value="$PROJECT_DIR$/hack_avocado/main.py" />
         <option value="$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/ext/EClientSocket.py" />
         <option value="$PROJECT_DIR$/algos/ZscoreEventDriven.py" />
         <option value="$PROJECT_DIR$/../../../IbPy-master/setup.py" />
@@ -97,6 +94,7 @@
         <option value="$USER_HOME$/Anaconda2/Lib/site-packages/ib/ext/EWrapper.py" />
         <option value="$USER_HOME$/Anaconda2/Lib/site-packages/ib/opt/receiver.py" />
         <option value="$PROJECT_DIR$/hack_avocado/models/hft_model.py" />
+        <option value="$PROJECT_DIR$/hack_avocado/main.py" />
       </list>
     </option>
   </component>
@@ -505,25 +503,25 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19080338" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21307778" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-1837" y="205" width="1767" height="679" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5016911" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.30439684" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5016911" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -583,6 +581,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#95#114#0" expanded="true" />
+            <marker date="1460465192014" expanded="true" signature="0:94" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -590,16 +589,7 @@
     <entry file="file://$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/ext/EReader.py" />
     <entry file="file://$USER_HOME$/Anaconda3/envs/py27/Lib/threading.py" />
     <entry file="file://$USER_HOME$/Anaconda3/envs/py27/Lib/site-packages/ib/ext/EClientSocket.py" />
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5140">
@@ -624,20 +614,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#95#114#0" expanded="true" />
+            <marker date="1460465192014" expanded="true" signature="0:94" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -646,16 +628,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -664,16 +637,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="260">
@@ -682,40 +646,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/algos/zscore.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="800">
-          <caret line="41" column="45" selection-start-line="41" selection-start-column="45" selection-end-line="41" selection-end-column="45" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/algos/zscore.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
+    <entry file="file://$PROJECT_DIR$/algos/zscore.py" />
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
+    <entry file="file://$PROJECT_DIR$/algos/zscore.py" />
     <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -724,38 +658,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/zscore_rev.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/zscore_rev.py" />
     <entry file="file://$PROJECT_DIR$/algos/zscore v0.2.py" />
-    <entry file="file://$PROJECT_DIR$/algos/zscore_rev.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/algos/zscore.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="5" column="26" selection-start-line="5" selection-start-column="26" selection-end-line="5" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
-          <folding>
-            <element signature="e#79#98#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/zscore_rev.py" />
+    <entry file="file://$PROJECT_DIR$/algos/zscore.py" />
+    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$USER_HOME$/Anaconda3/envs/py27/Lib/decimal.py" />
     <entry file="file://$PROJECT_DIR$/hack_avocado/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
@@ -793,14 +700,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5060">
-          <caret line="253" column="0" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Anaconda2/Lib/site-packages/ib/opt/receiver.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="156">
@@ -831,10 +730,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="25" column="100" selection-start-line="25" selection-start-column="100" selection-end-line="25" selection-end-column="100" />
+        <state relative-caret-position="420">
+          <caret line="27" column="100" selection-start-line="27" selection-start-column="100" selection-end-line="27" selection-end-column="100" />
           <folding>
             <element signature="e#95#114#0" expanded="true" />
+            <marker date="1460465192014" expanded="true" signature="0:94" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -846,6 +746,14 @@
           <folding>
             <element signature="e#9#46#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algos/ZscoreEventDriven.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5060">
+          <caret line="253" column="0" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
