@@ -171,7 +171,7 @@ class HFTModel:
         
 
         elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
-            pass
+          
             self.__on_portfolio_update(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
