@@ -9,6 +9,7 @@ Author: Derek Wong
 #update v0.2 refactored into a class and takes bbo. use decimal package to prevent float errors
 
 import decimal
+import execution_handler
 
 FIVEPLACES = decimal.Decimal("0.00001")
 
@@ -49,6 +50,20 @@ class Zscore:
 
         self.hist_state = self.state
         self.hist_signal = self.signal
+
+        #initialize order handler
+        self.execution = ExecutionHandler()
+
+    def init_execution_handler(self, symbol, sec_type, exch, prim_exch, curr):
+        # initialize the execution handler for the given contract
+
+        #set contract parameters
+        self.contract = self.execution.create_contract(symbol, sec_type, exch, prim_exch, curr)
+
+        #create buy and sell orders
+        self.buy_order = self.execution.create_order(order_type = "MKT", quantity=1, action="BUY")
+        self.sell_order = self.execution.create_order(order_type = "MKT", quantity=1, action="SELL")
+
 
     def set_parameters(self, n_sma=30, n_stdev=30, z_threshold=2, z_close_thresh=0.2):
         # parameter initializations if we decide to calculate internally
@@ -183,10 +198,61 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
-        print "did something"
-        print self.state
-        print self.signal
-                
+
+    def stops_calc(self):
+        # calculate any stop trade conditions
+        if self.state == "FLAT":
+            pass
+
+        #stop distance is 1/2 of the zscore trigger threshold
+        stop_dist = self.z_threshold/2
+
+        # Long Trend Stop
+        if self.state == "LONG" and self.flag == "trend" \
+                and stop_dist >= self.zscore:
+
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "SLD"
+            self.state = "FLAT"
+
+        # Short Trend Stop
+        if self.state == "short" and self.flag == "trend" \
+                and -stop_dist <= self.zscore:
+
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "BOT"
+            self.state = "FLAT"
+
+        # Long range Stop
+        if self.state == "LONG" and self.flag == "range" \
+                and stop_dist+self.z_threshold <= self.zscore:
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "SLD"
+            self.state = "FLAT"
+
+        # Short range Stop
+        if self.state == "short" and self.flag == "trend" \
+                and -stop_dist-self.z_threshold >= self.zscore:
+            self.hist_state = self.state
+            self.hist_signal = self.signal
+
+            self.signal = "BOT"
+            self.state = "FLAT"
+
+    def print_status(self):
+        # print states and status
+        print "State:{state} Signal:{signal} Flag: {flag} Mid:{mid} Zscore:{zscore}".format(state=self.state,
+                                                                                            signal=self.signal,
+                                                                                            flag=self.flag,
+                                                                                            mid=self.mid_price,
+                                                                                            zscore=self.zscore)
+
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
 
@@ -196,8 +262,22 @@ class Zscore:
         # calculate the new z score for the given tick mid price
         self.calc_zscore(self.mid_price)
 
+        # calculate stops
+        self.stops_calc()
+
         # run algo calc based on object self values
         self.algo_calc()
+
+        #check to see if signal changed
+        if self.signal != self.hist_signal:
+            if self.signal == "BOT":
+                self.execution.execute_order(self.contract, self.buy_order)
+            elif self.signal == "SLD":
+                self.execution.execute_order(self.contract, self.sell_order)
+
+
+        #print status
+        self.print_status()
 
     def on_minute(self, new_mean, new_stdev, new_flag):
         # update the parameters every minute

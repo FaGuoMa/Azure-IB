@@ -403,7 +403,7 @@ class HFTModel:
         print "light's green"
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)
         #init the execution handler and specs
-        self.trader.init_execution_handler(symbol="CL", sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
+        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
 
         
 
@@ -443,10 +443,14 @@ class HFTModel:
         print self.cur_zscore
         #spawn the middleware
         #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
+
         print "zscore check coming"        
         
         self.thread = threading.Thread(target=self.spawn)
         self.thread.start()        
+
+        #init the execution handler and specs
+        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
 
         
         print "Trading started."
