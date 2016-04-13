@@ -22,6 +22,9 @@ import numpy as np
 import talib as ta
 from math import sqrt
 
+if os.path.exists(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt")):
+    os.remove(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"))
+logging.basicConfig(filename=os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
 logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
@@ -54,6 +57,8 @@ class HFTModel:
         self.order_id = 0
         self.lock = threading.Lock()
         #addition for hdf store
+        self.data_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/data.csv")
+        self.ohlc_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/ohlc.csv")
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
         self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
@@ -424,6 +429,9 @@ class HFTModel:
         #spawn the middleware
         #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)        
+
+        #init the execution handler and specs
+        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="SMART", prim_exch="SMART", curr="USD")
 
         print "Trading started."
         try:
