@@ -12,5 +12,5 @@ if __name__ == "__main__":
                      evaluation_time_secs=20,
                      resample_interval_secs='30s')
     model.start("CL", 100)
-    time.sleep(250)
+    time.sleep(1500)
     model.conn.disconnect()

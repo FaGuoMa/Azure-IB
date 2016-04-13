@@ -6,7 +6,6 @@ from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 import params.ib_data_types as DataType
 
-
 class IBUtil:
 
     def __init__(self):
@@ -30,13 +29,15 @@ class IBUtil:
 #        new_contract.m_right = contract_tuple[6]
         return new_contract
 
-#    def create_stock_order(self, quantity, is_buy, is_market_order=True):
-#        order = Order()
-#        order.m_totalQuantity = quantity
-#        order.m_orderType = \
-#            DataType.ORDER_TYPE_MARKET if is_market_order else \
-#            DataType.ORDER_TYPE_LIMIT
-#        order.m_action = \
-#            DataType.ORDER_ACTION_BUY if is_buy else \
-#            DataType.ORDER_ACTION_SELL
-#        return order
+    def create_stock_order(self, quantity, is_buy, is_market_order=True):
+        order = Order()
+        order.m_totalQuantity = quantity
+        order.m_orderType = \
+            DataType.ORDER_TYPE_MARKET if is_market_order else \
+            DataType.ORDER_TYPE_LIMIT
+        order.m_action = \
+            DataType.ORDER_ACTION_BUY if is_buy else \
+            DataType.ORDER_ACTION_SELL
+        return order
+    
+    

@@ -143,18 +143,20 @@ class HFTModel:
             pass
 
 
-#    def __on_portfolio_update(self, msg):
-#        for key, stock_data in self.stocks_data.iteritems():
-#            if stock_data.contract.m_symbol == msg.contract.m_symbol:
-#                stock_data.update_position(msg.position,
-#                                           msg.marketPrice,
-#                                           msg.marketValue,
+    def __on_portfolio_update(self, msg):
+        for key, stock_data in self.stocks_data.iteritems():
+            if stock_data.contract.m_symbol == msg.contract.m_symbol:
+                if dt.datetime.now() > self.last_trim + self.moving_window_period:
+                    stock_data.update_position(msg.position,
+                                               msg.marketPrice,
+                                               msg.marketValue)
+#                                           ,
 #                                           msg.averageCost,
 #                                           msg.unrealizedPNL,
 #                                           msg.realizedPNL,
 #                                           msg.accountName)
-#                return
-#
+                return
+
 #    def __calculate_pnls(self):
 #        upnl, rpnl = 0, 0
 #        for key, stock_data in self.stocks_data.iteritems():
@@ -170,7 +172,7 @@ class HFTModel:
 
         elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
             pass
-#            self.__on_portfolio_update(msg)
+            self.__on_portfolio_update(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
             pass
@@ -258,11 +260,6 @@ class HFTModel:
             self.trader.on_tick(self.last_bid,self.last_ask)
                 
 
-        # Post-bootstrap - make trading decisions
-#        if self.strategy_params.is_bootstrap_completed():
-#            self.__recalculate_strategy_parameters_at_interval()
-#            self.__perform_trade_logic()
-#            self.__update_charts()
 
     def __add_market_data(self, ticker_index, timestamp, value, col):
         if col == 1:
@@ -403,7 +400,7 @@ class HFTModel:
         print "light's green"
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)
         #init the execution handler and specs
-        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
+#        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
 
         
 
@@ -425,31 +422,19 @@ class HFTModel:
  
         start_time = time.time()
         self.__request_historical_data(self.conn)
-#maybe I can do without this dd lock (or maybe not, we shall see)
-#       self.__wait_for_download_completion()
-#        self.strategy_params.set_bootstrap_completed()
-#        self.ohlc.to_csv(self.ohlc_path)
+
         self.__print_elapsed_time(start_time)
 
         print "Calculating strategy parameters..."
         start_time = time.time()
         
-        # test existence of parameters
-        print "mean"
-        print self.cur_mean
-        print "sd"
-        print self.cur_sd
-        print "zscore"
-        print self.cur_zscore
-        #spawn the middleware
-        #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
-
+        
         print "zscore check coming"        
         
         self.thread = threading.Thread(target=self.spawn)
         self.thread.start()        
 
-        
+       
         
         print "Trading started."
         try:
