@@ -15,7 +15,7 @@ class ExecutionHandler(object):
     """
 
     def __init__(
-        self, order_routing="SMART", currency="USD"
+        self, order_routing="", currency="USD"
     ):
         # initialize
         self.order_routing = order_routing

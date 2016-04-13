@@ -431,7 +431,7 @@ class HFTModel:
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)        
 
         #init the execution handler and specs
-        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="SMART", prim_exch="SMART", curr="USD")
+        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
 
         print "Trading started."
         try:
