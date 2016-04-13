@@ -183,8 +183,10 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
+        print "did something"
         print self.state
         print self.signal
+                
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
 

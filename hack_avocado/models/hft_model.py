@@ -316,9 +316,9 @@ class HFTModel:
                 
         
     def __update_norm_params(self):
-        print " updating feeder params for zscore"
+#        print " updating feeder params for zscore"
         prices = self.prices["price"]
-        print " got prices"
+#        print " got prices"
         prices = prices.dropna()
         prices = prices[prices.index > prices.index[-1] - dt.timedelta(seconds=60)]
         last_price = prices.iloc[-1]
@@ -342,7 +342,7 @@ class HFTModel:
     def __trim_data_series(self):
 #        print 'check trim cycle tine considered: %s' % str(self.ohlc.index[-1])        
         if dt.datetime.now() > self.last_trim + self.moving_window_period:
-            print "time condition trim met again"
+#            print "time condition trim met again"
             intm = pd.DataFrame(self.buffer).set_index('time')
             self.buffer = list()            
             logging.debug("converted list")
@@ -413,7 +413,7 @@ class HFTModel:
 
         print "Calculating strategy parameters..."
         start_time = time.time()
-        time.sleep(100)
+        time.sleep(250)
         # test existence of parameters
         print "mean"
         print self.cur_mean
