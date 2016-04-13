@@ -253,8 +253,6 @@ class Zscore:
                                                                                             mid=self.mid_price,
                                                                                             zscore=self.zscore)
 
-
-
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
 
