@@ -5,6 +5,7 @@ Heavily inspiredfrom Jack Ma "high Frequency", although a lot of things have to 
 import pandas as pd
 from ib.opt import ibConnection, message as ib_message_type
 from ib.opt import Connection
+
 import datetime as dt
 import time
 from classes.ib_util import IBUtil
@@ -22,9 +23,6 @@ import numpy as np
 import talib as ta
 from math import sqrt
 
-if os.path.exists(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt")):
-    os.remove(os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"))
-logging.basicConfig(filename=os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/log.txt"),level=logging.DEBUG, format='%(asctime)s %(message)s')
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
 logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
@@ -56,9 +54,9 @@ class HFTModel:
         self.trade_qty = 0
         self.order_id = 0
         self.lock = threading.Lock()
+        self.traffic_light = threading.Event()
+        self.thread = None
         #addition for hdf store
-        self.data_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/data.csv")
-        self.ohlc_path = os.path.normpath("C:/Users/treyd_000/Desktop/Quantinsti/avocado/ohlc.csv")
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
         self.last_trim = dt.datetime(2021, 1, 1, 0, 0)
@@ -181,7 +179,8 @@ class HFTModel:
 
         elif msg.typeName == datatype.MSG_TYPE_NEXT_ORDER_ID:
             self.order_id = msg.orderId
-
+            
+       
         else:
             print msg
 
@@ -252,7 +251,10 @@ class HFTModel:
         if not self.lock.locked():
             self.__trim_data_series()
         #update Zscore spawn
-        if 'trader' in locals:
+        if self.cur_zscore is not None:
+            self.traffic_light.set()
+            
+        if self.trader is not None:
             self.trader.on_tick(self.last_bid,self.last_ask)
                 
 
@@ -394,6 +396,16 @@ class HFTModel:
         for i, symbol in enumerate(self.symbols):
             self.conn.cancelMktData(i)
             time.sleep(1)
+    
+    def spawn(self):
+        print "zscore thread spawned"        
+        self.traffic_light.wait()
+        print "light's green"
+        self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)
+        #init the execution handler and specs
+        self.trader.init_execution_handler(symbol="CL", sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
+
+        
 
     def start(self, symbols, trade_qty):
         print "HFT model started."
@@ -402,7 +414,10 @@ class HFTModel:
 #        self.trade_qty = trade_qty
 
         self.conn.connect()  # Get IB connection object
-        print "connection ok for now"
+#wasting  my time here
+#        print "time at IB"        
+#        print self.conn.reqCurrentTime()
+        
         self.__init_stocks_data(symbols)
         print "init stock"
         self.__request_streaming_data(self.conn)
@@ -418,7 +433,7 @@ class HFTModel:
 
         print "Calculating strategy parameters..."
         start_time = time.time()
-        time.sleep(250)
+        
         # test existence of parameters
         print "mean"
         print self.cur_mean
@@ -428,11 +443,12 @@ class HFTModel:
         print self.cur_zscore
         #spawn the middleware
         #__init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
-        self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)        
+        print "zscore check coming"        
+        
+        self.thread = threading.Thread(target=self.spawn)
+        self.thread.start()        
 
-        #init the execution handler and specs
-        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="SMART", prim_exch="SMART", curr="USD")
-
+        
         print "Trading started."
         try:
 #            self.__update_charts()
