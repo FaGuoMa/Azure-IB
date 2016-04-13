@@ -449,9 +449,7 @@ class HFTModel:
         self.thread = threading.Thread(target=self.spawn)
         self.thread.start()        
 
-        #init the execution handler and specs
-        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
-
+        
         
         print "Trading started."
         try:
