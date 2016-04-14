@@ -64,7 +64,15 @@ class Monit_stream:
             maxpoints=100         # plot a max of 100 pts on screen
             )
             )
-
+        self.ranging = Scatter(
+            x=[],  # init. data lists
+            y=[],
+            mode='markers',
+            line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
+              # reduce opacity
+            marker=Marker(size=2),  # increase marker size
+            stream=Stream(token=self.credentials[3])  # (!) link stream id to token
+            )
 # (@) Send fig to Plotly, initialize streaming plot, open tab
         self.stream1 = py.Stream(self.credentials[0])
 
@@ -72,22 +80,28 @@ class Monit_stream:
 #     with same stream id as the 2nd stream id object (in trace2)
         self.stream2 = py.Stream(self.credentials[1])
         self.stream3 = py.Stream(self.credentials[2])
+        self.stream4 = py.Stream(self.credentials[3])
 # data
-        self.data = Data([self.prices,self.limit_up,self.limit_dwn])
+        self.data = Data([self.prices,self.limit_up,self.limit_dwn,self.ranging])
 # Make figure object
-        self.fig = Figure(data=self.data)
-        self.unique_url = py.plot(self.fig, filename='Azure-IB Monitor', auto_open=FALSE)
+        self.layout = Layout(showlegend=False)
+        self.fig = Figure(data=self.data, layout=self.layout)
+        self.unique_url = py.plot(self.fig, filename='Azure-IB Monitor', auto_open=False)
 # (@) Open both streams
         self.stream1.open()
         self.stream2.open()
         self.stream3.open()
+        self.stream4.open()
         print "streams initaited"
         
-    def update_data_point(self,last_price,last_mean,last_sd):
+    def update_data_point(self,last_price,last_mean,last_sd,flag):
         now = dt.datetime.now()        
         self.stream1.write(dict(x=now, y=last_price))
         self.stream2.write(dict(x=now, y=last_mean+2*last_sd))
-        self.stream3.write(dict(x=now, y=last_mean-2*last_sd))        
+        self.stream3.write(dict(x=now, y=last_mean-2*last_sd))
+        #call form outside. Ugly, ik, ik...        
+        if flag is not "trend":
+            self.stream4.write(dict(x=now, y=last_price))
        
 
     def close_stream(self):

@@ -271,7 +271,7 @@ class HFTModel:
             self.buffer.append({'time':timestamp, "price": float(value)})
 #           #momitoring
             if self.monitor is not None:
-                self.monitor.update_data_point(float(value),self.cur_mean,self.cur_sd)
+                self.monitor.update_data_point(float(value),self.cur_mean,self.cur_sd, self.flag)
         elif col ==2:
             self.buffer.append({'time':timestamp, "size": float(value)})
         elif col ==3:
