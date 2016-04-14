@@ -44,14 +44,14 @@ class ExecutionHandler(object):
 
     def create_initial_order_id(self):
         return 1
-
-    def register_handlers(self):
-
-        # Assign the error handling function
-        self.tws_conn.register(self._error_handler, 'Error')
-
-        # Assign all of the server reply messages
-        self.tws_conn.registerAll(self._reply_handler)
+# not necessary, besides your using another connection
+#    def register_handlers(self):
+#
+#        # Assign the error handling function
+#        self.tws_conn.register(self._error_handler, 'Error')
+#
+#        # Assign all of the server reply messages
+#        self.tws_conn.registerAll(self._reply_handler)
 
     def create_contract(self, symbol, sec_type, exch, prim_exch, curr):
         """Create a Contract object defining what will

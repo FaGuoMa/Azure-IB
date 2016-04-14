@@ -13,7 +13,8 @@ from classes.stock_data import StockData
 #import our ML class call (btw, API key in clear = not smart)
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
-#from params.strategy_parameters import StrategyParameters
+#import monitor
+from classes.monitor_plotly import Monit_stream
 from algos.ZscoreEventDriven import Zscore
 import threading
 import sys
@@ -56,6 +57,7 @@ class HFTModel:
         self.lock = threading.Lock()
         self.traffic_light = threading.Event()
         self.thread = None
+        self.thread2 = None
         #addition for hdf store
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
@@ -71,11 +73,14 @@ class HFTModel:
         self.cur_sd = None
         self.cur_zscore = None
         self.trader = None
+        #import monitor
+        self.monitor = None
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
         self.__register_data_handlers(self.__on_tick_event,
                                       self.__event_handler)
+                              
 
 
     def __register_data_handlers(self,
@@ -264,7 +269,9 @@ class HFTModel:
     def __add_market_data(self, ticker_index, timestamp, value, col):
         if col == 1:
             self.buffer.append({'time':timestamp, "price": float(value)})
-#            
+#           #momitoring
+            if self.monitor is not None:
+                self.monitor.update_data_point(float(value),self.cur_mean,self.cur_sd)
         elif col ==2:
             self.buffer.append({'time':timestamp, "size": float(value)})
         elif col ==3:
@@ -401,8 +408,12 @@ class HFTModel:
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag)
         #init the execution handler and specs
 #        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
-
+    
+    def spawn_monitor(self):
+        print "monitor thread spawned"        
+        self.traffic_light.wait()
         
+        self.monitor = Monit_stream()
 
     def start(self, symbols, trade_qty):
         print "HFT model started."
@@ -432,11 +443,13 @@ class HFTModel:
         print "zscore check coming"        
         
         self.thread = threading.Thread(target=self.spawn)
-        self.thread.start()        
+        self.thread.start()
+        self.thread2 = threading.Thread(target=self.spawn_monitor)
+        self.thread2.start()        
 
        
         
-        print "Trading started."
+        
         try:
 #            self.__update_charts()
                 time.sleep(1)
@@ -448,7 +461,7 @@ class HFTModel:
             print "Exception:"
             print "Cancelling...",
             self.__cancel_market_data_request()
-
+            self.monitor.close_stream()
             print "Disconnecting..."
             self.conn.disconnect()
             time.sleep(1)
