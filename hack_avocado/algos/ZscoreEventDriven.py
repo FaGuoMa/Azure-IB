@@ -1,15 +1,15 @@
 """
 Z score trading algorithm logic
 
-updated: 2016-04-04
+updated: 2016-04-17
 
 Author: Derek Wong
 """
-#update v0.1 added trend logic. simulated flags in dataframe. accepted flags for algo logic switching
-#update v0.2 refactored into a class and takes bbo. use decimal package to prevent float errors
+# update v0.1 added trend logic. simulated flags in dataframe. accepted flags for algo logic switching
+# update v0.2 refactored into a class and takes bbo. use decimal package to prevent float errors
 
 import decimal
-#import execution_handler
+# import execution_handler
 
 FIVEPLACES = decimal.Decimal("0.00001")
 
@@ -44,23 +44,23 @@ class Zscore:
         self.hist_flag = self.flag
         self.hist_stdev = self.stdev
 
-        #initialize internal variables
+        # initialize internal variables
         self.state = "FLAT"
         self.signal = "NONE"
 
         self.hist_state = self.state
         self.hist_signal = self.signal
 
-        #initialize order handler
+        # initialize order handler
 #        self.execution = execution_handler.ExecutionHandler()
 
 #    def init_execution_handler(self, symbol, sec_type, exch, prim_exch, curr):
 #        # initialize the execution handler for the given contract
 #
-#        #set contract parameters
+#        # set contract parameters
 #        self.contract = self.execution.create_contract(symbol, sec_type, exch, prim_exch, curr)
 #
-#        #create buy and sell orders
+#        # create buy and sell orders
 #        self.buy_order = self.execution.create_order(order_type = "MKT", quantity=1, action="BUY")
 #        self.sell_order = self.execution.create_order(order_type = "MKT", quantity=1, action="SELL")
 
@@ -118,6 +118,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "LONG"
+            model.ib_utils.create_stock_order(1, True, True)
+            print "buy order sent"
 
         # Enter Short Position Signal in trend flag
         elif self.zscore < -self.z_threshold and \
@@ -130,6 +132,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "SHORT"
+            model.ib_utils.create_stock_order(1, False, True)
+            print "sell order sent"
 
         # Close Long position in trend flag
         elif self.hist_state == "LONG" and \
@@ -141,6 +145,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, False, True)
+            print "sell order sent"
 
         # Close Short Position in trend flag
         elif self.hist_state == "SHORT" and \
@@ -152,6 +158,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, True, True)
+            print "buy order sent"
 
         # Enter Long Position Signal in range flag
         elif self.zscore < -self.z_threshold and \
@@ -164,6 +172,8 @@ class Zscore:
 
                 self.signal = "BOT"
                 self.state = "LONG"
+                model.ib_utils.create_stock_order(1, True, True)
+                print "buy order sent"
 
         # Enter Short Position Signal in range flag
         elif self.zscore > self.z_threshold and \
@@ -176,6 +186,8 @@ class Zscore:
 
                 self.signal = "SLD"
                 self.state = "SHORT"
+                model.ib_utils.create_stock_order(1, False, True)
+                print "sell order sent"
 
         # Close Long position in range flag
         elif self.hist_state == "LONG" and \
@@ -187,6 +199,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, False, True)
+            print "sell order sent"
 
         # Close Short Position in range flag
         elif self.hist_state == "SHORT" and \
@@ -198,6 +212,9 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
+
+            model.ib_utils.create_stock_order(1, True, True)
+            print "buy order sent"
 
     def stops_calc(self):
         # calculate any stop trade conditions
@@ -216,6 +233,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, False, True)
+            print "sell order sent"
 
         # Short Trend Stop
         if self.state == "short" and self.flag == "trend" \
@@ -226,6 +245,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, True, True)
+            print "buy order sent"
 
         # Long range Stop
         if self.state == "LONG" and self.flag == "range" \
@@ -235,6 +256,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, False, True)
+            print "sell order sent"
 
         # Short range Stop
         if self.state == "short" and self.flag == "trend" \
@@ -244,6 +267,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
+            model.ib_utils.create_stock_order(1, True, True)
+            print "buy order sent"
 
     def print_status(self):
         # print states and status
@@ -268,18 +293,6 @@ class Zscore:
         # run algo calc based on object self values
         self.algo_calc()
 
-        #check to see if signal changed
-        if self.signal != self.hist_signal:
-            if self.signal == "BOT":
-#usingthe ibutils thingie for a raw test
-#            create_stock_order(self, quantity, is_buy, is_market_order=True)
-                model.ib_utils.create_stock_order(1,True,True)
-                print "bought shit"
-            elif self.signal == "SLD":
-                model.ib_utils.create_stock_order(1,False,True)
-                print "sold shit"
-
-
         #print status
         self.print_status()
 
@@ -288,7 +301,7 @@ class Zscore:
 
         self.update_mean_stdev(new_mean=new_mean, new_stdev=new_stdev)
         self.update_flag(new_flag=new_flag)
-        self.print_status
+        self.print_status()
 
 
 
