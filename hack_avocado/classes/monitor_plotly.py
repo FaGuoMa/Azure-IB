@@ -40,18 +40,19 @@ class Monit_stream:
             mode='lines+markers',    # markers at pendulum's nodes, lines in-bt.
               # reduce opacity
             marker=Marker(size=1),  # increase marker size
-            stream=Stream(token=self.credentials[0])  # (!) link stream id to token
+            stream=Stream(token=self.credentials[0]),
+            maxpoints=1000  # (!) link stream id to token
             )
 
 # Set limits and mean, but later
         self.limit_up = Scatter(
             x=[],  # init. data lists
             y=[],
-            mode='lines+markers',                             # path drawn as line
+            mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[1],  # (!) link streamid to token
-            maxpoints=100         # plot a max of 100 pts on screen
+            token=self.credentials[1],
+            maxpoints=1000         # plot a max of 100 pts on screen
             )
             )
         self.limit_dwn = Scatter(
@@ -60,8 +61,8 @@ class Monit_stream:
             mode='lines+markers',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[2],  # (!) link streamid to token
-            maxpoints=100         # plot a max of 100 pts on screen
+            token=self.credentials[2],
+            maxpoints=1000         # plot a max of 100 pts on screen
             )
             )
         self.ranging = Scatter(
@@ -71,7 +72,8 @@ class Monit_stream:
             line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
               # reduce opacity
             marker=Marker(size=5),  # increase marker size
-            stream=Stream(token=self.credentials[3])  # (!) link stream id to token
+            stream=Stream(token=self.credentials[3]),
+            maxpoints=1000  # (!) link stream id to token
             )
 # (@) Send fig to Plotly, initialize streaming plot, open tab
         self.stream1 = py.Stream(self.credentials[0])
@@ -99,8 +101,8 @@ class Monit_stream:
         self.stream1.write(dict(x=now, y=last_price))
         self.stream2.write(dict(x=now, y=last_mean+2*last_sd))
         self.stream3.write(dict(x=now, y=last_mean-2*last_sd))
-        #call form outside. Ugly, ik, ik...        
-        if flag is not "trend":
+
+        if flag == "range":
             self.stream4.write(dict(x=now, y=last_price))
        
 
@@ -108,6 +110,7 @@ class Monit_stream:
         self.stream1.close()
         self.stream2.close()
         self.stream3.close()
+        self.stream4.close()
         # (@) Write 1 point corresponding to 1 pt of path,
         #     appending the data on the plot
 
