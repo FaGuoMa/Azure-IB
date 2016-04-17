@@ -451,7 +451,7 @@ class HFTModel:
         
         
         try:
-#            self.__update_charts()
+
                 time.sleep(1)
                 print "end of the start cycle"
         
@@ -468,6 +468,13 @@ class HFTModel:
         
 
             print "Disconnected."
-        
+
+    def stop(self):
+        os.remove(os.path.normpath(os.path.join(os.path.curdir,"data.csv")))
+        os.remove(os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv")))
+        self.__cancel_market_data_request()
+        self.monitor.close_stream()
+        print "Disconnecting..."
+        self.conn.disconnect()
         
 #        self.store.close()
