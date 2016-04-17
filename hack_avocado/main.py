@@ -5,6 +5,7 @@ import datetime as dt
 import pytz
 from models.hft_model import HFTModel
 import time
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 def next_market_open():
     now = dt.datetime.now()
@@ -36,8 +37,7 @@ def next_market_close():
     next_close = next_close.astimezone(pytz.timezone('Singapore'))
     return next_close
 
-
-if __name__ == "__main__":
+def spawn_model():
     model = HFTModel(host='localhost',
                      port=4001,
                      client_id=101,
@@ -45,5 +45,21 @@ if __name__ == "__main__":
                      evaluation_time_secs=20,
                      resample_interval_secs='30s')
     model.start("CL", 100)
-    time.sleep(1800)
-    model.conn.disconnect()
+
+#very, very dirty
+def stop_and_go():
+    model.stop()
+    scheduler.shutdown()
+    scheduler.add_job(spawn_model, 'date', run_date=next_market_open())
+    scheduler.add_job(stop_and_go, 'date', run_date=next_market_close())
+    scheduler.start()
+    
+    
+
+if __name__ == "__main__":
+    scheduler = BlockingScheduler()
+    scheduler.add_job(spawn_model, 'date', run_date=next_market_open())
+    scheduler.add_job(stop_and_go, 'date', run_date=next_market_close())
+    scheduler.start()
+#to keep in mind    
+    #scheduler.shutdown()
