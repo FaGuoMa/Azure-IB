@@ -9,6 +9,7 @@ Author: Derek Wong
 # update v0.2 refactored into a class and takes bbo. use decimal package to prevent float errors
 
 import decimal
+from classes.ib_util import IBUtil
 # import execution_handler
 
 FIVEPLACES = decimal.Decimal("0.00001")
@@ -24,7 +25,7 @@ class Zscore:
         init_state = initial state ("FLAT", "LONG", "SHORT")
         init_flag = initial flag ("trend", "range")
     """
-    def __init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag):
+    def __init__(self, init_bid, init_ask, init_zscore, init_mean, init_stdev, init_state, init_flag, ib_conn):
         self.bid = decimal.Decimal(init_bid).quantize(FIVEPLACES)
         self.ask = decimal.Decimal(init_ask).quantize(FIVEPLACES)
         self.zscore = decimal.Decimal(init_zscore).quantize(FIVEPLACES)
@@ -51,6 +52,16 @@ class Zscore:
         self.hist_state = self.state
         self.hist_signal = self.signal
 
+        self.set_parameters()
+
+        self.ib_conn = ib_conn
+        #IB util order contract bullshit
+        self.ib_util = IBUtil()
+        self.buy_order = self.ib_util.create_stock_order(1, True, True)
+        self.sell_order = self.ib_util.create_stock_order(1, False, True)
+        ##hackish
+        self.ib_contract = self.ib_util.create_stock_contract("CL")
+        self.order_id = 1
         # initialize order handler
 #        self.execution = execution_handler.ExecutionHandler()
 
@@ -118,7 +129,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "LONG"
-            model.ib_utils.create_stock_order(1, True, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            self.order_id += 1
             print "buy order sent"
 
         # Enter Short Position Signal in trend flag
@@ -132,7 +144,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "SHORT"
-            model.ib_utils.create_stock_order(1, False, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            self.order_id += 1
             print "sell order sent"
 
         # Close Long position in trend flag
@@ -145,7 +158,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, False, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            self.order_id += 1
             print "sell order sent"
 
         # Close Short Position in trend flag
@@ -158,7 +172,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, True, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            self.order_id += 1
             print "buy order sent"
 
         # Enter Long Position Signal in range flag
@@ -172,7 +187,8 @@ class Zscore:
 
                 self.signal = "BOT"
                 self.state = "LONG"
-                model.ib_utils.create_stock_order(1, True, True)
+                self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+                self.order_id += 1
                 print "buy order sent"
 
         # Enter Short Position Signal in range flag
@@ -186,7 +202,8 @@ class Zscore:
 
                 self.signal = "SLD"
                 self.state = "SHORT"
-                model.ib_utils.create_stock_order(1, False, True)
+                self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+                self.order_id += 1
                 print "sell order sent"
 
         # Close Long position in range flag
@@ -199,7 +216,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, False, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            self.order_id += 1
             print "sell order sent"
 
         # Close Short Position in range flag
@@ -212,8 +230,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
-
-            model.ib_utils.create_stock_order(1, True, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            self.order_id += 1
             print "buy order sent"
 
     def stops_calc(self):
@@ -233,7 +251,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, False, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            self.order_id += 1
             print "sell order sent"
 
         # Short Trend Stop
@@ -245,7 +264,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, True, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            self.order_id += 1
             print "buy order sent"
 
         # Long range Stop
@@ -256,7 +276,8 @@ class Zscore:
 
             self.signal = "SLD"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, False, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            self.order_id += 1
             print "sell order sent"
 
         # Short range Stop
@@ -267,7 +288,8 @@ class Zscore:
 
             self.signal = "BOT"
             self.state = "FLAT"
-            model.ib_utils.create_stock_order(1, True, True)
+            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            self.order_id += 1
             print "buy order sent"
 
     def print_status(self):

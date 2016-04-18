@@ -1,0 +1,8 @@
+2016-04-18 21:59:52,914 started requests
+2016-04-18 22:01:00,213 converted list
+2016-04-18 22:01:00,221 appended new prices
+2016-04-18 22:01:00,223 truncate  ok.Shape: (690, 6)
+2016-04-18 22:01:00,234 updated mean
+2016-04-18 22:01:00,239 updated sd
+2016-04-18 22:01:00,563 Starting new HTTPS connection (1): plot.ly
+2016-04-18 22:01:02,861 "POST /clientresp HTTP/1.1" 200 148

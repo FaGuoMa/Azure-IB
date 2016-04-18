@@ -20,13 +20,13 @@ class IBUtil:
     def __make_ib_contract(contract_tuple):
         new_contract = Contract()
         new_contract.m_symbol = contract_tuple[0]
-#        new_contract.m_localSymbol = "CLN6" 
+#       new_contract.m_localSymbol = "CLN6"
         new_contract.m_secType = contract_tuple[1]
         new_contract.m_exchange = contract_tuple[2]
         new_contract.m_currency = contract_tuple[3]
         new_contract.m_expiry = contract_tuple[4]
-#        new_contract.m_strike = contract_tuple[5]
-#        new_contract.m_right = contract_tuple[6]
+#       new_contract.m_strike = contract_tuple[5]
+#       new_contract.m_right = contract_tuple[6]
         return new_contract
 
     def create_stock_order(self, quantity, is_buy, is_market_order=True):

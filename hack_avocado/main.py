@@ -58,8 +58,10 @@ def stop_and_go():
 
 if __name__ == "__main__":
     scheduler = BlockingScheduler()
-    scheduler.add_job(spawn_model, 'date', run_date=next_market_open())
-    scheduler.add_job(stop_and_go, 'date', run_date=next_market_close())
-    scheduler.start()
+    # scheduler.add_job(spawn_model, 'date', run_date=next_market_open())
+    spawn_model()
+    # scheduler.add_job(stop_and_go, 'date', run_date=next_market_close())
+    # scheduler.start()
+
 #to keep in mind    
     #scheduler.shutdown()
