@@ -302,7 +302,7 @@ class Zscore:
 
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
-
+        print "on_tick call"
         # take current bid ask and calculate mid price
         self.calc_mid_price(bid=decimal.Decimal(cur_bid), ask=decimal.Decimal(cur_ask))
 
@@ -320,6 +320,7 @@ class Zscore:
 
     def on_minute(self, new_mean, new_stdev, new_flag):
         # update the parameters every minute
+        print "on_minute call"
 
         self.update_mean_stdev(new_mean=new_mean, new_stdev=new_stdev)
         self.update_flag(new_flag=new_flag)

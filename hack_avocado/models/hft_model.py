@@ -260,9 +260,11 @@ class HFTModel:
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_size, 6)
 #now to trim the serie every 60 second (logic in trims_serie)     
         if not self.lock.locked():
+            # print"lock locked call trim data"
             self.__trim_data_series()
         #update Zscore spawn
         if self.cur_zscore is not None:
+            # print "update zscore traffic light"
             self.traffic_light.set()
             
         if self.trader is not None:
@@ -341,6 +343,7 @@ class HFTModel:
 
         self.cur_mean = np.mean(prices)
         logging.debug("updated mean")
+        print last_price
         prices = prices.diff()
         prices = prices.dropna()
         prices = prices**2
@@ -352,13 +355,15 @@ class HFTModel:
         self.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
         logging.debug("updated sd")
         self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-
+        print(self.cur_zscore)
 
 
     def __trim_data_series(self):
-#        print 'check trim cycle tine considered: %s' % str(self.ohlc.index[-1])        
+#        print 'check trim cycle time considered: %s' % str(self.ohlc.index[-1])
+#        print "datetime now %s" % str(dt.datetime.now(self.tz))
+#        print "last trim + moving window %s" % str(self.last_trim + self.moving_window_period)
         if dt.datetime.now(self.tz) > self.last_trim + self.moving_window_period:
-#            print "time condition trim met again"
+            print "time condition trim met again"
             intm = pd.DataFrame(self.buffer).set_index('time')
             self.buffer = list()            
             logging.debug("converted list")
@@ -379,6 +384,7 @@ class HFTModel:
             self.__update_norm_params()
             #on minute method
             if self.trader is not None:
+                print "call on minute"
                 self.trader.on_minute(self.cur_mean,self.cur_sd,self.flag)
 
             #store the cutoff (t - 3 moving windows to csv)
@@ -448,17 +454,17 @@ class HFTModel:
         
         print "zscore check coming"        
         
-        self.thread = threading.Thread(target=self.spawn)
+        self.thread = threading.Thread(target=self.spawn())
         self.thread.start()
         self.thread2 = threading.Thread(target=self.spawn_monitor)
-        self.thread2.start()        
+        self.thread2.start()
 
        
         
         
         try:
-
-                time.sleep(1)
+                print "will stop in 20"
+                time.sleep(300)
                 print "end of the start cycle"
         
                 
@@ -484,3 +490,7 @@ class HFTModel:
         self.conn.disconnect()
         
 #        self.store.close()
+
+    def spawn_test(self):
+        self.traffic_light.wait()
+        print "fuck spawns"
