@@ -114,7 +114,10 @@ class Zscore:
         self.flag = new_flag
 
     def calc_zscore(self, mid_price):
-        new_zscore = (mid_price - decimal.Decimal(self.mean)) / decimal.Decimal(self.stdev)
+        if self.stdev == 0:
+            new_zscore = self.zscore
+        else:
+            new_zscore = (mid_price - decimal.Decimal(self.mean)) / decimal.Decimal(self.stdev)
         self.zscore = new_zscore
 
     def algo_calc(self):
