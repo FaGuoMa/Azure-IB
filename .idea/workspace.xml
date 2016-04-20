@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fbe68d56-aaa7-4a2d-a429-b57c6004b00a" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/hack_avocado/log.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/hack_avocado/prices.pickl" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/log.txt" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/prices.pickl" afterPath="$PROJECT_DIR$/hack_avocado/prices.pickl" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" afterPath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/data.csv" afterPath="$PROJECT_DIR$/hack_avocado/data.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/log.txt" afterPath="$PROJECT_DIR$/hack_avocado/log.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/models/hft_model.py" afterPath="$PROJECT_DIR$/hack_avocado/models/hft_model.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/ohlc.csv" afterPath="$PROJECT_DIR$/hack_avocado/ohlc.csv" />
     </list>
@@ -55,7 +54,7 @@
       <file leaf-file-name="ib_util.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/classes/ib_util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="634">
+            <state relative-caret-position="380">
               <caret line="37" column="26" selection-start-line="37" selection-start-column="26" selection-end-line="37" selection-end-column="26" />
               <folding>
                 <element signature="e#63#99#0" expanded="true" />
@@ -67,8 +66,8 @@
       <file leaf-file-name="ZscoreEventDriven.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2014">
-              <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
+            <state relative-caret-position="420">
+              <caret line="87" column="73" selection-start-line="87" selection-start-column="73" selection-end-line="87" selection-end-column="73" />
               <folding>
                 <element signature="e#282#296#0" expanded="true" />
               </folding>
@@ -76,21 +75,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="hft_model.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="hft_model.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="445">
-              <caret line="480" column="0" selection-start-line="480" selection-start-column="0" selection-end-line="480" selection-end-column="0" />
+            <state relative-caret-position="395">
+              <caret line="165" column="50" selection-start-line="165" selection-start-column="50" selection-end-line="165" selection-end-column="50" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="log.txt" pinned="false" current-in-tab="false">
+      <file leaf-file-name="log.txt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/hack_avocado/log.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="22" column="34" selection-start-line="22" selection-start-column="34" selection-end-line="22" selection-end-column="34" />
+            <state relative-caret-position="16760">
+              <caret line="838" column="0" selection-start-line="838" selection-start-column="0" selection-end-line="838" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -99,8 +98,18 @@
       <file leaf-file-name="data.csv" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/data.csv">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="1968" column="0" selection-start-line="1968" selection-start-column="0" selection-end-line="1968" selection-end-column="0" />
+            <state relative-caret-position="2036360">
+              <caret line="162562" column="0" selection-start-line="162562" selection-start-column="0" selection-end-line="162562" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="blotter.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/hack_avocado/classes/blotter.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="840">
+              <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="55" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -139,10 +148,10 @@
         <option value="$PROJECT_DIR$/hack_avocado/classes/monitor_plotly.py" />
         <option value="$PROJECT_DIR$/hack_avocado/classes/ib_util.py" />
         <option value="$PROJECT_DIR$/hack_avocado/algos/execution_handler.py" />
-        <option value="$PROJECT_DIR$/hack_avocado/log.txt" />
-        <option value="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
         <option value="$PROJECT_DIR$/hack_avocado/main.py" />
+        <option value="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
         <option value="$PROJECT_DIR$/hack_avocado/models/hft_model.py" />
+        <option value="$PROJECT_DIR$/hack_avocado/log.txt" />
       </list>
     </option>
   </component>
@@ -577,7 +586,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19080338" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -585,7 +594,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21195039" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-1837" y="205" width="1767" height="679" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32807216" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="WINDOWED" visible="true" show_stripe_button="true" weight="1.0" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" x="440" y="-38" width="1040" height="1083" />
+      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="true" show_stripe_button="true" weight="1.0" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" x="532" y="172" width="940" height="678" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -615,13 +624,6 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="python-line">
-          <url>file://$PROJECT_DIR$/hack_avocado/models/hft_model.py</url>
-          <line>356</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
       <option name="time" value="3" />
     </breakpoint-manager>
     <watches-manager />
@@ -777,18 +779,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hack_avocado/classes/blotter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1100">
-          <caret line="55" column="26" selection-start-line="55" selection-start-column="26" selection-end-line="55" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/data.csv">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1968" column="0" selection-start-line="1968" selection-start-column="0" selection-end-line="1968" selection-end-column="0" />
+        <state relative-caret-position="2036360">
+          <caret line="162562" column="0" selection-start-line="162562" selection-start-column="0" selection-end-line="162562" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -809,20 +803,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hack_avocado/classes/ib_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="634">
-          <caret line="37" column="26" selection-start-line="37" selection-start-column="26" selection-end-line="37" selection-end-column="26" />
-          <folding>
-            <element signature="e#63#99#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/algos/execution_handler.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="154">
           <caret line="94" column="44" selection-start-line="94" selection-start-column="44" selection-end-line="94" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hack_avocado/classes/blotter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="840">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="55" selection-end-column="26" />
           <folding />
         </state>
       </provider>
@@ -837,28 +829,38 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/hack_avocado/classes/ib_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="380">
+          <caret line="37" column="26" selection-start-line="37" selection-start-column="26" selection-end-line="37" selection-end-column="26" />
+          <folding>
+            <element signature="e#63#99#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2014">
-          <caret line="201" column="0" selection-start-line="201" selection-start-column="0" selection-end-line="201" selection-end-column="0" />
+        <state relative-caret-position="420">
+          <caret line="87" column="73" selection-start-line="87" selection-start-column="73" selection-end-line="87" selection-end-column="73" />
           <folding>
             <element signature="e#282#296#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hack_avocado/log.txt">
+    <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="22" column="34" selection-start-line="22" selection-start-column="34" selection-end-line="22" selection-end-column="34" />
+        <state relative-caret-position="395">
+          <caret line="165" column="50" selection-start-line="165" selection-start-column="50" selection-end-line="165" selection-end-column="50" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
+    <entry file="file://$PROJECT_DIR$/hack_avocado/log.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="480" column="0" selection-start-line="480" selection-start-column="0" selection-end-line="480" selection-end-column="0" />
+        <state relative-caret-position="16760">
+          <caret line="838" column="0" selection-start-line="838" selection-start-column="0" selection-end-line="838" selection-end-column="0" />
           <folding />
         </state>
       </provider>

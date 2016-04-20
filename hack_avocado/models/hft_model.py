@@ -463,8 +463,7 @@ class HFTModel:
         
         
         try:
-                print "will stop in 20"
-                time.sleep(300)
+                time.sleep(10000)
                 print "end of the start cycle"
         
                 
@@ -473,7 +472,7 @@ class HFTModel:
             print "Exception:"
             print "Cancelling...",
             self.__cancel_market_data_request()
-            self.monitor.close_stream()
+            # self.monitor.close_stream()
             print "Disconnecting..."
             self.conn.disconnect()
             time.sleep(1)
@@ -485,7 +484,7 @@ class HFTModel:
         os.remove(os.path.normpath(os.path.join(os.path.curdir,"data.csv")))
         os.remove(os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv")))
         self.__cancel_market_data_request()
-        self.monitor.close_stream()
+        #self.monitor.close_stream()
         print "Disconnecting..."
         self.conn.disconnect()
         

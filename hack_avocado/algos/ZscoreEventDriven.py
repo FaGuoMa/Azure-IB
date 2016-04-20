@@ -61,7 +61,7 @@ class Zscore:
         self.sell_order = self.ib_util.create_stock_order(1, False, True)
         ##hackish
         self.ib_contract = self.ib_util.create_stock_contract("CL")
-        self.order_id = 1
+        self.order_id = 42
         # initialize order handler
 #        self.execution = execution_handler.ExecutionHandler()
 
