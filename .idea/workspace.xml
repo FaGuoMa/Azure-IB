@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fbe68d56-aaa7-4a2d-a429-b57c6004b00a" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/hack_avocado/plotly.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/prices.pickl" afterPath="$PROJECT_DIR$/hack_avocado/prices.pickl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" afterPath="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/data.csv" afterPath="$PROJECT_DIR$/hack_avocado/data.csv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hack_avocado/log.txt" afterPath="$PROJECT_DIR$/hack_avocado/log.txt" />
@@ -64,11 +66,21 @@
       <file leaf-file-name="ZscoreEventDriven.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="117" column="36" selection-start-line="117" selection-start-column="36" selection-end-line="117" selection-end-column="36" />
+            <state relative-caret-position="584">
+              <caret line="307" column="23" selection-start-line="307" selection-start-column="23" selection-end-line="307" selection-end-column="23" />
               <folding>
                 <element signature="e#282#296#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plotly.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/hack_avocado/plotly.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -83,11 +95,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="log.txt" pinned="false" current-in-tab="true">
+      <file leaf-file-name="log.txt" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/hack_avocado/log.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1084">
-              <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+            <state relative-caret-position="460">
+              <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -97,7 +109,7 @@
         <entry file="file://$PROJECT_DIR$/hack_avocado/data.csv">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="2036360">
-              <caret line="165251" column="0" selection-start-line="165251" selection-start-column="0" selection-end-line="165251" selection-end-column="0" />
+              <caret line="171912" column="0" selection-start-line="171912" selection-start-column="0" selection-end-line="171912" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -148,9 +160,10 @@
         <option value="$PROJECT_DIR$/hack_avocado/algos/execution_handler.py" />
         <option value="$PROJECT_DIR$/hack_avocado/main.py" />
         <option value="$PROJECT_DIR$/hack_avocado/models/hft_model.py" />
-        <option value="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
         <option value="$PROJECT_DIR$/hack_avocado/data.csv" />
         <option value="$PROJECT_DIR$/hack_avocado/log.txt" />
+        <option value="$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py" />
+        <option value="$PROJECT_DIR$/hack_avocado/plotly.txt" />
       </list>
     </option>
   </component>
@@ -584,7 +597,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19080338" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -593,7 +606,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21195039" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="-1837" y="205" width="1767" height="679" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32807216" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16910936" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" x="532" y="172" width="940" height="678" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16910936" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" x="532" y="172" width="940" height="678" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -628,7 +641,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/algos/DataParser.py" />
     <entry file="file://$PROJECT_DIR$/algos/zscore.py" />
     <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -830,16 +842,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="117" column="36" selection-start-line="117" selection-start-column="36" selection-end-line="117" selection-end-column="36" />
-          <folding>
-            <element signature="e#282#296#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/models/hft_model.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="395">
@@ -851,15 +853,33 @@
     <entry file="file://$PROJECT_DIR$/hack_avocado/data.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2036360">
-          <caret line="165251" column="0" selection-start-line="165251" selection-start-column="0" selection-end-line="165251" selection-end-column="0" />
+          <caret line="171912" column="0" selection-start-line="171912" selection-start-column="0" selection-end-line="171912" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hack_avocado/log.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1084">
-          <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+        <state relative-caret-position="460">
+          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hack_avocado/algos/ZscoreEventDriven.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="584">
+          <caret line="307" column="23" selection-start-line="307" selection-start-column="23" selection-end-line="307" selection-end-column="23" />
+          <folding>
+            <element signature="e#282#296#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hack_avocado/plotly.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>

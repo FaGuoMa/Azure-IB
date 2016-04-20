@@ -1,0 +1,1 @@
+python -c "import plotly; plotly.tools.set_credentials_file(username='max_f', api_key='2s25lnrsop')"

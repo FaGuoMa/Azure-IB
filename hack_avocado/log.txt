@@ -1,63 +1,23 @@
-2016-04-20 20:20:08,450 started requests
-2016-04-20 20:22:00,641 converted list
-2016-04-20 20:22:00,654 appended new prices
-2016-04-20 20:22:00,657 truncate  ok.Shape: (291, 6)
-2016-04-20 20:22:00,678 updated mean
-2016-04-20 20:22:00,683 updated sd
-2016-04-20 20:22:01,232 Starting new HTTPS connection (1): plot.ly
-2016-04-20 20:22:03,154 "POST /clientresp HTTP/1.1" 200 148
-2016-04-20 20:23:00,388 converted list
-2016-04-20 20:23:00,391 appended new prices
-2016-04-20 20:23:00,394 truncate  ok.Shape: (239, 6)
-2016-04-20 20:23:00,415 updated mean
-2016-04-20 20:23:00,417 updated sd
-2016-04-20 20:24:01,436 converted list
-2016-04-20 20:24:01,438 appended new prices
-2016-04-20 20:24:01,441 truncate  ok.Shape: (239, 6)
-2016-04-20 20:24:01,463 updated mean
-2016-04-20 20:24:01,466 updated sd
-2016-04-20 20:25:00,246 converted list
-2016-04-20 20:25:00,250 appended new prices
-2016-04-20 20:25:00,253 truncate  ok.Shape: (280, 6)
-2016-04-20 20:25:00,273 updated mean
-2016-04-20 20:25:00,276 updated sd
-2016-04-20 20:26:00,016 converted list
-2016-04-20 20:26:00,019 appended new prices
-2016-04-20 20:26:00,022 truncate  ok.Shape: (338, 6)
-2016-04-20 20:26:00,042 updated mean
-2016-04-20 20:26:00,046 updated sd
-2016-04-20 20:27:00,681 converted list
-2016-04-20 20:27:00,684 appended new prices
-2016-04-20 20:27:00,693 truncate  ok.Shape: (192, 6)
-2016-04-20 20:27:00,713 updated mean
-2016-04-20 20:27:00,714 updated sd
-2016-04-20 20:28:00,377 converted list
-2016-04-20 20:28:00,380 appended new prices
-2016-04-20 20:28:00,382 truncate  ok.Shape: (327, 6)
-2016-04-20 20:28:00,403 updated mean
-2016-04-20 20:28:00,407 updated sd
-2016-04-20 20:29:00,348 converted list
-2016-04-20 20:29:00,351 appended new prices
-2016-04-20 20:29:00,355 truncate  ok.Shape: (123, 6)
-2016-04-20 20:29:00,375 updated mean
-2016-04-20 20:29:00,378 updated sd
-2016-04-20 20:30:00,006 converted list
-2016-04-20 20:30:00,009 appended new prices
-2016-04-20 20:30:00,022 truncate  ok.Shape: (360, 6)
-2016-04-20 20:30:00,043 updated mean
-2016-04-20 20:30:00,048 updated sd
-2016-04-20 20:31:00,250 converted list
-2016-04-20 20:31:00,253 appended new prices
-2016-04-20 20:31:00,256 truncate  ok.Shape: (274, 6)
-2016-04-20 20:31:00,278 updated mean
-2016-04-20 20:31:00,280 updated sd
-2016-04-20 20:32:00,285 converted list
-2016-04-20 20:32:00,288 appended new prices
-2016-04-20 20:32:00,290 truncate  ok.Shape: (353, 6)
-2016-04-20 20:32:00,318 updated mean
-2016-04-20 20:32:00,321 updated sd
-2016-04-20 20:33:00,196 converted list
-2016-04-20 20:33:00,197 appended new prices
-2016-04-20 20:33:00,200 truncate  ok.Shape: (182, 6)
-2016-04-20 20:33:00,226 updated mean
-2016-04-20 20:33:00,227 updated sd
+2016-04-20 21:05:07,101 started requests
+2016-04-20 21:07:00,233 converted list
+2016-04-20 21:07:00,259 appended new prices
+2016-04-20 21:07:00,263 truncate  ok.Shape: (585, 6)
+2016-04-20 21:07:00,286 updated mean
+2016-04-20 21:07:00,298 updated sd
+2016-04-20 21:07:01,012 Starting new HTTPS connection (1): plot.ly
+2016-04-20 21:07:08,384 "POST /clientresp HTTP/1.1" 200 148
+2016-04-20 21:08:00,246 converted list
+2016-04-20 21:08:00,249 appended new prices
+2016-04-20 21:08:00,252 truncate  ok.Shape: (544, 6)
+2016-04-20 21:08:00,273 updated mean
+2016-04-20 21:08:00,279 updated sd
+2016-04-20 21:09:00,414 converted list
+2016-04-20 21:09:00,417 appended new prices
+2016-04-20 21:09:00,420 truncate  ok.Shape: (594, 6)
+2016-04-20 21:09:00,440 updated mean
+2016-04-20 21:09:00,490 updated sd
+2016-04-20 21:10:00,092 converted list
+2016-04-20 21:10:00,095 appended new prices
+2016-04-20 21:10:00,098 truncate  ok.Shape: (455, 6)
+2016-04-20 21:10:00,118 updated mean
+2016-04-20 21:10:00,124 updated sd

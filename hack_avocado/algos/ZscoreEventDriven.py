@@ -237,6 +237,11 @@ class Zscore:
             self.order_id += 1
             print "buy order sent"
 
+        #set signal to null if no order this tick from this method
+        else:
+            self.hist_signal = self.signal
+            self.signal = "NUL"
+
     def stops_calc(self):
         # calculate any stop trade conditions
         if self.state == "FLAT":
@@ -259,7 +264,7 @@ class Zscore:
             print "sell order sent"
 
         # Short Trend Stop
-        if self.state == "short" and self.flag == "trend" \
+        elif self.state == "short" and self.flag == "trend" \
                 and -stop_dist <= self.zscore:
 
             self.hist_state = self.state
@@ -272,7 +277,7 @@ class Zscore:
             print "buy order sent"
 
         # Long range Stop
-        if self.state == "LONG" and self.flag == "range" \
+        elif self.state == "LONG" and self.flag == "range" \
                 and stop_dist+self.z_threshold <= self.zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
@@ -284,7 +289,7 @@ class Zscore:
             print "sell order sent"
 
         # Short range Stop
-        if self.state == "short" and self.flag == "trend" \
+        elif self.state == "short" and self.flag == "trend" \
                 and -stop_dist-self.z_threshold >= self.zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
@@ -294,6 +299,11 @@ class Zscore:
             self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             self.order_id += 1
             print "buy order sent"
+
+            # set signal to null if no order this tick from this method
+        else:
+            self.hist_signal = self.signal
+            self.signal = "NUL"
 
     def print_status(self):
         # print states and status
@@ -305,7 +315,7 @@ class Zscore:
 
     def on_tick(self, cur_bid, cur_ask):
         # every tick pass the bid ask, perform calcs
-        print "on_tick call"
+        # print "on_tick call"
         # take current bid ask and calculate mid price
         self.calc_mid_price(bid=decimal.Decimal(cur_bid), ask=decimal.Decimal(cur_ask))
 
@@ -323,7 +333,7 @@ class Zscore:
 
     def on_minute(self, new_mean, new_stdev, new_flag):
         # update the parameters every minute
-        print "on_minute call"
+        # print "on_minute call"
 
         self.update_mean_stdev(new_mean=new_mean, new_stdev=new_stdev)
         self.update_flag(new_flag=new_flag)
