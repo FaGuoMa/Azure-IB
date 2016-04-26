@@ -15,10 +15,11 @@ class ExecutionHandler(object):
     """
 
     def __init__(
-        self, order_routing="", currency="USD"
+        self, ib_conn, currency="USD"
     ):
         # initialize
-        self.order_routing = order_routing
+        self.ib_conn = ib_conn
+        # self.order_routing = order_routing
         self.currency = currency
         self.fill_dict = {}
 
@@ -82,6 +83,26 @@ class ExecutionHandler(object):
         order.m_action = action
         return order
 
+    def create_trailing_order(self, quantity, action, trail_threshold, parent_id):
+        """
+        Creates the trailing order
+        quantity: quantity of contracts to trade
+        action: "BUY" or "SELL"
+        trail_threshold: amount to trail the price by
+        parent_id: order ID of the parent fill
+
+        return: order object
+        """
+        order = Order()
+        order.m_orderType = "TRAIL"  # "TRAIL" = Trailing Stop "TRAIL LIMIT" = Trailing stop limit
+        order.m_totalQuantity = quantity
+        order.m_auxPrice = trail_threshold  # trailing amount
+        order.m_action = action
+        order.m_triggerMethod = 8  # midpoint method
+        order.m_parentId = parent_id
+
+        return order
+
     def create_fill_dict_entry(self, msg):
         """
         Creates an entry in the Fill Dictionary that lists
@@ -111,7 +132,7 @@ class ExecutionHandler(object):
         Execute the order through IB API
         """
         # send the order to IB
-        self.tws_conn.placeOrder(
+        self.ib_conn.placeOrder(
             self.order_id, ib_contract, ib_order
         )
 
@@ -121,3 +142,12 @@ class ExecutionHandler(object):
 
         # Increment the order ID
         self.order_id += 1
+
+    def save_pickle(self):
+        state = {"order_id": self.order_id,
+                "fill_dict": self.fill_dict
+
+        }
+
+    def load_pickle(self):
+        pass
