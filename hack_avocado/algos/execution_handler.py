@@ -151,3 +151,56 @@ class ExecutionHandler(object):
 
     def load_pickle(self):
         pass
+
+        def __register_data_handlers(self,
+                                     tick_event_handler,
+                                     universal_event_handler):
+
+
+# register Ib connection
+model_conn= ibConnection()
+model_conn.create(port=4001, clientId=130)
+
+#registeringg handlers
+model_conn.registerAll(universal_event_handler)
+model_conn.unregister(universal_event_handler,
+                     ib_message_type.tickSize,
+                     ib_message_type.tickPrice,
+                     ib_message_type.tickString,
+                     ib_message_type.tickGeneric,
+                     ib_message_type.tickOptionComputation)
+model_conn.register(tick_event_handler,
+                   ib_message_type.tickPrice,
+                   ib_message_type.tickSize,
+                   ib_message_type.orderStatus)
+
+#event handler
+def __event_handler(self, msg):
+    if msg.typeName == datatype.MSG_TYPE_HISTORICAL_DATA:
+
+        self.__on_historical_data(msg)
+
+
+    elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
+
+        self.__on_portfolio_update(msg)
+
+    elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
+        pass
+
+    # self.account_code = msg.accountsList
+
+    elif msg.typeName == datatype.MSG_TYPE_NEXT_ORDER_ID:
+        self.order_id = msg.orderId
+
+    elif msg.typeName == datatype.MSG_ORDER_STATUS:
+        if msg.filled != 0:
+            self.monitor.update_trade(float(msg.lastFillPrice))
+            print
+            msg.LastFillPrice + "filled"
+            print
+            msg.id
+
+    else:
+        print
+        msg
