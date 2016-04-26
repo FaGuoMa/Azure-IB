@@ -1,13 +1,14 @@
 
 from __future__ import print_function
-
-import datetime
+import datetime as dt
 import time
+import pickle
+
 
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
-from ib.opt import ibConnection, message
-
+from ib.opt import ibConnection, message as ib_message_type
+from ib.opt import Connection
 
 class ExecutionHandler(object):
     """
@@ -24,7 +25,7 @@ class ExecutionHandler(object):
         self.fill_dict = {}
 
         self.order_id = self.create_initial_order_id()
-        self.register_handlers()
+#        self.register_handlers()
 
     def _error_handler(self, msg):
         # error handling
@@ -44,7 +45,7 @@ class ExecutionHandler(object):
         print("Server Response: %s, %s\n" % (msg.typeName, msg))
 
     def create_initial_order_id(self):
-        return 1
+        return 210
 # not necessary, besides your using another connection
 #    def register_handlers(self):
 #
@@ -54,7 +55,7 @@ class ExecutionHandler(object):
 #        # Assign all of the server reply messages
 #        self.tws_conn.registerAll(self._reply_handler)
 
-    def create_contract(self, symbol, sec_type, exch, prim_exch, curr):
+    def create_contract(self, symbol, sec_type, exch, expiry, curr):
         """Create a Contract object defining what will
         be purchased, at which exchange and in which currency.
 
@@ -67,11 +68,11 @@ class ExecutionHandler(object):
         contract.m_symbol = symbol
         contract.m_secType = sec_type
         contract.m_exchange = exch
-        contract.m_primaryExch = prim_exch
+        contract.m_expiry = expiry
         contract.m_currency = curr
         return contract
 
-    def create_order(self, order_type, quantity, action):
+    def create_order(self, order_type, quantity, action, lmt_price):
         """Create an Order object (Market/Limit) to go long/short.
 
         order_type - 'MKT', 'LMT' for Market or Limit orders
@@ -81,6 +82,7 @@ class ExecutionHandler(object):
         order.m_orderType = order_type
         order.m_totalQuantity = quantity
         order.m_action = action
+        order.m_lmtPrice = lmt_price
         return order
 
     def create_trailing_order(self, quantity, action, trail_threshold, parent_id):
@@ -99,7 +101,7 @@ class ExecutionHandler(object):
         order.m_auxPrice = trail_threshold  # trailing amount
         order.m_action = action
         order.m_triggerMethod = 8  # midpoint method
-        order.m_parentId = parent_id
+        #order.m_parentId = parent_id
 
         return order
 
@@ -111,6 +113,7 @@ class ExecutionHandler(object):
         server message behaviour.
         """
         self.fill_dict[msg.orderId] = {
+            "timestamp": dt.datetime.now(),
             "symbol": msg.contract.m_symbol,
             "exchange": msg.contract.m_exchange,
             "direction": msg.order.m_action,
@@ -144,63 +147,38 @@ class ExecutionHandler(object):
         self.order_id += 1
 
     def save_pickle(self):
-        state = {"order_id": self.order_id,
-                "fill_dict": self.fill_dict
+        pickle.dump(self.fill_dict, open("~/fills.p","wb"))
+        #horrible code
+        pickle.dump(self.order_id, open("~/orderid.p", "wb"))
 
-        }
 
     def load_pickle(self):
-        pass
 
-        def __register_data_handlers(self,
-                                     tick_event_handler,
-                                     universal_event_handler):
+        self.fill_dict = pickle.load(open("~/fills.p", "rb"))
+        self.order_id = pickle.load(open("~/orderid.p", "rb"))
 
-
+######3
+#ALLTHIS ISSCAFFOLDING TOTEST THE ORDERLOGIC
 # register Ib connection
-model_conn= ibConnection()
-model_conn.create(port=4001, clientId=130)
-
-#registeringg handlers
-model_conn.registerAll(universal_event_handler)
-model_conn.unregister(universal_event_handler,
-                     ib_message_type.tickSize,
-                     ib_message_type.tickPrice,
-                     ib_message_type.tickString,
-                     ib_message_type.tickGeneric,
-                     ib_message_type.tickOptionComputation)
-model_conn.register(tick_event_handler,
-                   ib_message_type.tickPrice,
-                   ib_message_type.tickSize,
-                   ib_message_type.orderStatus)
-
-#event handler
-def __event_handler(self, msg):
-    if msg.typeName == datatype.MSG_TYPE_HISTORICAL_DATA:
-
-        self.__on_historical_data(msg)
+model_conn=ibConnection(host="localhost",port=4001, clientId=130)
+model_conn.connect()
 
 
-    elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
+test = ExecutionHandler(model_conn)
 
-        self.__on_portfolio_update(msg)
 
-    elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
-        pass
 
-    # self.account_code = msg.accountsList
-
-    elif msg.typeName == datatype.MSG_TYPE_NEXT_ORDER_ID:
-        self.order_id = msg.orderId
-
-    elif msg.typeName == datatype.MSG_ORDER_STATUS:
-        if msg.filled != 0:
-            self.monitor.update_trade(float(msg.lastFillPrice))
-            print
-            msg.LastFillPrice + "filled"
-            print
-            msg.id
-
-    else:
-        print
-        msg
+time.sleep(2)
+test_order = test.create_contract("CL","FUT","NYMEX","201606","USD")
+time.sleep(1)
+test_order_actual = test.create_order("MKT",1,"BUY","")
+time.sleep(1)
+test.execute_order(test_order,test_order_actual)
+time.sleep(1)
+test_lmt = test.create_order("LMT",1,"BUY",46)
+time.sleep(1)
+test.execute_order(test_order,test_lmt)
+test_trail = test.create_trailing_order(1,"SELL",0.1,test.order_id-1)
+time.sleep(1)
+test.execute_order(test_order, test_trail)
+time.sleep(60)
