@@ -24,6 +24,7 @@ import numpy as np
 import talib as ta
 from math import sqrt
 import pytz
+from algos.execution_handler import ExecutionHandler
 
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
@@ -37,16 +38,12 @@ logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.t
 class HFTModel:
 
     def __init__(self, host='localhost', port=4001,
-                 client_id=130, is_use_gateway=False, evaluation_time_secs=20,
-                 resample_interval_secs='30s',
+                 client_id=130, is_use_gateway=False,
                  moving_window_period=dt.timedelta(seconds=60)):
         self.tz = pytz.timezone('Singapore')
         self.moving_window_period = moving_window_period
         self.ib_util = IBUtil()
 
-        # Store parameters for this model
-#        self.strategy_params = StrategyParameters(evaluation_time_secs,
-#                                                  resample_interval_secs)
 
         self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
         self.symbols = None  # List of current symbols
@@ -55,7 +52,7 @@ class HFTModel:
         self.ohlc = None # I need another store for minute data (I think)
         self.buffer = list()        
         self.trade_qty = 0
-        self.order_id = 0
+
         self.lock = threading.Lock()
         self.traffic_light = threading.Event()
         self.thread = None
@@ -75,6 +72,10 @@ class HFTModel:
         self.cur_sd = None
         self.cur_zscore = None
         self.trader = None
+
+
+        #self.order_id = self.handler.order_id
+
         #import monitor
         self.monitor = None
         # Use ibConnection() for TWS, or create connection for API Gateway
@@ -83,8 +84,11 @@ class HFTModel:
         self.__register_data_handlers(self.__on_tick_event,
                                       self.__event_handler)
 
+        self.handler = ExecutionHandler(self.conn)
+        self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201606", "USD")
+        self.signal = None
+        self.state = None
 
-                              
 
 
     def __register_data_handlers(self,
@@ -141,7 +145,7 @@ class HFTModel:
                     index,
                     stock_data.contract,
                     time.strftime(datatype.DATE_TIME_FORMAT),
-                    datatype.DURATION_1_DAY,
+                    datatype.DURATION_2_HR,
                     datatype.BAR_SIZE_1_MIN,
                     datatype.WHAT_TO_SHOW_TRADES,
                     datatype.RTH_ALL,
@@ -188,10 +192,22 @@ class HFTModel:
 
 #            self.account_code = msg.accountsList
 
-        elif msg.typeName == datatype.MSG_TYPE_NEXT_ORDER_ID:
-            self.order_id = msg.orderId
-            
-       
+        elif msg.typeName == datatype.MSG_TYPE_OPEN_ORDER:
+            print("Server Response: %s, %s\n" % (msg.typeName, msg))
+            if msg.orderId == self.handler.order_id and \
+                not self.handler.fill_dict.has_key(msg.orderId):
+                self.handler(msg)
+
+        elif msg.typeName == datatype.MSG_TYPE_ORDER_STATUS:
+            print("Server Response: %s, %s\n" % (msg.typeName, msg))
+
+            if msg.filled != 0 and \
+            self.handler.fill_dict[msg.orderId]["filled"] == False:
+                self.handler.create_fill(msg)
+                self.monitor.update_fills(float(msg.lastFilledPrice))
+
+
+
         else:
             print msg
 
@@ -269,6 +285,8 @@ class HFTModel:
             
         if self.trader is not None:
             self.trader.on_tick(self.last_bid,self.last_ask)
+            self.signal = self.trader.update_signal()
+            self.state = self.trader.update_state()
                 
 
 
@@ -401,8 +419,20 @@ class HFTModel:
 #        else:
 #        
 #            print len(self.buffer)
-        
-        
+
+     #############
+     # This is transposed from Zscore in part
+     ##############
+     #
+
+    def execute_trade(self,signal,state,last_bid,last_ask): ### Bear in mind the "state" is EVENTUAL in this case
+        if signal == "BUY":
+            order = self.handler.create_order("LMT",1,signal,last_bid)
+        if signal == "SELL":
+
+            order = self.handler.create_order("LMT", 1, signal, last_ask)
+        self.handler.execute_order(self.order_template,order)
+
     @staticmethod
     def __print_elapsed_time(start_time):
         elapsed_time = time.time() - start_time
@@ -472,8 +502,11 @@ class HFTModel:
             print "Exception:"
             print "Cancelling...",
             self.__cancel_market_data_request()
+            print "killing all orders"
+            self.handler.kill_em_all()
             # self.monitor.close_stream()
             print "Disconnecting..."
+            time.sleep(10)
             self.conn.disconnect()
             time.sleep(1)
         

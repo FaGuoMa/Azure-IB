@@ -41,9 +41,7 @@ def spawn_model():
     model = HFTModel(host='localhost',
                      port=4001,
                      client_id=101,
-                     is_use_gateway=False,
-                     evaluation_time_secs=20,
-                     resample_interval_secs='30s')
+                     is_use_gateway=False)
     model.start("CL", 100)
 
 #very, very dirty

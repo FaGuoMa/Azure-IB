@@ -66,11 +66,20 @@ class Monit_stream:
             x=[],  # init. data lists
             y=[],
             mode='markers',
-            line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
+            line=Line(color='rgba(191,63,191,0.7)'), # red if the system thinks it ranges
               # reduce opacity
             marker=Marker(size=5),  # increase marker size
             stream=Stream(token=self.credentials[3])
             )
+
+        self.fills = Scatter(
+            x=[],  # init. data lists
+            y=[],
+            mode='markers',
+
+            marker=Marker(size=15, color='rgba(200,0,0,0.5)'),  # increase marker size
+            stream=Stream(token=self.credentials[4])
+        )
 # (@) Send fig to Plotly, initialize streaming plot, open tab
         self.stream1 = py.Stream(self.credentials[0])
 
@@ -79,8 +88,9 @@ class Monit_stream:
         self.stream2 = py.Stream(self.credentials[1])
         self.stream3 = py.Stream(self.credentials[2])
         self.stream4 = py.Stream(self.credentials[3])
+        self.stream5 = py.Stream(self.credentials[4])
 # data
-        self.data = Data([self.prices,self.limit_up,self.limit_dwn,self.ranging])
+        self.data = Data([self.prices,self.limit_up,self.limit_dwn,self.ranging, self.fills])
 # Make figure object
         self.layout = Layout(showlegend=False)
         self.fig = Figure(data=self.data, layout=self.layout)
@@ -90,6 +100,7 @@ class Monit_stream:
         self.stream2.open()
         self.stream3.open()
         self.stream4.open()
+        self.stream5.open()
         print "streams initaited"
         
     def update_data_point(self,last_price,last_mean,last_sd,flag):
@@ -100,7 +111,10 @@ class Monit_stream:
 
         if flag == "range":
             self.stream4.write(dict(x=now, y=last_price))
-       
+
+    def update_fills(self, fill):
+        now=dt.datetime.now()
+        self.stream5.write(dict(x=now, y=fill))
 
     def close_stream(self):
         self.stream1.close()

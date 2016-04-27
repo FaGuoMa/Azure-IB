@@ -10,7 +10,7 @@ Author: Derek Wong
 
 import decimal
 from classes.ib_util import IBUtil
-# import execution_handler
+import execution_handler
 
 FIVEPLACES = decimal.Decimal("0.00001")
 
@@ -56,12 +56,15 @@ class Zscore:
 
         self.ib_conn = ib_conn
         #IB util order contract bullshit
-        self.ib_util = IBUtil()
-        self.buy_order = self.ib_util.create_stock_order(1, True, True)
-        self.sell_order = self.ib_util.create_stock_order(1, False, True)
+#        self.handler = ExecutionHandler(self.ib_conn)
+
+#        self.handler.create
+#        self.ib_util = IBUtil()
+#        self.buy_order = self.ib_util.create_stock_order(1, True, True)
+#        self.sell_order = self.ib_util.create_stock_order(1, False, True)
         ##hackish
-        self.ib_contract = self.ib_util.create_stock_contract("CL")
-        self.order_id = 42
+#        self.ib_contract = self.ib_util.create_stock_contract("CL")
+#        self.order_id = 42
         # initialize order handler
 #        self.execution = execution_handler.ExecutionHandler()
 
@@ -130,10 +133,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "BOT"
+            self.signal = "BUY"
             self.state = "LONG"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            #self.order_id += 1
             print "buy order sent"
 
         # Enter Short Position Signal in trend flag
@@ -145,10 +148,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "SLD"
+            self.signal = "SELL"
             self.state = "SHORT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            #self.order_id += 1
             print "sell order sent"
 
         # Close Long position in trend flag
@@ -159,10 +162,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "SLD"
+            self.signal = "SELL"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            #self.order_id += 1
             print "sell order sent"
 
         # Close Short Position in trend flag
@@ -173,10 +176,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "BOT"
+            self.signal = "BUY"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            #self.order_id += 1
             print "buy order sent"
 
         # Enter Long Position Signal in range flag
@@ -188,10 +191,10 @@ class Zscore:
                 self.hist_state = self.state
                 self.hist_signal = self.signal
 
-                self.signal = "BOT"
+                self.signal = "BUY"
                 self.state = "LONG"
-                self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-                self.order_id += 1
+                #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+                #self.order_id += 1
                 print "buy order sent"
 
         # Enter Short Position Signal in range flag
@@ -203,10 +206,10 @@ class Zscore:
                 self.hist_state = self.state
                 self.hist_signal = self.signal
 
-                self.signal = "SLD"
+                self.signal = "SELL"
                 self.state = "SHORT"
-                self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-                self.order_id += 1
+                #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+                #self.order_id += 1
                 print "sell order sent"
 
         # Close Long position in range flag
@@ -217,10 +220,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "SLD"
+            self.signal = "SELL"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            #self.order_id += 1
             print "sell order sent"
 
         # Close Short Position in range flag
@@ -231,10 +234,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "BOT"
+            self.signal = "BUY"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            #self.order_id += 1
             print "buy order sent"
 
         #set signal to null if no order this tick from this method
@@ -257,10 +260,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "SLD"
+            self.signal = "SELL"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            #self.order_id += 1
             print "sell order sent"
 
         # Short Trend Stop
@@ -270,10 +273,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "BOT"
+            self.signal = "BUY"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            #self.order_id += 1
             print "buy order sent"
 
         # Long range Stop
@@ -282,10 +285,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "SLD"
+            self.signal = "SELL"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+            #self.order_id += 1
             print "sell order sent"
 
         # Short range Stop
@@ -294,10 +297,10 @@ class Zscore:
             self.hist_state = self.state
             self.hist_signal = self.signal
 
-            self.signal = "BOT"
+            self.signal = "BUY"
             self.state = "FLAT"
-            self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            self.order_id += 1
+            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+            #self.order_id += 1
             print "buy order sent"
 
             # set signal to null if no order this tick from this method
@@ -329,7 +332,7 @@ class Zscore:
         self.algo_calc()
 
         #print status
-        self.print_status()
+        #self.print_status()
 
     def on_minute(self, new_mean, new_stdev, new_flag):
         # update the parameters every minute
@@ -339,7 +342,11 @@ class Zscore:
         self.update_flag(new_flag=new_flag)
         self.print_status()
 
+    def update_signal(self):
+        return self.signal
 
+    def update_state(self):
+        return self.state
 
 
 

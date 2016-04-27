@@ -3,10 +3,12 @@ from __future__ import print_function
 import datetime as dt
 import time
 import pickle
+import os
 
 
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
+from ib.ext.EClientSocket import EClientSocket
 from ib.opt import ibConnection, message as ib_message_type
 from ib.opt import Connection
 
@@ -23,10 +25,13 @@ class ExecutionHandler(object):
         # self.order_routing = order_routing
         self.currency = currency
         self.fill_dict = {}
-
+#is that bellow right with the pickle ??
         self.order_id = self.create_initial_order_id()
 #        self.register_handlers()
+        self.load_pickle()
 
+
+#this bellow needs to go in registration at HTFmodel
     def _error_handler(self, msg):
         # error handling
         print("Server Error: %s" % msg)
@@ -45,15 +50,8 @@ class ExecutionHandler(object):
         print("Server Response: %s, %s\n" % (msg.typeName, msg))
 
     def create_initial_order_id(self):
-        return 210
-# not necessary, besides your using another connection
-#    def register_handlers(self):
-#
-#        # Assign the error handling function
-#        self.tws_conn.register(self._error_handler, 'Error')
-#
-#        # Assign all of the server reply messages
-#        self.tws_conn.registerAll(self._reply_handler)
+        return 315
+
 
     def create_contract(self, symbol, sec_type, exch, expiry, curr):
         """Create a Contract object defining what will
@@ -147,38 +145,44 @@ class ExecutionHandler(object):
         self.order_id += 1
 
     def save_pickle(self):
-        pickle.dump(self.fill_dict, open("~/fills.p","wb"))
+        pickle.dump(self.fill_dict, open(os.path.join(os.path.curdir, "fills.p"),"wb"))
         #horrible code
-        pickle.dump(self.order_id, open("~/orderid.p", "wb"))
+        pickle.dump(self.order_id, open(os.path.join(os.path.curdir, "orderid.p"), "wb"))
+
 
 
     def load_pickle(self):
+        if os.path.exists(os.path.join(os.path.curdir, "fills.p")):
 
-        self.fill_dict = pickle.load(open("~/fills.p", "rb"))
-        self.order_id = pickle.load(open("~/orderid.p", "rb"))
+            self.fill_dict = pickle.load(open(os.path.join(os.path.curdir, "fills.p"), "rb"))
+        if os.path.exists(os.path.join(os.path.curdir, "orderid.p")):
+            self.order_id = pickle.load(open(os.path.join(os.path.curdir, "orderid.p"), "rb"))
+
+    def kill_em_all(self):
+        EClientSocket(self.ib_conn).reqGlobalCancel()
 
 ######3
 #ALLTHIS ISSCAFFOLDING TOTEST THE ORDERLOGIC
 # register Ib connection
-model_conn=ibConnection(host="localhost",port=4001, clientId=130)
-model_conn.connect()
-
-
-test = ExecutionHandler(model_conn)
-
-
-
-time.sleep(2)
-test_order = test.create_contract("CL","FUT","NYMEX","201606","USD")
-time.sleep(1)
-test_order_actual = test.create_order("MKT",1,"BUY","")
-time.sleep(1)
-test.execute_order(test_order,test_order_actual)
-time.sleep(1)
-test_lmt = test.create_order("LMT",1,"BUY",46)
-time.sleep(1)
-test.execute_order(test_order,test_lmt)
-test_trail = test.create_trailing_order(1,"SELL",0.1,test.order_id-1)
-time.sleep(1)
-test.execute_order(test_order, test_trail)
-time.sleep(60)
+# model_conn=ibConnection(host="localhost",port=4001, clientId=130)
+# model_conn.connect()
+#
+#
+# test = ExecutionHandler(model_conn)
+#
+#
+#
+# time.sleep(2)
+# test_order = test.create_contract("CL","FUT","NYMEX","201606","USD")
+# time.sleep(1)
+# test_order_actual = test.create_order("MKT",1,"BUY","")
+# time.sleep(1)
+# test.execute_order(test_order,test_order_actual)
+# time.sleep(1)
+# test_lmt = test.create_order("LMT",1,"BUY",46)
+# time.sleep(1)
+# test.execute_order(test_order,test_lmt)
+# test_trail = test.create_trailing_order(1,"SELL",0.1,test.order_id-1)
+# time.sleep(1)
+# test.execute_order(test_order, test_trail)
+# time.sleep(60)
