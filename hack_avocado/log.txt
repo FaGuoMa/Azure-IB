@@ -1,18 +1,28 @@
-2016-04-27 23:11:20,165 started requests
-2016-04-27 23:13:00,027 converted list
-2016-04-27 23:13:00,049 appended new prices
-2016-04-27 23:13:00,052 truncate  ok.Shape: (816, 6)
-2016-04-27 23:13:00,069 updated mean
-2016-04-27 23:13:00,074 updated sd
-2016-04-27 23:13:01,012 Starting new HTTPS connection (1): plot.ly
-2016-04-27 23:13:04,232 "POST /clientresp HTTP/1.1" 200 148
-2016-04-27 23:14:00,170 converted list
-2016-04-27 23:14:00,175 appended new prices
-2016-04-27 23:14:00,177 truncate  ok.Shape: (627, 6)
-2016-04-27 23:14:00,194 updated mean
-2016-04-27 23:14:00,203 updated sd
-2016-04-27 23:15:00,038 converted list
-2016-04-27 23:15:00,042 appended new prices
-2016-04-27 23:15:00,045 truncate  ok.Shape: (659, 6)
-2016-04-27 23:15:00,065 updated mean
-2016-04-27 23:15:00,070 updated sd
+2016-04-28 23:35:39,236 started requests
+2016-04-28 23:37:00,279 converted list
+2016-04-28 23:37:00,286 appended new prices
+2016-04-28 23:37:00,289 truncate  ok.Shape: (427, 6)
+2016-04-28 23:37:00,301 updated mean
+2016-04-28 23:37:00,302 updated sd
+2016-04-28 23:37:00,588 Starting new HTTPS connection (1): plot.ly
+2016-04-28 23:37:02,907 "POST /clientresp HTTP/1.1" 200 148
+2016-04-28 23:38:00,154 converted list
+2016-04-28 23:38:00,155 appended new prices
+2016-04-28 23:38:00,157 truncate  ok.Shape: (401, 6)
+2016-04-28 23:38:00,167 updated mean
+2016-04-28 23:38:00,170 updated sd
+2016-04-28 23:39:00,934 converted list
+2016-04-28 23:39:00,937 appended new prices
+2016-04-28 23:39:00,938 truncate  ok.Shape: (342, 6)
+2016-04-28 23:39:00,950 updated mean
+2016-04-28 23:39:00,951 updated sd
+2016-04-28 23:40:00,411 converted list
+2016-04-28 23:40:00,414 appended new prices
+2016-04-28 23:40:00,417 truncate  ok.Shape: (376, 6)
+2016-04-28 23:40:00,427 updated mean
+2016-04-28 23:40:00,430 updated sd
+2016-04-28 23:41:00,163 converted list
+2016-04-28 23:41:00,164 appended new prices
+2016-04-28 23:41:00,165 truncate  ok.Shape: (309, 6)
+2016-04-28 23:41:00,177 updated mean
+2016-04-28 23:41:00,178 updated sd

@@ -194,17 +194,19 @@ class HFTModel:
 
         elif msg.typeName == datatype.MSG_TYPE_OPEN_ORDER:
             print("Server Response: %s, %s\n" % (msg.typeName, msg))
+            print "gottan order open messg"
             if msg.orderId == self.handler.order_id and \
                 not self.handler.fill_dict.has_key(msg.orderId):
-                self.handler(msg)
+                self.handler.create_fill_dict_entry(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_ORDER_STATUS:
             print("Server Response: %s, %s\n" % (msg.typeName, msg))
-
+            print "got an order status message"
             if msg.filled != 0 and \
             self.handler.fill_dict[msg.orderId]["filled"] == False:
                 self.handler.create_fill(msg)
-                self.monitor.update_fills(float(msg.lastFilledPrice))
+                print "filled at" + msg.lastFillPrice
+                self.monitor.update_fills(float(msg.lastFillPrice))
 
 
 
@@ -286,7 +288,11 @@ class HFTModel:
         if self.trader is not None:
             self.trader.on_tick(self.last_bid,self.last_ask)
             self.signal = self.trader.update_signal()
+            # print self.signal
             self.state = self.trader.update_state()
+            # print self.state
+        if self.handler is not None:
+            self.execute_trade(self.signal, self.last_bid, self.last_ask)
                 
 
 
@@ -425,13 +431,20 @@ class HFTModel:
      ##############
      #
 
-    def execute_trade(self,signal,state,last_bid,last_ask): ### Bear in mind the "state" is EVENTUAL in this case
-        if signal == "BUY":
-            order = self.handler.create_order("LMT",1,signal,last_bid)
-        if signal == "SELL":
+    def execute_trade(self,signal,last_bid,last_ask): ### Bear in mind the "state" is EVENTUAL in this case
+        # and self.handler.fill_dict[self.handler.fill_dict.keys().sort()[-1]]["filled"] == True
+        # if self.handler.fill_dict is not None:
+        #     print self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"]
+        if signal == "BUY" and self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] == True:
+            order = self.handler.create_order("LMT",1,signal,last_ask)
+            print "order spawned buy"
+            self.handler.execute_order(self.order_template, order)
+        elif signal == "SELL" and self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] == True:
+            order = self.handler.create_order("LMT", 1, signal, last_bid)
+            print "order spawned sell"
+            self.handler.execute_order(self.order_template, order)
 
-            order = self.handler.create_order("LMT", 1, signal, last_ask)
-        self.handler.execute_order(self.order_template,order)
+
 
     @staticmethod
     def __print_elapsed_time(start_time):
@@ -448,6 +461,8 @@ class HFTModel:
         self.traffic_light.wait()
         print "light's green"
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag,self.conn)
+        print "killing them all"
+        self.handler.kill_em_all()
         #init the execution handler and specs
 #        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
     
@@ -460,6 +475,7 @@ class HFTModel:
     def start(self, symbols, trade_qty):
         print "HFT model started."
         logging.debug("started requests")
+
 
 #        self.trade_qty = trade_qty
 
@@ -489,12 +505,15 @@ class HFTModel:
         self.thread2 = threading.Thread(target=self.spawn_monitor)
         self.thread2.start()
 
-       
-        
-        
+        def main_loop():
+            while 1:
+                # do your stuff...
+                time.sleep(0.1)
+
         try:
-                time.sleep(10000)
-                print "end of the start cycle"
+            main_loop()
+        
+
         
                 
 
@@ -504,6 +523,9 @@ class HFTModel:
             self.__cancel_market_data_request()
             print "killing all orders"
             self.handler.kill_em_all()
+            self.handler.cancel_pos()
+            self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] = True
+            self.handler.save_pickle()
             # self.monitor.close_stream()
             print "Disconnecting..."
             time.sleep(10)

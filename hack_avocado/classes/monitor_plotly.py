@@ -66,7 +66,7 @@ class Monit_stream:
             x=[],  # init. data lists
             y=[],
             mode='markers',
-            line=Line(color='rgba(191,63,191,0.7)'), # red if the system thinks it ranges
+            line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
               # reduce opacity
             marker=Marker(size=5),  # increase marker size
             stream=Stream(token=self.credentials[3])
@@ -77,7 +77,7 @@ class Monit_stream:
             y=[],
             mode='markers',
 
-            marker=Marker(size=15, color='rgba(200,0,0,0.5)'),  # increase marker size
+            marker=Marker(size=15, color='rgba(191,63,191,0.7)'),  # increase marker size
             stream=Stream(token=self.credentials[4])
         )
 # (@) Send fig to Plotly, initialize streaming plot, open tab

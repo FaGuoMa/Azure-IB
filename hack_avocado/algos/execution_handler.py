@@ -25,10 +25,19 @@ class ExecutionHandler(object):
         # self.order_routing = order_routing
         self.currency = currency
         self.fill_dict = {}
+        self.fill_dict[0] = {
+            "timestamp": dt.datetime.now(),
+            "symbol": "Fuck",
+            "exchange": "DCE",
+            "direction": "NULL",
+            "filled": True
+        }
 #is that bellow right with the pickle ??
-        self.order_id = self.create_initial_order_id()
+
 #        self.register_handlers()
         self.load_pickle()
+        # self.order_id = self.create_initial_order_id()
+
 
 
 #this bellow needs to go in registration at HTFmodel
@@ -50,7 +59,7 @@ class ExecutionHandler(object):
         print("Server Response: %s, %s\n" % (msg.typeName, msg))
 
     def create_initial_order_id(self):
-        return 315
+        return 750
 
 
     def create_contract(self, symbol, sec_type, exch, expiry, curr):
@@ -157,9 +166,19 @@ class ExecutionHandler(object):
             self.fill_dict = pickle.load(open(os.path.join(os.path.curdir, "fills.p"), "rb"))
         if os.path.exists(os.path.join(os.path.curdir, "orderid.p")):
             self.order_id = pickle.load(open(os.path.join(os.path.curdir, "orderid.p"), "rb"))
+        else:
+            self.order_id = 1300
 
     def kill_em_all(self):
         EClientSocket(self.ib_conn).reqGlobalCancel()
+
+
+    def req_positions(self):
+        EClientSocket(self.ib_conn).reqPositions()
+
+
+    def cancel_pos(self):
+        EClientSocket(self.ib_conn).cancelPositions()
 
 ######3
 #ALLTHIS ISSCAFFOLDING TOTEST THE ORDERLOGIC
