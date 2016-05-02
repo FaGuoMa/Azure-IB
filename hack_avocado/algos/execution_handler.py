@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+#from __future__ import print_function
 import datetime as dt
 import time
 import pickle
@@ -8,7 +8,8 @@ import os
 
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
-from ib.ext.EClientSocket import EClientSocket
+#from ib.ext.EClientSocket import
+from ib.ext.EWrapper import EWrapper
 from ib.opt import ibConnection, message as ib_message_type
 from ib.opt import Connection
 
@@ -24,42 +25,57 @@ class ExecutionHandler(object):
         self.ib_conn = ib_conn
         # self.order_routing = order_routing
         self.currency = currency
+        self.valid_id = None
+        self.position = None
+        self.contract = self.create_contract("CL",'FUT', 'NYMEX', '201606','USD')
+        self.is_trading = False
+        #will need  a test for pickle existence
         self.fill_dict = {}
-        self.fill_dict[0] = {
-            "timestamp": dt.datetime.now(),
-            "symbol": "Fuck",
-            "exchange": "DCE",
-            "direction": "NULL",
-            "filled": True
-        }
-#is that bellow right with the pickle ??
+        # self.fill_dict[0] = {
+        #     "timestamp": dt.datetime.now(),
+        #     "id": 12,
+        #     "direction": "NULL",
+        #     "filled": True,
+        #     "type": "dick"
+        # }
+        #probably unnecessary if not used as __main__
+        self.last_trade = None
+        self.last_bid = None
+        self.last_ask = None
 
-#        self.register_handlers()
-        self.load_pickle()
-        # self.order_id = self.create_initial_order_id()
 
 
 
 #this bellow needs to go in registration at HTFmodel
-    def _error_handler(self, msg):
-        # error handling
-        print("Server Error: %s" % msg)
+    # def _error_handler(self, msg):
+    #     # error handling
+    #     print("Server Error: %s" % msg)
 
     def _reply_handler(self, msg):
-        # Handle open order orderId processing
-        if msg.typeName == "openOrder" and \
-            msg.orderId == self.order_id and \
-            not self.fill_dict.has_key(msg.orderId):
-            self.create_fill_dict_entry(msg)
-        # Handle Fills
-        if msg.typeName == "orderStatus" and \
-            msg.status == "Filled" and \
-            self.fill_dict[msg.orderId]["filled"] == False:
-            self.create_fill(msg)
-        print("Server Response: %s, %s\n" % (msg.typeName, msg))
+        #valid id handler
+        if msg.typeName == "nextValidId" and self.valid_id is None:
+            self.valid_id =int(msg.orderId)
 
-    def create_initial_order_id(self):
-        return 750
+
+        #position handler
+        if msg.typeName == "position":
+            self.position = int(msg.pos)
+
+        # Handle open order orderId processing
+        if msg.typeName == "openOrder":
+            #print "ack " + str(msg.orderId)
+            print msg
+            zboub = msg.order
+            print zboub.m_action
+         #   self.create_fill_dict_entry(msg.orderId)
+        # # Handle Fills
+        if msg.typeName == "orderStatus":
+            print msg
+            if msg.filled != 0:
+                self.create_fill(msg)
+
+#    def create_initial_order_id(self):
+#         return 750
 
 
     def create_contract(self, symbol, sec_type, exch, expiry, curr):
@@ -79,7 +95,7 @@ class ExecutionHandler(object):
         contract.m_currency = curr
         return contract
 
-    def create_order(self, order_type, quantity, action, lmt_price):
+    def create_order(self, order_type, quantity, action, lmt_price=""):
         """Create an Order object (Market/Limit) to go long/short.
 
         order_type - 'MKT', 'LMT' for Market or Limit orders
@@ -92,7 +108,7 @@ class ExecutionHandler(object):
         order.m_lmtPrice = lmt_price
         return order
 
-    def create_trailing_order(self, quantity, action, trail_threshold, parent_id):
+    def create_trailing_order(self, quantity, action, trail_threshold):
         """
         Creates the trailing order
         quantity: quantity of contracts to trade
@@ -111,27 +127,52 @@ class ExecutionHandler(object):
         #order.m_parentId = parent_id
 
         return order
+    def place_trade(self, action, qty=1):
+        if action == "BUY":
+            price = self.last_bid#to get filled
+        if action == "SELL":
+            price = self.last_ask
+        print str(self.valid_id)
+        order = self.create_order('LMT',qty,action,price)
 
-    def create_fill_dict_entry(self, msg):
+        self.execute_order(self.contract,order)
+
+        print self.fill_dict[self.valid_id-1]["filled"]
+        self.is_trading = True
+        self.req_open()
+        time.sleep(5)
+        if self.fill_dict[self.valid_id-1]["filled"]:
+            if action == "BUY":
+                naction = "SELL"
+            if action == "SELL":
+                naction = "BUY"
+            self.create_trailing_order(1,naction,0.04)
+        else:
+            print "killing order"
+            self.cancel_order(sorted(self.fill_dict.keys())[0])
+            self.trading = False
+        time.sleep(1)
+
+
+    def create_fill_dict_entry(self, id, order):
         """
         Creates an entry in the Fill Dictionary that lists
         orderIds and provides security information. This is
         needed for the event-driven behaviour of the IB
         server message behaviour.
         """
-        self.fill_dict[msg.orderId] = {
+        self.fill_dict[id] = {
             "timestamp": dt.datetime.now(),
-            "symbol": msg.contract.m_symbol,
-            "exchange": msg.contract.m_exchange,
-            "direction": msg.order.m_action,
+            "order": order,
             "filled": False
         }
+        print "created entry"
 
     def create_fill(self, msg):
         """
         Places a fill in the fill dictionary
         """
-        fd = self.fill_dict[msg.orderId]
+
 
         # Check for fill and no duplicates
         self.fill_dict[msg.orderId]["filled"] = True
@@ -142,21 +183,27 @@ class ExecutionHandler(object):
         Execute the order through IB API
         """
         # send the order to IB
+        self.create_fill_dict_entry(self.valid_id, ib_order)
         self.ib_conn.placeOrder(
-            self.order_id, ib_contract, ib_order
+            self.valid_id, ib_contract, ib_order
         )
-
 
         # order goes through!
         time.sleep(1)
 
         # Increment the order ID
-        self.order_id += 1
+        self.valid_id += 1
+
+    def cancel_order(self,id):
+        self.ib_conn.cancelOrder(id)
+
+    def req_open(self):
+        self.ib_conn.reqOpenOrders()
 
     def save_pickle(self):
         pickle.dump(self.fill_dict, open(os.path.join(os.path.curdir, "fills.p"),"wb"))
         #horrible code
-        pickle.dump(self.order_id, open(os.path.join(os.path.curdir, "orderid.p"), "wb"))
+#        pickle.dump(self.order_id, open(os.path.join(os.path.curdir, "orderid.p"), "wb"))
 
 
 
@@ -173,35 +220,72 @@ class ExecutionHandler(object):
         EClientSocket(self.ib_conn).reqGlobalCancel()
 
 
-    def req_positions(self):
-        EClientSocket(self.ib_conn).reqPositions()
+    def neutralize(self):
+        if self.position !=0:
+            if self.position > 0:
+                neut = self.create_order("MKT",self.position,"SELL")
+            if self.position < 0:
+                neut = self.create_order("MKT", self.position, "BUY")
+            self.execute_order(self.contract,neut)
 
 
-    def cancel_pos(self):
-        EClientSocket(self.ib_conn).cancelPositions()
+#scaffolding tick data management for testing purposes
+    def on_tick_event(self, msg):
+        ticker_id = msg.tickerId
+        field_type = msg.field
+        #        print field_type
 
-######3
-#ALLTHIS ISSCAFFOLDING TOTEST THE ORDERLOGIC
-# register Ib connection
-# model_conn=ibConnection(host="localhost",port=4001, clientId=130)
-# model_conn.connect()
-#
-#
-# test = ExecutionHandler(model_conn)
-#
-#
-#
-# time.sleep(2)
-# test_order = test.create_contract("CL","FUT","NYMEX","201606","USD")
-# time.sleep(1)
-# test_order_actual = test.create_order("MKT",1,"BUY","")
-# time.sleep(1)
-# test.execute_order(test_order,test_order_actual)
-# time.sleep(1)
-# test_lmt = test.create_order("LMT",1,"BUY",46)
-# time.sleep(1)
-# test.execute_order(test_order,test_lmt)
-# test_trail = test.create_trailing_order(1,"SELL",0.1,test.order_id-1)
-# time.sleep(1)
-# test.execute_order(test_order, test_trail)
-# time.sleep(60)
+        # Store information from last traded price
+        if field_type == 4:
+            self.last_trade == msg.price
+            print "trade" + str(msg.price)
+        if field_type == 1:
+            self.last_ask == msg.price
+        print "ask " + str(msg.price)
+
+        if field_type == 2:
+            self.last_bid == msg.price
+            print "bid" + str(msg.price)
+
+
+######
+#ALLTHIS ISSCAFFOLDING TOTEST THE ORDER LOGIC
+
+if __name__ == "__main__":
+#register Ib connection
+
+    def reply_handler(msg):
+        print("Reply:", msg)
+
+    model_conn=ibConnection(host="localhost",port=4001, clientId=130)
+
+    model_conn.connect()
+
+    #base scaffolding
+    test = ExecutionHandler(model_conn)
+    model_conn.registerAll(test._reply_handler)
+    model_conn.unregister(ib_message_type.tickPrice)
+    model_conn.register(test.on_tick_event, ib_message_type.tickPrice)
+    model_conn.reqPositions()
+    model_conn.reqGlobalCancel()
+    model_conn.cancelPositions()
+
+    #test sequence
+    time.sleep(2)
+    print test.valid_id
+    print test.position
+    test.neutralize()
+    model_conn.reqMktData(1,test.contract,'',False)
+    time.sleep(1)
+    #test place trade
+
+    # test.execute_order(test.contract,test.create_order("MKT",1,"BUY"))
+    # time.sleep(5)
+    # test.execute_order(test.contract,test.create_order("MKT",1,"SELL"))
+    # time.sleep(5)
+    test.place_trade("BUY")
+    time.sleep(5)
+    for key in test.fill_dict:
+        print key
+    test.save_pickle()
+    model_conn.disconnect()
