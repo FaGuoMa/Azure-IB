@@ -81,10 +81,13 @@ class HFTModel:
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
-        self.__register_data_handlers(self.__on_tick_event,
-                                      self.__event_handler)
+
 
         self.handler = ExecutionHandler(self.conn)
+        #third handler should register properly si Dieu veut
+        self.__register_data_handlers(self.__on_tick_event,
+                                      self.__event_handler,
+                                      self.handler._reply_handler)
         self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201606", "USD")
         self.signal = None
         self.state = None
@@ -93,7 +96,7 @@ class HFTModel:
 
     def __register_data_handlers(self,
                                  tick_event_handler,
-                                 universal_event_handler):
+                                 universal_event_handler,order_handler):
         self.conn.registerAll(universal_event_handler)
         self.conn.unregister(universal_event_handler,
                              ib_message_type.tickSize,
@@ -104,6 +107,11 @@ class HFTModel:
         self.conn.register(tick_event_handler,
                            ib_message_type.tickPrice,
                            ib_message_type.tickSize)
+        self.conn.register(order_handler,
+                           ib_message_type.position,
+                           ib_message_type.nextValidId,
+                           ib_message_type.orderStatus,
+                           ib_message_type.openOrder)
 
     def __init_stocks_data(self, symbols):
         self.symbols = symbols
@@ -115,7 +123,7 @@ class HFTModel:
         if not os.path.exists(self.ohlc_path):
             self.ohlc.to_csv(self.ohlc_path)
         print "checked for csv file"
-#Now I have only one "symbol"        
+#Now I have only one "symbol"      TODO: clean that stuff
         stock_symbol = self.symbols
         contract = self.ib_util.create_stock_contract(stock_symbol)
         self.stocks_data[stock_symbol] = StockData(contract)
@@ -123,7 +131,7 @@ class HFTModel:
 
     def __request_streaming_data(self, ib_conn):
         # Stream market data. Of note: this enumerate can probably be simplified
-        #cannt be bothered for now
+        #cannt be bothered for now TODO: clean this crap, time to be bothered
         for index, (key, stock_data) in enumerate(
                 self.stocks_data.iteritems()):
             ib_conn.reqMktData(index,
@@ -191,22 +199,22 @@ class HFTModel:
             pass
 
 #            self.account_code = msg.accountsList
-
-        elif msg.typeName == datatype.MSG_TYPE_OPEN_ORDER:
-            print("Server Response: %s, %s\n" % (msg.typeName, msg))
-            print "gottan order open messg"
-            if msg.orderId == self.handler.order_id and \
-                not self.handler.fill_dict.has_key(msg.orderId):
-                self.handler.create_fill_dict_entry(msg)
-
-        elif msg.typeName == datatype.MSG_TYPE_ORDER_STATUS:
-            print("Server Response: %s, %s\n" % (msg.typeName, msg))
-            print "got an order status message"
-            if msg.filled != 0 and \
-            self.handler.fill_dict[msg.orderId]["filled"] == False:
-                self.handler.create_fill(msg)
-                print "filled at" + msg.lastFillPrice
-                self.monitor.update_fills(float(msg.lastFillPrice))
+#this bellow is in a different handler now
+        # elif msg.typeName == datatype.MSG_TYPE_OPEN_ORDER:
+        #     print("Server Response: %s, %s\n" % (msg.typeName, msg))
+        #     print "gottan order open messg"
+        #     if msg.orderId == self.handler.order_id and \
+        #         not self.handler.fill_dict.has_key(msg.orderId):
+        #         self.handler.create_fill_dict_entry(msg)
+        #
+        # elif msg.typeName == datatype.MSG_TYPE_ORDER_STATUS:
+        #     print("Server Response: %s, %s\n" % (msg.typeName, msg))
+        #     print "got an order status message"
+        #     if msg.filled != 0 and \
+        #     self.handler.fill_dict[msg.orderId]["filled"] == False:
+        #         self.handler.create_fill(msg)
+        #         print "filled at" + msg.lastFillPrice
+        #
 
 
 
@@ -293,6 +301,8 @@ class HFTModel:
             # print self.state
         if self.handler is not None:
             self.execute_trade(self.signal, self.last_bid, self.last_ask)
+            #Hackish af
+            self.monitor.update_fills(self.handler.passpass())
                 
 
 
@@ -431,18 +441,10 @@ class HFTModel:
      ##############
      #
 
-    def execute_trade(self,signal,last_bid,last_ask): ### Bear in mind the "state" is EVENTUAL in this case
-        # and self.handler.fill_dict[self.handler.fill_dict.keys().sort()[-1]]["filled"] == True
-        # if self.handler.fill_dict is not None:
-        #     print self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"]
-        if signal == "BUY" and self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] == True:
-            order = self.handler.create_order("LMT",1,signal,last_ask)
-            print "order spawned buy"
-            self.handler.execute_order(self.order_template, order)
-        elif signal == "SELL" and self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] == True:
-            order = self.handler.create_order("LMT", 1, signal, last_bid)
-            print "order spawned sell"
-            self.handler.execute_order(self.order_template, order)
+    def execute_trade(self,signal,last_bid,last_ask):
+        if signal == "BUY" or signal =="SELL":
+            print "got a signal, passing to handler"
+            self.handler.place_trade(signal,self.last_bid,self.last_trade)
 
 
 
@@ -461,11 +463,9 @@ class HFTModel:
         self.traffic_light.wait()
         print "light's green"
         self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag,self.conn)
-        print "killing them all"
-        self.handler.kill_em_all()
-        #init the execution handler and specs
-#        self.trader.init_execution_handler(symbol=symbols, sec_type="FUT", exch="NYMEX", prim_exch="NYMEX", curr="USD")
-    
+        #print "killing them all"
+        #self.handler.kill_em_all()
+
     def spawn_monitor(self):
         print "monitor thread spawned"        
         self.traffic_light.wait()

@@ -113,8 +113,9 @@ class Monit_stream:
             self.stream4.write(dict(x=now, y=last_price))
 
     def update_fills(self, fill):
-        now=dt.datetime.now()
-        self.stream5.write(dict(x=now, y=fill))
+        #now=dt.datetime.now()
+        if fill is not None:
+            self.stream5.write(dict(x=fill[0], y=fill[1]))
 
     def close_stream(self):
         self.stream1.close()

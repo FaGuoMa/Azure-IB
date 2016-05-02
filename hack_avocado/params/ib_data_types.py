@@ -65,6 +65,8 @@ MSG_TYPE_TICK_STRING = "tickString"
 MSG_TYPE_STICK_SIZE = "tickSize"
 MSG_TYPE_ORDER_STATUS = "orderStatus"
 MSG_TYPE_OPEN_ORDER = "openOrder"
+MSG_TYPE_POSITION = "position"
+MSG_TYPE_NEXT_VALID_ID = "nextValidId"
 
 
 DATE_TIME_FORMAT = "%Y%m%d %H:%M:%S"

@@ -42,6 +42,7 @@ class ExecutionHandler(object):
         self.last_trade = None
         self.last_bid = None
         self.last_ask = None
+        self.last_fill = None
 
 
 
@@ -73,6 +74,16 @@ class ExecutionHandler(object):
             # print msg
             if msg.filled != 0:
                 self.create_fill(msg)
+                #hackish attempt to pass stuff to the plotly monitor
+                print "last fill at " + str(float(msg.avgFillPrice))
+                self.last_fill = [dt.datetime.now(), float(msg.avgFillPrice)]
+
+    def passpass(self):
+
+        if self.last_fill is not None:
+            return self.last_fill
+            self.last_fill = None
+
 
 #    def create_initial_order_id(self):
 #         return 750
@@ -127,40 +138,47 @@ class ExecutionHandler(object):
         #order.m_parentId = parent_id
         print "trailing order spawned"
         return order
-    def place_trade(self, action, qty=1):
-        if action == "BUY":
-            price = self.last_bid + 0.5#to get filled
-        if action == "SELL":
-            price = self.last_ask - 0.5
-        print str(self.valid_id)
-        order = self.create_order('LMT',qty,action,price)
+    def place_trade(self, action, last_bid, last_ask, qty=1):
+        #TODO: __main__ is broken
+        #I have changed the input to add last_bid and last_ask, __main__ now probably broken!!!!!!
+        #
+        if not self.is_trading:
+            if action == "BUY":
+                price = last_bid #+ 0.5#to get filled
+            if action == "SELL":
+                price = last_ask #- 0.5
+            print str(self.valid_id)
+            order = self.create_order('LMT',qty,action,price)
 
-        self.execute_order(self.contract,order)
+            self.execute_order(self.contract,order)
 
-        print self.fill_dict[self.valid_id-1]["filled"]
-        self.is_trading = True
-        self.req_open()
-        cnt = 50
-        trail_exists = False
-        while cnt > 0:
+            print self.fill_dict[self.valid_id-1]["filled"]
+            self.is_trading = True
+            self.req_open()
+            cnt = 50
+            trail_exists = False
+            while cnt > 0:
 
 
-            if self.fill_dict[self.valid_id-1]["filled"] and not trail_exists:
-                if action == "BUY":
-                    naction = "SELL"
-                if action == "SELL":
-                    naction = "BUY"
-                self.create_trailing_order(1,naction,0.04)
-                trail_exists = True
-            cnt -=1
-            time.sleep(0.1)
+                if self.fill_dict[self.valid_id-1]["filled"] and not trail_exists:
+                    if action == "BUY":
+                        naction = "SELL"
+                    if action == "SELL":
+                        naction = "BUY"
+                    self.create_trailing_order(1,naction,0.04)
+                    trail_exists = True
+                    while not self.fill_dict[self.valid_id]["filled"]:
+                        time.sleep(0.1)
+                    trail_exists = False
+                cnt -=1
+                time.sleep(0.1)
 
-        if not trail_exists:
-
-            print "killing order"
-            self.cancel_order(sorted(self.fill_dict.keys())[0])
-            self.trading = False
-        time.sleep(1)
+            if not trail_exists:
+                if not self.fill_dict[self.valid_id]["filled"]:
+                    print "killing order"
+                    self.cancel_order(sorted(self.fill_dict.keys())[0])
+                self.trading = False
+            time.sleep(1)
 
 
     def create_fill_dict_entry(self, id, order):
@@ -226,7 +244,7 @@ class ExecutionHandler(object):
             self.order_id = 1300
 
     def kill_em_all(self):
-        EClientSocket(self.ib_conn).reqGlobalCancel()
+        self.ib_conn.reqGlobalCancel()
 
 
     def neutralize(self):
