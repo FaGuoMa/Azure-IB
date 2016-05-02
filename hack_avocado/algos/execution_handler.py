@@ -64,13 +64,13 @@ class ExecutionHandler(object):
         # Handle open order orderId processing
         if msg.typeName == "openOrder":
             #print "ack " + str(msg.orderId)
-            print msg
+            # print msg
             zboub = msg.order
             print zboub.m_action
          #   self.create_fill_dict_entry(msg.orderId)
         # # Handle Fills
         if msg.typeName == "orderStatus":
-            print msg
+            # print msg
             if msg.filled != 0:
                 self.create_fill(msg)
 
@@ -125,13 +125,13 @@ class ExecutionHandler(object):
         order.m_action = action
         order.m_triggerMethod = 8  # midpoint method
         #order.m_parentId = parent_id
-
+        print "trailing order spawned"
         return order
     def place_trade(self, action, qty=1):
         if action == "BUY":
-            price = self.last_bid#to get filled
+            price = self.last_bid + 0.5#to get filled
         if action == "SELL":
-            price = self.last_ask
+            price = self.last_ask - 0.5
         print str(self.valid_id)
         order = self.create_order('LMT',qty,action,price)
 
@@ -140,14 +140,23 @@ class ExecutionHandler(object):
         print self.fill_dict[self.valid_id-1]["filled"]
         self.is_trading = True
         self.req_open()
-        time.sleep(5)
-        if self.fill_dict[self.valid_id-1]["filled"]:
-            if action == "BUY":
-                naction = "SELL"
-            if action == "SELL":
-                naction = "BUY"
-            self.create_trailing_order(1,naction,0.04)
-        else:
+        cnt = 50
+        trail_exists = False
+        while cnt > 0:
+
+
+            if self.fill_dict[self.valid_id-1]["filled"] and not trail_exists:
+                if action == "BUY":
+                    naction = "SELL"
+                if action == "SELL":
+                    naction = "BUY"
+                self.create_trailing_order(1,naction,0.04)
+                trail_exists = True
+            cnt -=1
+            time.sleep(0.1)
+
+        if not trail_exists:
+
             print "killing order"
             self.cancel_order(sorted(self.fill_dict.keys())[0])
             self.trading = False
@@ -237,15 +246,15 @@ class ExecutionHandler(object):
 
         # Store information from last traded price
         if field_type == 4:
-            self.last_trade == msg.price
-            print "trade" + str(msg.price)
+            self.last_trade = float(msg.price)
+            print "trade " + str(self.last_trade)
         if field_type == 1:
-            self.last_ask == msg.price
-        print "ask " + str(msg.price)
+            self.last_ask = float(msg.price)
+        print "ask " + str(self.last_ask)
 
         if field_type == 2:
-            self.last_bid == msg.price
-            print "bid" + str(msg.price)
+            self.last_bid = float(msg.price)
+            print "bid" + str(self.last_bid)
 
 
 ######
