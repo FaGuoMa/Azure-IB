@@ -264,7 +264,7 @@ class Zscore:
             self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
             #self.order_id += 1
-            print "sell order sent"
+            print "sell signal sent"
 
         # Short Trend Stop
         elif self.state == "short" and self.flag == "trend" \
@@ -277,7 +277,7 @@ class Zscore:
             self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             #self.order_id += 1
-            print "buy order sent"
+            print "buy signal sent"
 
         # Long range Stop
         elif self.state == "LONG" and self.flag == "range" \
@@ -289,7 +289,7 @@ class Zscore:
             self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
             #self.order_id += 1
-            print "sell order sent"
+            print "sell signal sent"
 
         # Short range Stop
         elif self.state == "short" and self.flag == "trend" \
@@ -301,7 +301,7 @@ class Zscore:
             self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             #self.order_id += 1
-            print "buy order sent"
+            print "buy signal sent"
 
             # set signal to null if no order this tick from this method
         else:

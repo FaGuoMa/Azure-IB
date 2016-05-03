@@ -29,7 +29,7 @@ class ExecutionHandler(object):
         self.position = None
         self.contract = self.create_contract("CL",'FUT', 'NYMEX', '201606','USD')
         self.is_trading = False
-        #will need  a test for pickle existence
+        #will need  a test for pickle existence TODO panda the pickle or something
         self.fill_dict = {}
         # self.fill_dict[0] = {
         #     "timestamp": dt.datetime.now(),
@@ -149,12 +149,14 @@ class ExecutionHandler(object):
                 price = last_ask #- 0.5
             print str(self.valid_id)
             order = self.create_order('LMT',qty,action,price)
-
+            print "created order from handler"
             self.execute_order(self.contract,order)
 
-            print self.fill_dict[self.valid_id-1]["filled"]
+            #print self.fill_dict[self.valid_id-1]["filled"]
             self.is_trading = True
+            print "requesting open orders"
             self.req_open()
+            print "waiting for 5sec to get a fill"
             cnt = 50
             trail_exists = False
             while cnt > 0:
@@ -165,11 +167,14 @@ class ExecutionHandler(object):
                         naction = "SELL"
                     if action == "SELL":
                         naction = "BUY"
-                    self.create_trailing_order(1,naction,0.04)
+                    self.create_trailing_order(1,naction,0.02)
+                    print "created trailing order at 2 ticks"
                     trail_exists = True
-                    while not self.fill_dict[self.valid_id]["filled"]:
-                        time.sleep(0.1)
+                    while 1:
+                        if self.fill_dict[self.valid_id]["filled"]:
+                            break
                     trail_exists = False
+                    print "trail got a fill"
                 cnt -=1
                 time.sleep(0.1)
 

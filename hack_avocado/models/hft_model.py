@@ -302,7 +302,9 @@ class HFTModel:
         if self.handler is not None:
             self.execute_trade(self.signal, self.last_bid, self.last_ask)
             #Hackish af
-            self.monitor.update_fills(self.handler.passpass())
+            if self.handler is not None and self.monitor is not None:
+
+                self.monitor.update_fills(self.handler.passpass())
                 
 
 
@@ -373,23 +375,24 @@ class HFTModel:
 #        print " got prices"
         prices = prices.dropna()
         prices = prices[prices.index > prices.index[-1] - dt.timedelta(seconds=60)]
-        last_price = prices.iloc[-1]
+        if len(prices) !=0:
+            last_price = prices.iloc[-1]
 
-        self.cur_mean = np.mean(prices)
-        logging.debug("updated mean")
-        print last_price
-        prices = prices.diff()
-        prices = prices.dropna()
-        prices = prices**2
+            self.cur_mean = np.mean(prices)
+            #logging.debug("updated mean")
+            print last_price
+            prices = prices.diff()
+            prices = prices.dropna()
+            prices = prices**2
 
-        tdiffs = list()
-        for i in range(1,len(prices)):
-            tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
-        prices = prices.ix[1:]
-        self.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
-        logging.debug("updated sd")
-        self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-        print(self.cur_zscore)
+            tdiffs = list()
+            for i in range(1,len(prices)):
+                tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
+            prices = prices.ix[1:]
+            self.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
+            #logging.debug("updated sd")
+            self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
+            print(self.cur_zscore)
 
 
     def __trim_data_series(self):
@@ -444,7 +447,8 @@ class HFTModel:
     def execute_trade(self,signal,last_bid,last_ask):
         if signal == "BUY" or signal =="SELL":
             print "got a signal, passing to handler"
-            self.handler.place_trade(signal,self.last_bid,self.last_trade)
+            if not self.handler.is_trading:
+                self.handler.place_trade(signal,self.last_bid,self.last_trade)
 
 
 
