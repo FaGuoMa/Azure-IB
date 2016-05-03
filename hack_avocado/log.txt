@@ -11854,3 +11854,6 @@ KeyError: 1497
 2016-05-03 22:19:00,044 converted list
 2016-05-03 22:19:00,048 appended new prices
 2016-05-03 22:19:00,051 truncate  ok.Shape: (507, 6)
+2016-05-03 22:20:00,165 converted list
+2016-05-03 22:20:00,167 appended new prices
+2016-05-03 22:20:00,169 truncate  ok.Shape: (558, 6)

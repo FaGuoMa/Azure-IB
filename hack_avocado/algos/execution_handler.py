@@ -67,7 +67,7 @@ class ExecutionHandler(object):
             #print "ack " + str(msg.orderId)
             # print msg
             zboub = msg.order
-            print zboub.m_action
+            #print zboub.m_action
          #   self.create_fill_dict_entry(msg.orderId)
         # # Handle Fills
         if msg.typeName == "orderStatus":
@@ -139,49 +139,60 @@ class ExecutionHandler(object):
         print "trailing order spawned"
         return order
     def place_trade(self, action, last_bid, last_ask, qty=1):
-        #TODO: __main__ is broken
+        #
         #I have changed the input to add last_bid and last_ask, __main__ now probably broken!!!!!!
         #
         if not self.is_trading:
             if action == "BUY":
-                price = last_bid #+ 0.5#to get filled
+                price = last_bid #- 0.5#to get filled
             if action == "SELL":
                 price = last_ask #- 0.5
             print str(self.valid_id)
             order = self.create_order('LMT',qty,action,price)
             print "created order from handler"
+            print "main order id"
+            print self.valid_id
+            main_id = self.valid_id
             self.execute_order(self.contract,order)
 
-            #print self.fill_dict[self.valid_id-1]["filled"]
+            print self.fill_dict[main_id]
             self.is_trading = True
             print "requesting open orders"
             self.req_open()
             print "waiting for 5sec to get a fill"
             cnt = 50
-            trail_exists = False
+            #trail_exists = False
             while cnt > 0:
 
 
-                if self.fill_dict[self.valid_id-1]["filled"] and not trail_exists:
+                if self.fill_dict[main_id]["filled"]: # and not trail_exists:
                     if action == "BUY":
                         naction = "SELL"
                     if action == "SELL":
                         naction = "BUY"
-                    self.create_trailing_order(1,naction,0.02)
+                    trail = self.create_trailing_order(1,naction,0.02)
                     print "created trailing order at 2 ticks"
-                    trail_exists = True
-                    while 1:
-                        if self.fill_dict[self.valid_id]["filled"]:
+                    print  "trail order id"
+                    print self.valid_id
+                    trail_id = self.valid_id
+                    self.execute_order(self.contract,trail)
+
+                    time.sleep(1)
+                    #trail_exists = True
+                    while True:
+                        time.sleep(0.1)
+                        if self.fill_dict[trail_id]["filled"]:
                             break
-                    trail_exists = False
+                    #trail_exists = False
                     print "trail got a fill"
-                cnt -=1
+                    break
+                cnt -= 1
                 time.sleep(0.1)
 
-            if not trail_exists:
-                if not self.fill_dict[self.valid_id]["filled"]:
+            if trail is not None:
+                if not self.fill_dict[main_id]["filled"]:
                     print "killing order"
-                    self.cancel_order(sorted(self.fill_dict.keys())[0])
+                    self.cancel_order(main_id)
                 self.trading = False
             time.sleep(1)
 
@@ -195,8 +206,10 @@ class ExecutionHandler(object):
         """
         self.fill_dict[id] = {
             "timestamp": dt.datetime.now(),
-            "order": order,
-            "filled": False
+            "order": order.m_orderType,
+            "direction": order.m_action,
+            "filled": False,
+            "price": 0
         }
         print "created entry"
 
@@ -208,6 +221,7 @@ class ExecutionHandler(object):
 
         # Check for fill and no duplicates
         self.fill_dict[msg.orderId]["filled"] = True
+        #self.fill_dict[msg.orderId["price"] = msg.
 
 
     def execute_order(self, ib_contract, ib_order):
@@ -270,14 +284,16 @@ class ExecutionHandler(object):
         # Store information from last traded price
         if field_type == 4:
             self.last_trade = float(msg.price)
-            print "trade " + str(self.last_trade)
+
+
+            #print "trade " + str(self.last_trade)
         if field_type == 1:
             self.last_ask = float(msg.price)
-        print "ask " + str(self.last_ask)
+        #print "ask " + str(self.last_ask)
 
         if field_type == 2:
             self.last_bid = float(msg.price)
-            print "bid" + str(self.last_bid)
+            #print "bid" + str(self.last_bid)
 
 
 ######
@@ -304,6 +320,7 @@ if __name__ == "__main__":
 
     #test sequence
     time.sleep(2)
+    print "initial validid print"
     print test.valid_id
     print test.position
     test.neutralize()
@@ -315,7 +332,7 @@ if __name__ == "__main__":
     # time.sleep(5)
     # test.execute_order(test.contract,test.create_order("MKT",1,"SELL"))
     # time.sleep(5)
-    test.place_trade("BUY")
+    test.place_trade("BUY", test.last_bid,test.last_ask)
     time.sleep(5)
     for key in test.fill_dict:
         print key
