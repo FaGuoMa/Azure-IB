@@ -132,21 +132,24 @@ class ExecutionHandler(object):
         order = Order()
         order.m_orderType = "TRAIL"  # "TRAIL" = Trailing Stop "TRAIL LIMIT" = Trailing stop limit
         order.m_totalQuantity = quantity
+        order.m_lmtPrice = 0
         order.m_auxPrice = trail_threshold  # trailing amount
         order.m_action = action
-        order.m_triggerMethod = 8  # midpoint method
+        order.m_triggerMethod = 0  # midpoint method
         #order.m_parentId = parent_id
         print "trailing order spawned"
         return order
+
     def place_trade(self, action, last_bid, last_ask, qty=1):
         #
         #I have changed the input to add last_bid and last_ask, __main__ now probably broken!!!!!!
         #
+        print "place trade activated"
         if not self.is_trading:
             if action == "BUY":
-                price = last_bid #- 0.5#to get filled
+                price = last_bid + 0.5#to get filled
             if action == "SELL":
-                price = last_ask #- 0.5
+                price = last_ask - 0.5
             print str(self.valid_id)
             order = self.create_order('LMT',qty,action,price)
             print "created order from handler"
@@ -162,9 +165,12 @@ class ExecutionHandler(object):
             print "waiting for 5sec to get a fill"
             cnt = 50
             #trail_exists = False
+
+            trail = None
             while cnt > 0:
 
-
+                print "main id fill dict"
+                print self.fill_dict[main_id]
                 if self.fill_dict[main_id]["filled"]: # and not trail_exists:
                     if action == "BUY":
                         naction = "SELL"
@@ -172,7 +178,7 @@ class ExecutionHandler(object):
                         naction = "BUY"
                     trail = self.create_trailing_order(1,naction,0.02)
                     print "created trailing order at 2 ticks"
-                    print  "trail order id"
+                    print "trail order id"
                     print self.valid_id
                     trail_id = self.valid_id
                     self.execute_order(self.contract,trail)
@@ -180,6 +186,8 @@ class ExecutionHandler(object):
                     time.sleep(1)
                     #trail_exists = True
                     while True:
+                        print "trail id fill dict"
+                        print self.fill_dict[trail_id]
                         time.sleep(0.1)
                         if self.fill_dict[trail_id]["filled"]:
                             break

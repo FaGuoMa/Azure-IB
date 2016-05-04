@@ -126,10 +126,9 @@ class Zscore:
     def algo_calc(self):
         # Enter Long Position Signal in trend flag
         if self.zscore > self.z_threshold and \
-                self.hist_zscore <= self.z_threshold and \
                 self.flag == "trend" and \
                 self.state == "FLAT":
-
+            # self.hist_zscore <= self.z_threshold and \
             self.hist_state = self.state
             self.hist_signal = self.signal
 
@@ -141,10 +140,9 @@ class Zscore:
 
         # Enter Short Position Signal in trend flag
         elif self.zscore < -self.z_threshold and \
-                self.zscore >= -self.z_threshold and \
                 self.flag == "trend" and \
                 self.state == "FLAT":
-
+            # self.zscore >= -self.z_threshold and \
             self.hist_state = self.state
             self.hist_signal = self.signal
 
@@ -154,40 +152,39 @@ class Zscore:
             #self.order_id += 1
             print "sell order sent"
 
-        # Close Long position in trend flag
-        elif self.hist_state == "LONG" and \
-                self.zscore <= self.z_close_thresh and \
-                self.hist_state == "trend":
+        # # Close Long position in trend flag
+        # elif self.hist_state == "LONG" and \
+        #         self.zscore <= self.z_close_thresh and \
+        #         self.hist_state == "trend":
+        #
+        #     self.hist_state = self.state
+        #     self.hist_signal = self.signal
+        #
+        #     self.signal = "SELL"
+        #     self.state = "FLAT"
+        #     #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+        #     #self.order_id += 1
+        #     print "sell order sent"
 
-            self.hist_state = self.state
-            self.hist_signal = self.signal
-
-            self.signal = "SELL"
-            self.state = "FLAT"
-            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            #self.order_id += 1
-            print "sell order sent"
-
-        # Close Short Position in trend flag
-        elif self.hist_state == "SHORT" and \
-                self.zscore >= -self.z_close_thresh and\
-                self.flag == "trend":
-
-            self.hist_state = self.state
-            self.hist_signal = self.signal
-
-            self.signal = "BUY"
-            self.state = "FLAT"
-            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            #self.order_id += 1
-            print "buy order sent"
+        # # Close Short Position in trend flag
+        # elif self.hist_state == "SHORT" and \
+        #         self.zscore >= -self.z_close_thresh and\
+        #         self.flag == "trend":
+        #
+        #     self.hist_state = self.state
+        #     self.hist_signal = self.signal
+        #
+        #     self.signal = "BUY"
+        #     self.state = "FLAT"
+        #     #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+        #     #self.order_id += 1
+        #     print "buy order sent"
 
         # Enter Long Position Signal in range flag
         elif self.zscore < -self.z_threshold and \
-                self.hist_zscore >= -self.z_threshold and \
                 self.flag == "range" and \
                 self.hist_state == "FLAT":
-
+                # self.hist_zscore >= -self.z_threshold and \
                 self.hist_state = self.state
                 self.hist_signal = self.signal
 
@@ -199,10 +196,9 @@ class Zscore:
 
         # Enter Short Position Signal in range flag
         elif self.zscore > self.z_threshold and \
-                self.hist_zscore <= self.z_threshold and \
                 self.flag == "range" and \
                 self.hist_state == "FLAT":
-
+                # self.hist_zscore <= self.z_threshold and \
                 self.hist_state = self.state
                 self.hist_signal = self.signal
 
@@ -212,33 +208,33 @@ class Zscore:
                 #self.order_id += 1
                 print "sell order sent"
 
-        # Close Long position in range flag
-        elif self.hist_state == "LONG" and \
-                self.zscore >= -self.z_close_thresh and \
-                self.flag == "range":
-
-            self.hist_state = self.state
-            self.hist_signal = self.signal
-
-            self.signal = "SELL"
-            self.state = "FLAT"
-            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
-            #self.order_id += 1
-            print "sell order sent"
-
-        # Close Short Position in range flag
-        elif self.hist_state == "SHORT" and \
-                        self.zscore <= self.z_close_thresh and \
-                        self.flag == "range":
-
-            self.hist_state = self.state
-            self.hist_signal = self.signal
-
-            self.signal = "BUY"
-            self.state = "FLAT"
-            #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
-            #self.order_id += 1
-            print "buy order sent"
+        # # Close Long position in range flag
+        # elif self.hist_state == "LONG" and \
+        #         self.zscore >= -self.z_close_thresh and \
+        #         self.flag == "range":
+        #
+        #     self.hist_state = self.state
+        #     self.hist_signal = self.signal
+        #
+        #     self.signal = "SELL"
+        #     self.state = "FLAT"
+        #     #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
+        #     #self.order_id += 1
+        #     print "sell order sent"
+        #
+        # # Close Short Position in range flag
+        # elif self.hist_state == "SHORT" and \
+        #                 self.zscore <= self.z_close_thresh and \
+        #                 self.flag == "range":
+        #
+        #     self.hist_state = self.state
+        #     self.hist_signal = self.signal
+        #
+        #     self.signal = "BUY"
+        #     self.state = "FLAT"
+        #     #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
+        #     #self.order_id += 1
+        #     print "buy order sent"
 
         #set signal to null if no order this tick from this method
         else:
@@ -326,7 +322,7 @@ class Zscore:
         self.calc_zscore(self.mid_price)
 
         # calculate stops
-        self.stops_calc()
+        # self.stops_calc()
 
         # run algo calc based on object self values
         self.algo_calc()

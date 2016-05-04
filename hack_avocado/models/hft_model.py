@@ -444,11 +444,13 @@ class HFTModel:
      ##############
      #
 
-    def execute_trade(self,signal,last_bid,last_ask):
+    def execute_trade(self, signal, last_bid, last_ask):
         if signal == "BUY" or signal =="SELL":
             print "got a signal, passing to handler"
+            print "handler is trading? "
+            print self.handler.is_trading
             if not self.handler.is_trading:
-                self.handler.place_trade(signal,self.last_bid,self.last_trade)
+                self.handler.place_trade(signal, self.last_bid, self.last_trade)
 
 
 
