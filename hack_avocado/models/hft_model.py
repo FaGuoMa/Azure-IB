@@ -15,7 +15,7 @@ from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 #import monitor
 from classes.monitor_plotly import Monit_stream
-from algos.ZscoreEventDriven import Zscore
+#from algos.ZscoreEventDriven import Zscore
 import threading
 import sys
 import os
@@ -24,7 +24,7 @@ import numpy as np
 import talib as ta
 from math import sqrt
 import pytz
-from algos.execution_handler import ExecutionHandler
+from algos.execution_handler2 import ExecutionHandler
 
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
@@ -57,6 +57,7 @@ class HFTModel:
         self.traffic_light = threading.Event()
         self.thread = None
         self.thread2 = None
+        self.thread3 = None
         #addition for hdf store
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
@@ -294,13 +295,17 @@ class HFTModel:
             self.traffic_light.set()
             
         if self.trader is not None:
-            self.trader.on_tick(self.last_bid,self.last_ask)
+            self.trader.on_tick(self.last_bid,self.last_ask, self.handler.position)
             self.signal = self.trader.update_signal()
             # print self.signal
             self.state = self.trader.update_state()
             # print self.state
         if self.handler is not None:
-            self.execute_trade(self.signal, self.last_bid, self.last_ask)
+            self.handler.on_tick(self.cur_zscore,self.last_bid,self.last_ask,self.flag,self.last_trade)
+        #     self.thread3 = threading.Thread(target=self.execute_trade, args=(self.signal, self.last_bid, self.last_trade))
+        #     self.thread3.start()
+        #     self.thread3.join()
+        #     #self.execute_trade(self.signal, self.last_bid, self.last_ask)
             #Hackish af
             if self.handler is not None and self.monitor is not None:
 
@@ -444,13 +449,13 @@ class HFTModel:
      ##############
      #
 
-    def execute_trade(self, signal, last_bid, last_ask):
-        if signal == "BUY" or signal =="SELL":
-            print "got a signal, passing to handler"
-            print "handler is trading? "
-            print self.handler.is_trading
-            if not self.handler.is_trading:
-                self.handler.place_trade(signal, self.last_bid, self.last_trade)
+    # def execute_trade(self, signal, last_bid, last_ask):
+    #     if signal == "BUY" or signal =="SELL":
+    #         print "got a signal, passing to handler"
+    #         print "handler is trading? "
+    #         print self.handler.is_trading
+    #         if not self.handler.is_trading:
+    #             self.handler.place_trade(signal, self.last_bid, self.last_trade)
 
 
 
@@ -464,12 +469,12 @@ class HFTModel:
             self.conn.cancelMktData(i)
             time.sleep(1)
     
-    def spawn(self):
-        print "zscore thread spawned"        
-        self.traffic_light.wait()
-        print "light's green"
-        self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag,self.conn)
-        #print "killing them all"
+    # def spawn(self):
+    #     print "zscore thread spawned"
+    #     self.traffic_light.wait()
+    #     print "light's green"
+    #     self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag,self.conn)
+    #     #print "killing them all"
         #self.handler.kill_em_all()
 
     def spawn_monitor(self):
@@ -506,8 +511,8 @@ class HFTModel:
         
         print "zscore check coming"        
         
-        self.thread = threading.Thread(target=self.spawn())
-        self.thread.start()
+        # self.thread = threading.Thread(target=self.spawn())
+        # self.thread.start()
         self.thread2 = threading.Thread(target=self.spawn_monitor)
         self.thread2.start()
 
@@ -529,8 +534,8 @@ class HFTModel:
             self.__cancel_market_data_request()
             print "killing all orders"
             self.handler.kill_em_all()
-            self.handler.cancel_pos()
-            self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] = True
+
+            #self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] = True
             self.handler.save_pickle()
             # self.monitor.close_stream()
             print "Disconnecting..."
