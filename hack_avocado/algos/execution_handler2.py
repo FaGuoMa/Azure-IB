@@ -208,6 +208,8 @@ class ExecutionHandler(object):
             print self.stop_order
             print "profit:"
             print self.profit_order
+            print "CURRENT POS IS:"
+            print self.position
         #if self.main_order["active"] and not self.main_order["filled"]:
             #print "shelf life of main:"
             #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds()
@@ -307,12 +309,14 @@ class ExecutionHandler(object):
                 self.stop_order["filled"] = True
                 type = "stop"
                 direction = self.stop_order["order"].m_action
+                time.sleep(5)
                 self.reset_trading_pos()
             elif self.profit_order["id"] == int(msg.orderId):
                 self.profit_order["filled"] = True
                 type = "profit"
                 direction = self.profit_order["order"].m_action
-                self.reset_trading_pos()
+                time.sleep(5)
+                self.reset_trading_pos()#TODO I suspect something fishy here. Maybe the time.sleep will help
             else:
                 print "uh, oh .. fill didn't match"
                 type = "other"
@@ -436,7 +440,7 @@ class Monit_stream:
             mode='lines+markers',    # markers at pendulum's nodes, lines in-bt.
               # reduce opacity
             marker=Marker(size=1),  # increase marker size
-            stream=Stream(token=self.credentials[0])  # (!) link stream id to token
+            stream=Stream(token=self.credentials[0], maxpoints=200)  # (!) link stream id to token
             )
 
 # Set limits and mean, but later
@@ -446,7 +450,7 @@ class Monit_stream:
             mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[1]         # plot a max of 100 pts on screen
+            token=self.credentials[1], maxpoints=200         # plot a max of 100 pts on screen
             )
             )
         self.limit_dwn = Scatter(
@@ -455,7 +459,7 @@ class Monit_stream:
             mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[2]# plot a max of 100 pts on screen
+            token=self.credentials[2], maxpoints=200# plot a max of 100 pts on screen
             )
             )
         self.ranging = Scatter(
@@ -465,7 +469,7 @@ class Monit_stream:
             line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
               # reduce opacity
             marker=Marker(size=5),  # increase marker size
-            stream=Stream(token=self.credentials[3])
+            stream=Stream(token=self.credentials[3], maxpoints=100)
             )
 
         self.fills_buy = Scatter(
@@ -474,7 +478,7 @@ class Monit_stream:
             mode='markers',
 
             marker=Marker(size=15, color='rgba(76,178,127,0.7)'),  # increase marker size
-            stream=Stream(token=self.credentials[4], maxpoints=10)
+            stream=Stream(token=self.credentials[4], maxpoints=5)
         )
         self.fills_sell = Scatter(
             x=[],  # init. data lists
@@ -482,7 +486,7 @@ class Monit_stream:
             mode='markers',
 
             marker=Marker(size=15, color='rgba(178,76,76,0.7)'),  # increase marker size
-            stream=Stream(token=self.credentials[5], maxpoints=10)
+            stream=Stream(token=self.credentials[5], maxpoints=5)
         )
 # (@) Send fig to Plotly, initialize streaming plot, open tab
         self.stream1 = py.Stream(self.credentials[0])
@@ -564,7 +568,7 @@ if __name__ == "__main__":
     time.sleep(2)
     print "initial validid print"
     if test.valid_id is None:
-        test.valid_id = 1500
+        test.valid_id = 1600
     print test.valid_id
     print test.position
     test.neutralize()
