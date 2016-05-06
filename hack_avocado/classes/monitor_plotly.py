@@ -14,16 +14,20 @@ import plotly.tools as tls
 # (*) Graph objects to piece together plots
 from plotly.graph_objs import *
 import datetime as dt
-
+from params import settings
 class Monit_stream:
 
     def __init__(self):
+        #authenticate using settings
+        tls.set_credentials_file(username=settings.PLOTLY_USER, api_key=settings.PLOTLY_API)
         tls.set_credentials_file(stream_ids=["wgqspsraap",
                                              "x2ud202z0t",
                                              "j7yjtjcxu7",
                                              "cgj0kteviv",
                                              "p8l5y19psu"])
         self.credentials = tls.get_credentials_file()['stream_ids']
+
+
                                      
 # Get stream id from stream id list 
 #stream_id = stream_ids[0]
@@ -56,7 +60,7 @@ class Monit_stream:
         self.limit_dwn = Scatter(
             x=[],  # init. data lists
             y=[],
-            mode='lines+markers',                             # path drawn as line
+            mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
             token=self.credentials[2]# plot a max of 100 pts on screen
@@ -106,8 +110,8 @@ class Monit_stream:
     def update_data_point(self,last_price,last_mean,last_sd,flag):
         now = dt.datetime.now()        
         self.stream1.write(dict(x=now, y=last_price))
-        self.stream2.write(dict(x=now, y=last_mean+2*last_sd))
-        self.stream3.write(dict(x=now, y=last_mean-2*last_sd))
+        self.stream2.write(dict(x=now, y=last_mean+settings.Z_THRESH*last_sd))
+        self.stream3.write(dict(x=now, y=last_mean-settings.Z_THRESH*last_sd))
 
         if flag == "range":
             self.stream4.write(dict(x=now, y=last_price))
@@ -122,6 +126,7 @@ class Monit_stream:
         self.stream2.close()
         self.stream3.close()
         self.stream4.close()
+        self.stream5.close()
         # (@) Write 1 point corresponding to 1 pt of path,
         #     appending the data on the plot
 

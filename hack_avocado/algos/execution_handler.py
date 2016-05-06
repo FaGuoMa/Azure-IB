@@ -44,7 +44,12 @@ class ExecutionHandler(object):
         self.last_ask = None
         self.last_fill = None
 
-
+        #neutralize outstanding positions
+        while 1:
+            if self.position is not None:
+                self.neutralize()
+                "squared positions"
+                break
 
 
 #this bellow needs to go in registration at HTFmodel
@@ -147,9 +152,9 @@ class ExecutionHandler(object):
         print "place trade activated"
         if not self.is_trading:
             if action == "BUY":
-                price = last_bid + 0.5#to get filled
+                price = last_bid #+ 0.5#to get filled
             if action == "SELL":
-                price = last_ask - 0.5
+                price = last_ask #- 0.5
             print str(self.valid_id)
             order = self.create_order('LMT',qty,action,price)
             print "created order from handler"
@@ -176,7 +181,7 @@ class ExecutionHandler(object):
                         naction = "SELL"
                     if action == "SELL":
                         naction = "BUY"
-                    trail = self.create_trailing_order(1,naction,0.02)
+                    trail = self.create_trailing_order(1,naction,0.04)
                     print "created trailing order at 2 ticks"
                     print "trail order id"
                     print self.valid_id
@@ -197,11 +202,11 @@ class ExecutionHandler(object):
                 cnt -= 1
                 time.sleep(0.1)
 
-            if trail is not None:
-                if not self.fill_dict[main_id]["filled"]:
-                    print "killing order"
-                    self.cancel_order(main_id)
-                self.trading = False
+
+            if not self.fill_dict[main_id]["filled"]:
+                print "killing orders"
+                self.cancel_order(main_id)
+            self.trading = False
             time.sleep(1)
 
 
@@ -282,6 +287,8 @@ class ExecutionHandler(object):
                 neut = self.create_order("MKT", self.position, "BUY")
             self.execute_order(self.contract,neut)
 
+    def pass_position(self):
+        return  self.position
 
 #scaffolding tick data management for testing purposes
     def on_tick_event(self, msg):

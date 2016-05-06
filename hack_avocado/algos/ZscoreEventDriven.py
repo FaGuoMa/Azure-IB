@@ -133,7 +133,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "BUY"
-            self.state = "LONG"
+            # self.state = "LONG"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             #self.order_id += 1
             print "buy order sent"
@@ -147,7 +147,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "SELL"
-            self.state = "SHORT"
+            # self.state = "SHORT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
             #self.order_id += 1
             print "sell order sent"
@@ -189,7 +189,7 @@ class Zscore:
                 self.hist_signal = self.signal
 
                 self.signal = "BUY"
-                self.state = "LONG"
+                # self.state = "LONG"
                 #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
                 #self.order_id += 1
                 print "buy order sent"
@@ -203,7 +203,7 @@ class Zscore:
                 self.hist_signal = self.signal
 
                 self.signal = "SELL"
-                self.state = "SHORT"
+                # self.state = "SHORT"
                 #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
                 #self.order_id += 1
                 print "sell order sent"
@@ -257,7 +257,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "SELL"
-            self.state = "FLAT"
+            # self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
             #self.order_id += 1
             print "sell signal sent"
@@ -270,7 +270,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "BUY"
-            self.state = "FLAT"
+            # self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             #self.order_id += 1
             print "buy signal sent"
@@ -282,7 +282,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "SELL"
-            self.state = "FLAT"
+            # self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.sell_order)
             #self.order_id += 1
             print "sell signal sent"
@@ -294,7 +294,7 @@ class Zscore:
             self.hist_signal = self.signal
 
             self.signal = "BUY"
-            self.state = "FLAT"
+            #self.state = "FLAT"
             #self.ib_conn.placeOrder(self.order_id, self.ib_contract, self.buy_order)
             #self.order_id += 1
             print "buy signal sent"
@@ -312,7 +312,7 @@ class Zscore:
                                                                                             mid=self.mid_price,
                                                                                             zscore=self.zscore)
 
-    def on_tick(self, cur_bid, cur_ask):
+    def on_tick(self, cur_bid, cur_ask,cur_pos):
         # every tick pass the bid ask, perform calcs
         # print "on_tick call"
         # take current bid ask and calculate mid price
@@ -320,7 +320,12 @@ class Zscore:
 
         # calculate the new z score for the given tick mid price
         self.calc_zscore(self.mid_price)
-
+        if cur_pos >0:
+            self.state = "LONG"
+        elif cur_pos <0:
+            self.state = "SHORT"
+        elif cur_pos == 0:
+            self.state = "FLAT"
         # calculate stops
         # self.stops_calc()
 

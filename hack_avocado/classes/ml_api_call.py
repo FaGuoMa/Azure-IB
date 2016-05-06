@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import urllib2
 import json as json
+from params import settings
 class MLcall:
     def __init__(self):
         pass
@@ -17,9 +18,9 @@ class MLcall:
 #this will fairly easily plug in a interm datastore
     @staticmethod    
     def call_ml(ohlc):
-        url = 'https://asiasoutheast.services.azureml.net/workspaces/1012bd9ca9a140d3b79254b1262c7321/services/fb54b0cf57754af6a53afb6de37c811e/execute?api-version=2.0&details=true'
-        api_key = 'IkGTbXZUvFe0B/KpPkZ/RWT8B76sD/Nsxg70VguQM9aaJEbeO8f+rx/PMwJy/RwVK1wKO5PsDIxbd57ZV7OGmw==' # Replace this with the API key for the web service
-        
+        url = settings.ML_URL
+        api_key = settings.ML_API
+
         #vectorizing, the first value is the oldest
         intm = ohlc.tail(5)
         ml_set = intm["volume"].tolist()

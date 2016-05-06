@@ -14,7 +14,7 @@ from classes.stock_data import StockData
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 #import monitor
-from classes.monitor_plotly import Monit_stream
+#from classes.monitor_plotly import Monit_stream
 #from algos.ZscoreEventDriven import Zscore
 import threading
 import sys
@@ -72,19 +72,23 @@ class HFTModel:
         self.cur_mean = None
         self.cur_sd = None
         self.cur_zscore = None
-        self.trader = None
+        #self.trader = None
+        self.handler = None
+
 
 
         #self.order_id = self.handler.order_id
 
-        #import monitor
-        self.monitor = None
+
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = ibConnection() if is_use_gateway else \
             Connection.create(host=host, port=port, clientId=client_id)
-
-
+        #self.thread = threading.Thread(target=self.spawn())
+        #self.thread.start()
         self.handler = ExecutionHandler(self.conn)
+
+
+        #
         #third handler should register properly si Dieu veut
         self.__register_data_handlers(self.__on_tick_event,
                                       self.__event_handler,
@@ -112,7 +116,8 @@ class HFTModel:
                            ib_message_type.position,
                            ib_message_type.nextValidId,
                            ib_message_type.orderStatus,
-                           ib_message_type.openOrder)
+                           ib_message_type.openOrder,
+                           ib_message_type.error)
 
     def __init_stocks_data(self, symbols):
         self.symbols = symbols
@@ -142,7 +147,7 @@ class HFTModel:
 #            time.sleep(5)
 
         # Stream account updates DEACTIVATED FOR NOW
-#        ib_conn.reqAccountUpdates(True, self.account_code)
+        #ib_conn.reqAccountUpdates(True, self.account_code)
 
     def __request_historical_data(self, ib_conn):
         self.lock.acquire()
@@ -199,23 +204,6 @@ class HFTModel:
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
             pass
 
-#            self.account_code = msg.accountsList
-#this bellow is in a different handler now
-        # elif msg.typeName == datatype.MSG_TYPE_OPEN_ORDER:
-        #     print("Server Response: %s, %s\n" % (msg.typeName, msg))
-        #     print "gottan order open messg"
-        #     if msg.orderId == self.handler.order_id and \
-        #         not self.handler.fill_dict.has_key(msg.orderId):
-        #         self.handler.create_fill_dict_entry(msg)
-        #
-        # elif msg.typeName == datatype.MSG_TYPE_ORDER_STATUS:
-        #     print("Server Response: %s, %s\n" % (msg.typeName, msg))
-        #     print "got an order status message"
-        #     if msg.filled != 0 and \
-        #     self.handler.fill_dict[msg.orderId]["filled"] == False:
-        #         self.handler.create_fill(msg)
-        #         print "filled at" + msg.lastFillPrice
-        #
 
 
 
@@ -237,6 +225,7 @@ class HFTModel:
 
         self.last_trim = self.ohlc.index[-1]+self.moving_window_period
         print "trim time properly set now %s" % self.last_trim
+        print "start position is:" + str(self.handler.position)
         self.__run_indicators(self.ohlc)        
         self.ohlc.to_csv(self.ohlc_path)
         #call Azure
@@ -293,32 +282,30 @@ class HFTModel:
         if self.cur_zscore is not None:
             # print "update zscore traffic light"
             self.traffic_light.set()
+
             
-        if self.trader is not None:
-            self.trader.on_tick(self.last_bid,self.last_ask, self.handler.position)
-            self.signal = self.trader.update_signal()
-            # print self.signal
-            self.state = self.trader.update_state()
-            # print self.state
-        if self.handler is not None:
-            self.handler.on_tick(self.cur_zscore,self.last_bid,self.last_ask,self.flag,self.last_trade)
+        # if self.trader is not None:
+        #     self.trader.on_tick(self.last_bid,self.last_ask, self.handler.position)
+        #     self.signal = self.trader.update_signal()
+        #     # print self.signal
+        #     self.state = self.trader.update_state()
+        #     # print self.state
+        if self.cur_zscore is not None:
+            #print "I should be ready to handle orders now"
+            self.handler.on_tick((self.last_trade-self.cur_mean)/self.cur_sd,self.last_bid,self.last_ask,self.flag,self.last_trade,self.cur_mean,self.cur_sd)
         #     self.thread3 = threading.Thread(target=self.execute_trade, args=(self.signal, self.last_bid, self.last_trade))
         #     self.thread3.start()
         #     self.thread3.join()
         #     #self.execute_trade(self.signal, self.last_bid, self.last_ask)
             #Hackish af
-            if self.handler is not None and self.monitor is not None:
 
-                self.monitor.update_fills(self.handler.passpass())
                 
 
 
     def __add_market_data(self, ticker_index, timestamp, value, col):
         if col == 1:
             self.buffer.append({'time':timestamp, "price": float(value)})
-#           #momitoring
-            if self.monitor is not None:
-                self.monitor.update_data_point(float(value),self.cur_mean,self.cur_sd, self.flag)
+#
         elif col ==2:
             self.buffer.append({'time':timestamp, "size": float(value)})
         elif col ==3:
@@ -333,7 +320,7 @@ class HFTModel:
     def __stream_to_ohlc(self):
         try:
             new_ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))
-# very likely fuckery to be checked at the cutoff
+# very likely ery to be checked at the cutoff
             t_stmp1 = self.last_trim
             
             t_stmp2 =t_stmp1 + self.moving_window_period
@@ -425,9 +412,9 @@ class HFTModel:
 #           #update parameters for the zscore
             self.__update_norm_params()
             #on minute method
-            if self.trader is not None:
-                print "call on minute"
-                self.trader.on_minute(self.cur_mean,self.cur_sd,self.flag)
+            # if self.trader is not None:
+            #     print "call on minute"
+            #     self.trader.on_minute(self.cur_mean,self.cur_sd,self.flag)
 
             #store the cutoff (t - 3 moving windows to csv)
             if dt.datetime.now(self.tz) > self.prices.index[-1] - 3*self.moving_window_period:
@@ -440,48 +427,26 @@ class HFTModel:
             self.flag = self.ml.call_ml(self.ohlc)
             print self.flag
             self.last_ml_call = self.last_ml_call + 5*self.moving_window_period
-#        else:
-#        
-#            print len(self.buffer)
 
-     #############
-     # This is transposed from Zscore in part
-     ##############
-     #
-
-    # def execute_trade(self, signal, last_bid, last_ask):
-    #     if signal == "BUY" or signal =="SELL":
-    #         print "got a signal, passing to handler"
-    #         print "handler is trading? "
-    #         print self.handler.is_trading
-    #         if not self.handler.is_trading:
-    #             self.handler.place_trade(signal, self.last_bid, self.last_trade)
 
 
 
     @staticmethod
     def __print_elapsed_time(start_time):
         elapsed_time = time.time() - start_time
-        print "Completed in %.3f seconds." % elapsed_time
+        print "Completed boot in %.3f seconds." % elapsed_time
 
     def __cancel_market_data_request(self):
         for i, symbol in enumerate(self.symbols):
             self.conn.cancelMktData(i)
             time.sleep(1)
-    
-    # def spawn(self):
-    #     print "zscore thread spawned"
-    #     self.traffic_light.wait()
-    #     print "light's green"
-    #     self.trader = Zscore(self.last_bid,self.last_ask,self.cur_zscore,self.cur_mean,self.cur_sd,"FLAT",self.flag,self.conn)
-    #     #print "killing them all"
-        #self.handler.kill_em_all()
+    #recycling zscore spawn to thread the handler
+    def spawn(self):
+        print "execution thread spawned"
 
-    def spawn_monitor(self):
-        print "monitor thread spawned"        
-        self.traffic_light.wait()
-        
-        self.monitor = Monit_stream()
+        self.handler = ExecutionHandler(self.conn)
+
+
 
     def start(self, symbols, trade_qty):
         print "HFT model started."
@@ -503,18 +468,17 @@ class HFTModel:
         start_time = time.time()
         self.__request_historical_data(self.conn)
 
-        self.__print_elapsed_time(start_time)
 
-        print "Calculating strategy parameters..."
-        start_time = time.time()
+
+
         
         
         print "zscore check coming"        
         
-        # self.thread = threading.Thread(target=self.spawn())
-        # self.thread.start()
-        self.thread2 = threading.Thread(target=self.spawn_monitor)
-        self.thread2.start()
+        # # self.thread = threading.Thread(target=self.spawn())
+        # # self.thread.start()
+        # self.thread2 = threading.Thread(target=self.spawn_monitor)
+        # self.thread2.start()
 
         def main_loop():
             while 1:
@@ -535,8 +499,7 @@ class HFTModel:
             print "killing all orders"
             self.handler.kill_em_all()
 
-            #self.handler.fill_dict[sorted(self.handler.fill_dict)[-1]]["filled"] = True
-            self.handler.save_pickle()
+
             # self.monitor.close_stream()
             print "Disconnecting..."
             time.sleep(10)
