@@ -3,6 +3,7 @@ import datetime as dt
 import time
 import pickle
 import os
+from multiprocessing import Queue, Process, log_to_stderr, Value
 
 
 from ib.ext.Contract import Contract
@@ -30,8 +31,9 @@ class ExecutionHandler(object):
     Handles order execution via the Interactive Brokers API
     """
 
-    def __init__(self, ib_conn):
+    def __init__(self, ib_conn,test=False):
         # initialize
+        self.test = test
         self.ib_conn = ib_conn
         self.valid_id = None
         self.position = None
@@ -56,15 +58,19 @@ class ExecutionHandler(object):
                            "order": None,
                            "filled": False,
                            "active": False}
-        #probably unnecessary if not used as __main__
-        self.last_trade = None
-        self.last_bid = None
-        self.last_ask = None
-        self.last_fill = None
-        self.cur_mean = None
-        self.cur_sd = None
+        #trade data management. in a Value class #TODO I dont have Noneinitial type, but 0, so..
+        self.mkt_data_queue = Queue()
+
+
+        self.last_trade = Value('d',0)
+        self.last_bid = Value('d',0)
+        self.last_ask = Value('d',0)
+        self.last_fill = Value('d',0)
+        self.cur_mean = Value('d',0)
+        self.cur_sd = Value('d',0)
         #strapping the monitor there
-        self.monitor = Monit_stream()
+        if not self.test:
+            self.monitor = Monit_stream()
         #working parameters
         self.watermark = 0
         self.stop_offset = settings.STOP_OFFSET
@@ -78,6 +84,9 @@ class ExecutionHandler(object):
         logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir, "log.txt")),
                             level=logging.DEBUG,
                             format='%(asctime)s %(message)s')
+
+        Process(target=self.queue_parser(),name="queue parser/plotly").run()
+        Process(target=self.on_tick(),name="main trading logic").run()
 
     def _reply_handler(self, msg):
         #valid id handler
@@ -103,8 +112,9 @@ class ExecutionHandler(object):
                 self.create_fill(msg)
 
         if msg.typeName == "error":
-            print "error intercepted"
-            print msg
+            pass
+            #print "error intercepted"
+            #print msg
 
 
 
@@ -140,131 +150,153 @@ class ExecutionHandler(object):
         order.m_lmtPrice = lmt_price
         return order
 
-    def on_tick(self,zscore,cur_bid,cur_ask, cur_flag, cur_trade, cur_mean, cur_sd):
-        #logging.debug("check ontick loop")
-        self.zscore = zscore
-        self.last_bid = cur_bid
-        self.last_ask = cur_ask
-        self.last_trade = cur_trade
-        self.flag = cur_flag
-        self.cur_mean = cur_mean
-        self.cur_sd =cur_sd
-        if not (self.last_trade or self.cur_mean or self.cur_sd or self.flag) == None:
-            self.monitor.update_data_point(self.last_trade, self.cur_mean, self.cur_sd, self.flag)
-        if self.hist_flag is None:
-            self.hist_flag = self.flag
-            print "updated hist flag"
-        #check change of state and kill positions TODO this is simplistic
-        if self.hist_flag != self.flag:
-            print "change of state, killing position"
-            logging.debug("exec - change of state, killing position")
-            self.neutralize()
-            self.hist_flag = self.flag
-            return
+    def queue_parser(self):
+        """
+        the parser will update data points in memory (possibly with manager.dict()) and plotly
+        :return:
+        """
+        while True:
+            msg = self.mkt_data_queue.get()
+            if msg["type"] == "last_price":
+                self.last_trade = msg["value"]
+                self.monitor.update_data_point(msg,self.cur_mean,self.cur_sd)
+            if msg["type"] == "ask_price":
+                self.last_ask = msg["value"]
 
-        #first, checkzscore and do an order
-        #print "current z " + str(self.zscore) + " vs " + str(self.zscore_thresh)
-        if abs(self.zscore) >= self.zscore_thresh and not self.main_order["active"]: #need to check for other status
-            logging.debug("exec - zscore condition")
-            if self.zscore >= self.zscore_thresh:
-                if self.flag == "trend":
-                    action = "BUY"
+            if msg["type"] == "bid_price":
+                self.last_bid = msg["value"]
 
-                if self.flag == "range":
-                    action = "SELL"
+    def on_tick(self):#TODO remove on-tick method from HFT model. And rename to avoid confusion
+        """
+        So, this one will not take any outside input, but loop forever instead. *Should be thread-safe*
 
-            if self.zscore <= -self.zscore_thresh:
-                if self.flag == "trend":
-                    action = "SELL"
+        """
+        while True:
+            #logging.debug("check ontick loop")
+            # self.zscore = zscore
+            # self.last_bid = cur_bid
+            # self.last_ask = cur_ask
+            # self.last_trade = cur_trade
+            # self.flag = cur_flag
+            # self.cur_mean = cur_mean
+            # self.cur_sd =cur_sd
+            # if not (self.last_trade or self.cur_mean or self.cur_sd or self.flag) == 0:
+            #     self.monitor.update_data_point(self.last_trade, self.cur_mean, self.cur_sd, self.flag)
+            if self.hist_flag is None:
+                self.hist_flag = self.flag
+                print "updated hist flag"
+            #check change of state and kill positions TODO this is simplistic
+            if self.hist_flag != self.flag and self.main_order["active"]:
+                print "change of state, killing main position"
+                logging.debug("exec - change of state, killing position")
+                self.execute_order(self.stop_order["order"])
+                self.hist_flag = self.flag
+                return
 
-                if self.flag == "range":
-                    action = "BUY"
+            #first, checkzscore and do an order
+            #print "current z " + str(self.zscore) + " vs " + str(self.zscore_thresh)
+            if abs(self.zscore) >= self.zscore_thresh and not self.main_order["active"]: #need to check for other status
+                logging.debug("exec - zscore condition")
+                if self.zscore >= self.zscore_thresh:
+                    if self.flag == "trend":
+                        action = "BUY"
 
-            if action == "BUY":
-                naction = "SELL"
-                price = self.last_bid
-                offset = -self.stop_offset
-            if action == "SELL":
-                naction = "BUY"
-                price = self.last_ask
-                offset = self.stop_offset
+                    if self.flag == "range":
+                        action = "SELL"
 
-            #spawn main order, stop and profit
-            self.main_order["id"] = self.valid_id
-            self.main_order["order"] = self.create_order("LMT",1,action,price)
-            self.stop_order["id"] = self.valid_id+1
-            self.stop_order["order"] = self.create_order("MKT", 1, naction)
-            self.profit_order["id"] = self.valid_id + 1
-            self.profit_order["order"] = self.create_order("MKT", 1, naction)#if this work, we might switch to limit
-            #execute the main order
-            self.execute_order(self.main_order["order"])
-            self.main_order["active"] = True
-            self.main_order["timeout"] = dt.datetime.now()
-            print "FROM SPAWN, NOT EXEC:"
-            print "main:"
-            logging.debug(str(self.main_order))
-            print self.main_order
-            print "stop:"
-            print self.stop_order
-            print "profit:"
-            print self.profit_order
-            print "CURRENT POS IS:"
-            print self.position
-        #if self.main_order["active"] and not self.main_order["filled"]:
-            #print "shelf life of main:"
-            #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds()
-            #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife
-        if self.main_order["active"] \
-                and not self.main_order["filled"] \
-                and (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife:
+                if self.zscore <= -self.zscore_thresh:
+                    if self.flag == "trend":
+                        action = "SELL"
 
-            self.cancel_order(self.main_order["id"])
-            self.main_order["active"] = False
-            print "Main order timed out"
-            logging.debug("exec - main order timed out")
+                    if self.flag == "range":
+                        action = "BUY"
 
-        if self.main_order["active"] and self.main_order["filled"] and not (self.stop_order["active"] or self.profit_order["active"]):
-            print "stop/profit loop active"
-            action = self.main_order["order"].m_action
-            if action == "BUY":
-                offset = -self.stop_offset
-            if action == "SELL":
-                offset = self.stop_offset
-            if self.stop == 0:
-                self.stop = self.last_trade + offset
-            print "stop at " + str(self.stop)
-            print "last trade at :" +str(self.last_trade)
+                if action == "BUY":
+                    naction = "SELL"
+                    price = self.last_bid
+                    offset = -self.stop_offset
+                if action == "SELL":
+                    naction = "BUY"
+                    price = self.last_ask
+                    offset = self.stop_offset
 
-            if action == "BUY":
-                self.watermark = max(self.last_trade, self.watermark)
-                print "new watermark is:" + str(self.watermark)
-                if self.last_trade <= self.stop:
-                    self.execute_order(self.stop_order["order"])
-                    self.stop_order["active"] = True #really necessary ? I wonder
-                    print "stopped out"
-                if self.flag == "trend":
-                    if self.last_trade <= self.watermark + offset:
-                        self.execute_order(self.profit_order["order"])
-                        self.profit_order["active"] = True
-                        print "took profits"
-            if action == "SELL":
-                self.watermark = min(self.last_trade, self.watermark)
-                if self.last_trade >= self.stop:
-                    self.execute_order(self.stop_order["order"])
-                    self.stop_order["active"] = True  # really necessary ? I wonder
-                    print "stopped out"
-                if self.flag == "trend":
-                    if self.last_trade >= self.watermark + offset:
-                        self.execute_order(self.profit_order["order"])
-                        self.profit_order["active"] = True
+                #spawn main order, stop and profit
+                self.main_order["id"] = self.valid_id
+                self.main_order["order"] = self.create_order("LMT",1,action,price)
+                self.stop_order["id"] = self.valid_id+1
+                self.stop_order["order"] = self.create_order("MKT", 1, naction)
+                self.profit_order["id"] = self.valid_id + 1
+                self.profit_order["order"] = self.create_order("MKT", 1, naction)#if this work, we might switch to limit
+                #execute the main order
+                self.execute_order(self.main_order["order"])
+                self.main_order["active"] = True
+                self.main_order["timeout"] = dt.datetime.now()
+                print "FROM SPAWN, NOT EXEC:"
+                print "main:"
+                logging.debug(str(self.main_order))
+                print self.main_order
+                print "stop:"
+                print self.stop_order
+                print "profit:"
+                print self.profit_order
+                print "CURRENT POS IS:"
+                print self.position
+            #if self.main_order["active"] and not self.main_order["filled"]:
+                #print "shelf life of main:"
+                #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds()
+                #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife
+            if self.main_order["active"] \
+                    and not self.main_order["filled"] \
+                    and (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife:
+
+                self.cancel_order(self.main_order["id"])
+                self.main_order["active"] = False
+                print "Main order timed out"
+                logging.debug("exec - main order timed out")
+
+            if self.main_order["active"] and self.main_order["filled"] and not (self.stop_order["active"] or self.profit_order["active"]):
+                print "stop/profit loop active"
+                action = self.main_order["order"].m_action
+                if action == "BUY":
+                    offset = -self.stop_offset
+                if action == "SELL":
+                    offset = self.stop_offset
+                if self.stop == 0:
+                    self.stop = self.last_trade + offset
+                print "stop at " + str(self.stop)
+                print "last trade at :" +str(self.last_trade)
+
+                if action == "BUY":
+                    self.watermark = max(self.last_trade, self.watermark)
+                    print "new watermark is:" + str(self.watermark)
+                    if self.last_trade <= self.stop and not self.profit_order["active"]:
+                        self.execute_order(self.stop_order["order"])
+                        self.stop_order["active"] = True #really necessary ? I wonder
+                        print "stopped out"
+                    if self.flag == "trend":
+                        if self.last_trade <= self.watermark + offset and not self.stop_order["active"]:
+                            self.execute_order(self.profit_order["order"])
+                            self.profit_order["active"] = True
+                            print "took profits"
+                if action == "SELL":
+                    self.watermark = min(self.last_trade, self.watermark)
+                    if self.last_trade >= self.stop and not self.profit_order["active"]:
+                        self.execute_order(self.stop_order["order"])
+                        self.stop_order["active"] = True  # really necessary ? I wonder
+                        print "stopped out"
+                    if self.flag == "trend":
+                        if self.last_trade >= self.watermark + offset and not self.stop_order["active"]:
+                            self.execute_order(self.profit_order["order"])
+                            self.profit_order["active"] = True
 
 
-                                    #for now, simple is nice
-            print self.flag
-            print str(abs(self.zscore))
-            if self.flag == "range" and abs(self.zscore) <= 0.2:#TODO hardcoded is not smart
-                self.execute_order(self.profit_order["order"])
-                print "took range profits"
+                                        #for now, simple is nice
+                print self.flag
+                print str(abs(self.zscore))
+                if self.flag == "range" and abs(self.zscore) <= settings.Z_TARGET:
+                    self.execute_order(self.profit_order["order"])
+                    print "took range profits"
+
 
     def reset_trading_pos(self):
         self.main_order = {"id": None,
@@ -397,8 +429,8 @@ class ExecutionHandler(object):
         #        print field_type
 
         # Store information from last traded price
-        # if field_type == 4:
-        #     self.last_trade = float(msg.price)
+        if field_type == 4:
+            self.mkt_data_queue.put({"time": dt.datetime.now(), "type": "last trade", "value": float(msg.price)})
 
 
             #print "trade " + str(self.last_trade)
@@ -409,6 +441,21 @@ class ExecutionHandler(object):
         # if field_type == 2:
         #     self.last_bid = float(msg.price)
         #     #print "bid" + str(self.last_bid)
+
+    def queue_tester(self):
+        for message in [dict(time=dt.datetime(2016, 5, 4, 12, 0, 0), type="ask", value= 40),
+        dict(time=dt.datetime(2016, 5, 4, 12, 0, 5), type="ask", value= 41),
+        dict(time=dt.datetime(2016, 5, 4, 12, 0, 0), type="ask", value= 40)]:
+            print message
+            time.sleep(2)
+
+    def message_tester(self):
+        while True:
+            print self.mkt_data_queue.get()
+            time.sleep(0.1)
+            if self.mkt_data_queue.empty():
+                break
+
 
 ########################
 # Monitor is actually useless and this passpass BS is an issue
@@ -440,7 +487,7 @@ class Monit_stream:
             mode='lines+markers',    # markers at pendulum's nodes, lines in-bt.
               # reduce opacity
             marker=Marker(size=1),  # increase marker size
-            stream=Stream(token=self.credentials[0], maxpoints=200)  # (!) link stream id to token
+            stream=Stream(token=self.credentials[0], maxpoints=2000)  # (!) link stream id to token
             )
 
 # Set limits and mean, but later
@@ -450,7 +497,7 @@ class Monit_stream:
             mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[1], maxpoints=200         # plot a max of 100 pts on screen
+            token=self.credentials[1], maxpoints=2000         # plot a max of 100 pts on screen
             )
             )
         self.limit_dwn = Scatter(
@@ -459,7 +506,7 @@ class Monit_stream:
             mode='lines',                             # path drawn as line
             line=Line(color='rgba(31,119,180,0.15)'), # light blue line color
             stream=Stream(
-            token=self.credentials[2], maxpoints=200# plot a max of 100 pts on screen
+            token=self.credentials[2], maxpoints=2000# plot a max of 100 pts on screen
             )
             )
         self.ranging = Scatter(
@@ -469,7 +516,7 @@ class Monit_stream:
             line=Line(color='rgba(200,0,0,0.5)'), # red if the system thinks it ranges
               # reduce opacity
             marker=Marker(size=5),  # increase marker size
-            stream=Stream(token=self.credentials[3], maxpoints=100)
+            stream=Stream(token=self.credentials[3], maxpoints=1000)
             )
 
         self.fills_buy = Scatter(
@@ -478,7 +525,7 @@ class Monit_stream:
             mode='markers',
 
             marker=Marker(size=15, color='rgba(76,178,127,0.7)'),  # increase marker size
-            stream=Stream(token=self.credentials[4], maxpoints=5)
+            stream=Stream(token=self.credentials[4], maxpoints=10)
         )
         self.fills_sell = Scatter(
             x=[],  # init. data lists
@@ -486,7 +533,7 @@ class Monit_stream:
             mode='markers',
 
             marker=Marker(size=15, color='rgba(178,76,76,0.7)'),  # increase marker size
-            stream=Stream(token=self.credentials[5], maxpoints=5)
+            stream=Stream(token=self.credentials[5], maxpoints=10)
         )
 # (@) Send fig to Plotly, initialize streaming plot, open tab
         self.stream1 = py.Stream(self.credentials[0])
@@ -514,7 +561,16 @@ class Monit_stream:
         print "streams initaited"
 
     def update_data_point(self,last_price,last_mean,last_sd,flag):
-        now = dt.datetime.now()
+        """
+        now based on a dict input, from the parser
+        :param last_price:
+        :param last_mean:
+        :param last_sd:
+        :param flag:
+        :return:
+        """
+        now = last_price["time"]
+        last_price = last_price["value"]
         self.stream1.write(dict(x=now, y=last_price))
         self.stream2.write(dict(x=now, y=last_mean+settings.Z_THRESH*last_sd))
         self.stream3.write(dict(x=now, y=last_mean-settings.Z_THRESH*last_sd))
@@ -553,32 +609,39 @@ if __name__ == "__main__":
         print("Reply:", msg)
 
     model_conn=ibConnection(host="localhost",port=4001, clientId=130)
-
+    #
     model_conn.connect()
 
     #base scaffolding
-    test = ExecutionHandler(model_conn)
-    model_conn.registerAll(test._reply_handler)
-    model_conn.unregister(ib_message_type.tickPrice)
-    model_conn.register(test.on_tick_event, ib_message_type.tickPrice)
-    model_conn.reqPositions()
+    test = ExecutionHandler(model_conn,test=True)
+    # model_conn.registerAll(test._reply_handler)
+    # model_conn.unregister(ib_message_type.tickPrice)
+    # model_conn.register(test.on_tick_event, ib_message_type.tickPrice)
+    # model_conn.reqPositions()
     #die sequence
 
     #test sequence
-    time.sleep(2)
-    print "initial validid print"
-    if test.valid_id is None:
-        test.valid_id = 1600
-    print test.valid_id
-    print test.position
-    test.neutralize()
-    model_conn.reqMktData(1,test.contract,'',False)
-    time.sleep(2)
-    model_conn.reqGlobalCancel()
-    model_conn.cancelPositions()
-    print test.last_fill
-    time.sleep(2)
-    test.neutralize()
+    # time.sleep(2)
+    # print "initial validid print"
+    # if test.valid_id is None:
+    #     test.valid_id = 1900
+    # print test.valid_id
+    # print test.position
+    # test.neutralize()
+    # model_conn.reqMktData(1,test.contract,'',False)
+    # time.sleep(2)
+    # model_conn.reqGlobalCancel()
+    # model_conn.cancelPositions()
+    # print test.last_fill
+
+    mpl = log_to_stderr()
+    mpl.setLevel(logging.INFO)
+    # test process consumption
+    # zboub = Process(target=test.message_tester, name="test process").run()
+    # time.sleep(5)
+    # zboub.terminate()
+    test.queue_tester()
+    test.message_tester()
 
     #test die sequence - OK!
     # print "die sequence:"

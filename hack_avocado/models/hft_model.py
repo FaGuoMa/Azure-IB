@@ -16,7 +16,7 @@ import params.ib_data_types as datatype
 #import monitor
 #from classes.monitor_plotly import Monit_stream
 #from algos.ZscoreEventDriven import Zscore
-import threading
+from multiprocessing import Event
 import sys
 import os
 import logging
@@ -53,18 +53,18 @@ class HFTModel:
         self.buffer = list()        
         self.trade_qty = 0
 
-        self.lock = threading.Lock()
-        self.traffic_light = threading.Event()
-        self.thread = None
-        self.thread2 = None
-        self.thread3 = None
+        #self.lock = Lock()
+        self.traffic_light = Event()
+
         #addition for hdf store
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
         self.last_trim = pytz.timezone("Singapore").localize(dt.datetime(2021, 1, 1, 0, 0))
         #range/trend flag
         self.flag = None
+        self.event_market_on = Event()
         self.ml = MLcall()
+        self.last_trim = None
         self.last_ml_call = None
         self.last_trade = None
         self.last_bid = None
@@ -98,6 +98,50 @@ class HFTModel:
         self.state = None
 
 
+
+    def _market_is_open(self):
+
+        tz_cme = pytz.timezone('America/Chicago')
+        cme_now = self.now.astimezone(tz_cme)
+
+        if cme_now.weekday() in [0, 1, 2, 3] and (
+                cme_now >= cme_now.replace(hour=17, minute=0, second=0) or cme_now < cme_now.replace(hour=16,
+                                                                                                     minute=0,
+                                                                                                     second=0)):
+            self.event_market_on.set()
+        elif cme_now.weekday() is 4 and cme_now < cme_now.replace(hour=16, minute=0, second=0):
+            self.event_market_on.set()
+        elif cme_now.weekday() is 6 and cme_now >= cme_now.replace(hour=17, minute=0, second=0):
+            self.event_market_on.set()
+        else:
+            self.event_market_on.clear()
+            # print "market is on:"
+            # print self.event_market_on.is_set()
+
+
+
+    def time_keeper(self):
+        self.traffic_light.wait()
+        while True:
+            self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
+            self._market_is_open()
+            # OHLC call
+            if self.last_trim is None:
+                self.last_trim = self.now
+
+            if self.now > self.last_trim + dt.timedelta(minutes=1):
+                print "call trim from scheduler"
+                self.__request_historical_data(self.conn,initial=False)
+                time.sleep(10)#TODO horrible, horrible, but can't be bothered with a lock right now
+
+            # ML Call
+            if self.last_ml_call is None:
+                self.last_ml_call = self.now
+
+            if self.now > self.last_ml_call + dt.timedelta(minutes=5):
+                print "ML Call"
+                self.ml.call_ml(self.ohlc)
+            time.sleep(1)
 
     def __register_data_handlers(self,
                                  tick_event_handler,
@@ -149,25 +193,24 @@ class HFTModel:
         # Stream account updates DEACTIVATED FOR NOW
         #ib_conn.reqAccountUpdates(True, self.account_code)
 
-    def __request_historical_data(self, ib_conn):
-        self.lock.acquire()
-        try:
-            for index, (key, stock_data) in enumerate(
-                    self.stocks_data.iteritems()):
-                stock_data.is_storing_data = True
-                ib_conn.reqHistoricalData(
-                    index,
-                    stock_data.contract,
-                    time.strftime(datatype.DATE_TIME_FORMAT),
-                    datatype.DURATION_2_HR,
-                    datatype.BAR_SIZE_1_MIN,
-                    datatype.WHAT_TO_SHOW_TRADES,
-                    datatype.RTH_ALL,
-                    datatype.DATEFORMAT_STRING)
-                time.sleep(1)
-#usingthe lock at the end of the cycle
-        finally:
-            pass
+    def __request_historical_data(self, ib_conn, initial=True):
+        """ the same method can be used for scheduled calls"""
+       # self.lock.acquire()
+        if initial:
+            duration = datatype.DURATION_2_HR
+        else:
+            duration = datatype.DURATION_1_MIN
+        ib_conn.reqHistoricalData(
+            1,
+            self.handler.contract,
+            time.strftime(datatype.DATE_TIME_FORMAT),
+            datatype.DURATION_2_HR,
+            datatype.BAR_SIZE_1_MIN,
+            datatype.WHAT_TO_SHOW_TRADES,
+            datatype.RTH_ALL,
+            datatype.DATEFORMAT_STRING)
+        time.sleep(1)
+
 
 
     def __on_portfolio_update(self, msg):
@@ -216,29 +259,29 @@ class HFTModel:
         ticker_index = msg.reqId
 
         if msg.WAP == -1:
-            self.__on_historical_data_completed(ticker_index)
+            self.__on_historical_data_completed()
         else:
             self.__add_historical_data(ticker_index, msg)
 
-    def __on_historical_data_completed(self, ticker_index):
-        self.lock.release()
+    def __on_historical_data_completed(self):
+        #self.lock.release()
 
         self.last_trim = self.ohlc.index[-1]+self.moving_window_period
         print "trim time properly set now %s" % self.last_trim
         print "start position is:" + str(self.handler.position)
         self.__run_indicators(self.ohlc)        
         self.ohlc.to_csv(self.ohlc_path)
-        #call Azure
-        self.flag = self.ml.call_ml(self.ohlc)
-        self.last_ml_call = self.last_trim + 5*self.moving_window_period #hackish way to say 5mn
-        print self.flag
+        #call Azure #todo Azure needs to be called based on time, not this rickety scaffolding
+        #self.flag = self.ml.call_ml(self.ohlc)
+        #self.last_ml_call = self.last_trim + 5*self.moving_window_period #hackish way to say 5mn
+        #print self.flag
 #        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
 
     def __add_historical_data(self, ticker_index, msg):
         timestamp = pytz.timezone('Singapore').localize(dt.datetime.strptime(msg.date, datatype.DATE_TIME_FORMAT))
         self.__add_ohlc_data(ticker_index, timestamp, msg.open,msg.high,msg.low,msg.close,msg.volume,msg.count)
     
-    def __add_ohlc_data(self, ticker_index, timestamp, op, hi ,lo,close,vol,cnt ):
+    def __add_ohlc_data(self, timestamp, op, hi ,lo,close,vol,cnt ):
     
             self.ohlc.loc[timestamp, "open"] = float(op)
             self.ohlc.loc[timestamp, "high"] = float(hi)
@@ -256,7 +299,8 @@ class HFTModel:
         if field_type == datatype.FIELD_LAST_PRICE:
             last_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_price, 1)
-            self.last_trade = last_price
+            self.last_trade = last_price# TODO this could be obsolete
+            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=last_price, value=float(last_price)))
         if field_type == datatype.FIELD_LAST_SIZE:
             last_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_size, 2)
@@ -264,6 +308,7 @@ class HFTModel:
             ask_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_price, 3)
             self.last_ask = ask_price
+            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=ask_price, value=float(ask_price)))
         if field_type == datatype.FIELD_ASK_SIZE:
             ask_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_size, 4)
@@ -271,13 +316,14 @@ class HFTModel:
             bid_price = msg.price
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_price, 5)
             self.last_bid = bid_price
+            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=bid_price, value=float(bid_price)))
         if field_type == datatype.FIELD_BID_SIZE:
             bid_size = msg.size
             self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_size, 6)
 #now to trim the serie every 60 second (logic in trims_serie)     
-        if not self.lock.locked():
+        #if not self.lock.locked():#TODO kill the locks once and for all
             # print"lock locked call trim data"
-            self.__trim_data_series()
+        #    self.__trim_data_series()
         #update Zscore spawn
         if self.cur_zscore is not None:
             # print "update zscore traffic light"
@@ -290,9 +336,10 @@ class HFTModel:
         #     # print self.signal
         #     self.state = self.trader.update_state()
         #     # print self.state
-        if self.cur_zscore is not None:
+        #this is now processed in execution handler (si Dieu veut)
+        # if self.cur_zscore is not None:
             #print "I should be ready to handle orders now"
-            self.handler.on_tick((self.last_trade-self.cur_mean)/self.cur_sd,self.last_bid,self.last_ask,self.flag,self.last_trade,self.cur_mean,self.cur_sd)
+            # self.handler.on_tick((self.last_trade-self.cur_mean)/self.cur_sd,self.last_bid,self.last_ask,self.flag,self.last_trade,self.cur_mean,self.cur_sd)
         #     self.thread3 = threading.Thread(target=self.execute_trade, args=(self.signal, self.last_bid, self.last_trade))
         #     self.thread3.start()
         #     self.thread3.join()
@@ -431,15 +478,13 @@ class HFTModel:
 
 
 
-    @staticmethod
-    def __print_elapsed_time(start_time):
-        elapsed_time = time.time() - start_time
-        print "Completed boot in %.3f seconds." % elapsed_time
+
+
 
     def __cancel_market_data_request(self):
-        for i, symbol in enumerate(self.symbols):
-            self.conn.cancelMktData(i)
-            time.sleep(1)
+
+        self.conn.cancelMktData(1)
+        time.sleep(1)
     #recycling zscore spawn to thread the handler
     def spawn(self):
         print "execution thread spawned"
@@ -448,7 +493,7 @@ class HFTModel:
 
 
 
-    def start(self, symbols, trade_qty):
+    def start(self, symbols):
         print "HFT model started."
         logging.debug("started requests")
 
@@ -468,25 +513,29 @@ class HFTModel:
         start_time = time.time()
         self.__request_historical_data(self.conn)
 
+        try:
+            print "zscore check coming"
+            self.time_keeper()
+
 
 
 
         
         
-        print "zscore check coming"        
+
         
         # # self.thread = threading.Thread(target=self.spawn())
         # # self.thread.start()
         # self.thread2 = threading.Thread(target=self.spawn_monitor)
         # self.thread2.start()
 
-        def main_loop():
-            while 1:
-                # do your stuff...
-                time.sleep(0.1)
-
-        try:
-            main_loop()
+        # def main_loop():
+        #     while 1:
+        #         # do your stuff...
+        #         time.sleep(0.1)
+        #
+        # try:
+        #     main_loop()
         
 
         
