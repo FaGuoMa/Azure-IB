@@ -4,13 +4,15 @@ import time
 import pickle
 import os
 from multiprocessing import Queue, Process, log_to_stderr, Value
-
+import concurrent.futures
+import sys
 
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
 
 from ib.opt import ibConnection, message as ib_message_type
 import logging
+import pandas as pd
 from params import settings
 
 
@@ -24,7 +26,11 @@ import plotly.tools as tls
 from plotly.graph_objs import *
 import datetime as dt
 from params import settings
+import params.ib_data_types as datatype
 
+logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir, "log.txt")),
+                    level=logging.DEBUG,
+                    format='%(asctime)s %(message)s')
 
 class ExecutionHandler(object):
     """
@@ -60,14 +66,14 @@ class ExecutionHandler(object):
                            "active": False}
         #trade data management. in a Value class #TODO I dont have Noneinitial type, but 0, so..
         self.mkt_data_queue = Queue()
-
-
-        self.last_trade = Value('d',0)
-        self.last_bid = Value('d',0)
-        self.last_ask = Value('d',0)
-        self.last_fill = Value('d',0)
-        self.cur_mean = Value('d',0)
-        self.cur_sd = Value('d',0)
+        #trading values
+        self.last_trade = None#todo this is not thread safe
+        self.last_bid = None
+        self.last_ask = None
+        self.last_fill = None
+        self.cur_mean = None
+        self.cur_sd = None
+        self.flag = None
         #strapping the monitor there
         if not self.test:
             self.monitor = Monit_stream()
@@ -80,13 +86,12 @@ class ExecutionHandler(object):
         self.fill_dict = []
         #store fills in CSV for post-mortem
         self.csv = self.data_path = os.path.normpath(os.path.join(os.path.curdir,"fills.csv"))
+        #moved from HFT
+        self.prices = pd.DataFrame(columns=["price"])
 
-        logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir, "log.txt")),
-                            level=logging.DEBUG,
-                            format='%(asctime)s %(message)s')
 
-        Process(target=self.queue_parser(),name="queue parser/plotly").run()
-        Process(target=self.on_tick(),name="main trading logic").run()
+
+
 
     def _reply_handler(self, msg):
         #valid id handler
@@ -155,25 +160,40 @@ class ExecutionHandler(object):
         the parser will update data points in memory (possibly with manager.dict()) and plotly
         :return:
         """
+        print "parser is started"
         while True:
+            # print "parsing is not effed"
+            # print "queue is empty:"
+            # print self.mkt_data_queue.empty()
+            # print self.mkt_data_queue.get()
             msg = self.mkt_data_queue.get()
-            if msg["type"] == "last_price":
-                self.last_trade = msg["value"]
-                self.monitor.update_data_point(msg,self.cur_mean,self.cur_sd)
+            if msg["type"] == "last_trade":
+                print "that was a trade"
+                self.prices.loc[msg['time'],"price"] = msg["value"]
+
+
+                #self.prices.append()
+                # print "test pandas"
+                # print str(self.cur_mean)
+                # print str(self.cur_sd)
+                # print str(self.flag)
+
+                if self.cur_mean is not None  and self.cur_sd is not None and self.flag is not None:
+                    self.monitor.update_data_point(msg,self.cur_mean,self.cur_sd,self.flag)
             if msg["type"] == "ask_price":
                 self.last_ask = msg["value"]
 
             if msg["type"] == "bid_price":
                 self.last_bid = msg["value"]
 
-    def on_tick(self):#TODO remove on-tick method from HFT model. And rename to avoid confusion
+    def trading_loop(self):
         """
         So, this one will not take any outside input, but loop forever instead. *Should be thread-safe*
 
         """
         while True:
             #logging.debug("check ontick loop")
-            # self.zscore = zscore
+            zscore = (self.last_trade - self.cur_mean)/self.cur_sd
             # self.last_bid = cur_bid
             # self.last_ask = cur_ask
             # self.last_trade = cur_trade
@@ -195,16 +215,16 @@ class ExecutionHandler(object):
 
             #first, checkzscore and do an order
             #print "current z " + str(self.zscore) + " vs " + str(self.zscore_thresh)
-            if abs(self.zscore) >= self.zscore_thresh and not self.main_order["active"]: #need to check for other status
+            if abs(zscore) >= self.zscore_thresh and not self.main_order["active"]: #need to check for other status
                 logging.debug("exec - zscore condition")
-                if self.zscore >= self.zscore_thresh:
+                if zscore >= self.zscore_thresh:
                     if self.flag == "trend":
                         action = "BUY"
 
                     if self.flag == "range":
                         action = "SELL"
 
-                if self.zscore <= -self.zscore_thresh:
+                if zscore <= -self.zscore_thresh:
                     if self.flag == "trend":
                         action = "SELL"
 
@@ -292,8 +312,8 @@ class ExecutionHandler(object):
 
                                         #for now, simple is nice
                 print self.flag
-                print str(abs(self.zscore))
-                if self.flag == "range" and abs(self.zscore) <= settings.Z_TARGET:
+                print str(abs(zscore))
+                if self.flag == "range" and abs(zscore) <= settings.Z_TARGET:
                     self.execute_order(self.profit_order["order"])
                     print "took range profits"
 
@@ -420,41 +440,74 @@ class ExecutionHandler(object):
 
 
     def pass_position(self):
-        return  self.position
+        return self.position
 
-#scaffolding tick data management for testing purposes
+#TODO register on HFT class
     def on_tick_event(self, msg):
         ticker_id = msg.tickerId
         field_type = msg.field
         #        print field_type
 
         # Store information from last traded price
-        if field_type == 4:
-            self.mkt_data_queue.put({"time": dt.datetime.now(), "type": "last trade", "value": float(msg.price)})
+        if field_type == datatype.FIELD_LAST_PRICE:
+            # print "tick"
+            last_price = msg.price
+            # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_price, 1)
+            # self.last_trade = last_price  # TODO this could be obsolete
+            self.mkt_data_queue.put(
+                dict(time=dt.datetime.now(), type="last_trade", value=float(last_price)))
+        if field_type == datatype.FIELD_LAST_SIZE:
+            pass
+            # last_size = msg.size
+            # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_size, 2)
 
+        if field_type == datatype.FIELD_ASK_PRICE:
+            ask_price = msg.price
+            # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_price, 3)
+            # self.last_ask = ask_price
+            self.mkt_data_queue.put(
+                dict(time=dt.datetime.now(), type="ask_price", value=float(ask_price)))
+        if field_type == datatype.FIELD_ASK_SIZE:
+            pass
+            # ask_size = msg.size
+            # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_size, 4)
+        if field_type == datatype.FIELD_BID_PRICE:
+            bid_price = msg.price
+            # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_price, 5)
+            # self.last_bid = bid_price
+            self.mkt_data_queue.put(
+                dict(time=dt.datetime.now(), type="bid_price", value=float(bid_price)))
+        if field_type == datatype.FIELD_BID_SIZE:
+            # bid_size = msg.size
+            pass
+        # self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_size, 6)
+
+
+    def on_tick_generic(self,msg):
+
+        print msg
 
             #print "trade " + str(self.last_trade)
         # if field_type == 1:
         #     self.last_ask = float(msg.price)
-        #print "ask " + str(self.last_ask)
+        #     print "ask " + str(self.last_ask)
 
         # if field_type == 2:
         #     self.last_bid = float(msg.price)
-        #     #print "bid" + str(self.last_bid)
+        #     print "bid" + str(self.last_bid)
 
     def queue_tester(self):
         for message in [dict(time=dt.datetime(2016, 5, 4, 12, 0, 0), type="ask", value= 40),
         dict(time=dt.datetime(2016, 5, 4, 12, 0, 5), type="ask", value= 41),
         dict(time=dt.datetime(2016, 5, 4, 12, 0, 0), type="ask", value= 40)]:
-            print message
-            time.sleep(2)
-
-    def message_tester(self):
-        while True:
-            print self.mkt_data_queue.get()
+            self.mkt_data_queue.put(message)
             time.sleep(0.1)
-            if self.mkt_data_queue.empty():
-                break
+
+
+
+
+            # if self.mkt_data_queue.empty():
+            #     break
 
 
 ########################
@@ -560,7 +613,7 @@ class Monit_stream:
         self.stream6.open()
         print "streams initaited"
 
-    def update_data_point(self,last_price,last_mean,last_sd,flag):
+    def update_data_point(self,msg,last_mean,last_sd,flag):
         """
         now based on a dict input, from the parser
         :param last_price:
@@ -569,8 +622,8 @@ class Monit_stream:
         :param flag:
         :return:
         """
-        now = last_price["time"]
-        last_price = last_price["value"]
+        now = msg["time"]
+        last_price = msg["value"]
         self.stream1.write(dict(x=now, y=last_price))
         self.stream2.write(dict(x=now, y=last_mean+settings.Z_THRESH*last_sd))
         self.stream3.write(dict(x=now, y=last_mean-settings.Z_THRESH*last_sd))
@@ -599,6 +652,13 @@ class Monit_stream:
 
 
 
+def message_tester(queue):
+    while not queue.empty():
+    #     msg = queue.get()
+    #     logging.DEBUG("consumer did something")
+        print queue.get()
+        if queue.empty():
+            break
 ######
 #ALLTHIS ISSCAFFOLDING TOTEST THE ORDER LOGIC
 
@@ -613,10 +673,10 @@ if __name__ == "__main__":
     model_conn.connect()
 
     #base scaffolding
-    test = ExecutionHandler(model_conn,test=True)
-    # model_conn.registerAll(test._reply_handler)
+    test = ExecutionHandler(model_conn, test=False)
+    model_conn.registerAll(test._reply_handler)
     # model_conn.unregister(ib_message_type.tickPrice)
-    # model_conn.register(test.on_tick_event, ib_message_type.tickPrice)
+    model_conn.register(test.on_tick_event, ib_message_type.tickPrice)
     # model_conn.reqPositions()
     #die sequence
 
@@ -628,21 +688,23 @@ if __name__ == "__main__":
     # print test.valid_id
     # print test.position
     # test.neutralize()
-    # model_conn.reqMktData(1,test.contract,'',False)
+    model_conn.reqMktData(1,test.contract,'',False)
     # time.sleep(2)
     # model_conn.reqGlobalCancel()
     # model_conn.cancelPositions()
     # print test.last_fill
 
-    mpl = log_to_stderr()
-    mpl.setLevel(logging.INFO)
-    # test process consumption
-    # zboub = Process(target=test.message_tester, name="test process").run()
-    # time.sleep(5)
-    # zboub.terminate()
-    test.queue_tester()
-    test.message_tester()
 
+
+    test.cur_mean =44.1
+    test.cur_sd = 0.01
+    test.flag = "range"
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+    parser = executor.submit(test.queue_parser)
+    trader = executor.submit(test.trading_loop)
+        # messenger2  =executor.submit(message_tester, test.mkt_data_queue)
+    time.sleep(30)
+    print test.prices
     #test die sequence - OK!
     # print "die sequence:"
     # test.on_tick(2,20,test.last_trade,"trend",0)
@@ -718,10 +780,10 @@ if __name__ == "__main__":
 
 
     #conclude by checking orders are reset
-    print test.main_order
-    print test.stop_order
-    print test.profit_order
-    test.reset_trading_pos()
+    #print test.main_order
+    #print test.stop_order
+    #print test.profit_order
+    #test.reset_trading_pos()
 
 
 

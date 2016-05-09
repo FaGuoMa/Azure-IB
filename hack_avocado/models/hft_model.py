@@ -13,10 +13,12 @@ from classes.stock_data import StockData
 #import our ML class call (btw, API key in clear = not smart)
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
+from ib.ext.Contract import Contract
 #import monitor
 #from classes.monitor_plotly import Monit_stream
 #from algos.ZscoreEventDriven import Zscore
-from multiprocessing import Event
+from multiprocessing import Event, Lock
+import concurrent.futures
 import sys
 import os
 import logging
@@ -39,7 +41,8 @@ class HFTModel:
 
     def __init__(self, host='localhost', port=4001,
                  client_id=130, is_use_gateway=False,
-                 moving_window_period=dt.timedelta(seconds=60)):
+                 moving_window_period=dt.timedelta(seconds=60), test=False):
+        self.test = test
         self.tz = pytz.timezone('Singapore')
         self.moving_window_period = moving_window_period
         self.ib_util = IBUtil()
@@ -55,11 +58,17 @@ class HFTModel:
 
         #self.lock = Lock()
         self.traffic_light = Event()
+        self.ohlc_ok = Lock()
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+        self.timekeeper = None
+        self.handler = None
+        self.parser = None
 
-        #addition for hdf store
+
+
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
-        self.last_trim = pytz.timezone("Singapore").localize(dt.datetime(2021, 1, 1, 0, 0))
+        self.last_trim = None
         #range/trend flag
         self.flag = None
         self.event_market_on = Event()
@@ -72,12 +81,6 @@ class HFTModel:
         self.cur_mean = None
         self.cur_sd = None
         self.cur_zscore = None
-        #self.trader = None
-        self.handler = None
-
-
-
-        #self.order_id = self.handler.order_id
 
 
         # Use ibConnection() for TWS, or create connection for API Gateway
@@ -85,15 +88,24 @@ class HFTModel:
             Connection.create(host=host, port=port, clientId=client_id)
         #self.thread = threading.Thread(target=self.spawn())
         #self.thread.start()
-        self.handler = ExecutionHandler(self.conn)
+        if not self.test:
+            self.handler = ExecutionHandler(self.conn)
 
 
         #
         #third handler should register properly si Dieu veut
-        self.__register_data_handlers(self.__on_tick_event,
-                                      self.__event_handler,
-                                      self.handler._reply_handler)
-        self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201606", "USD")
+        if self.test:
+            self.__register_data_handlers(self.null_handler,
+                                          self.__event_handler,
+                                          self.null_handler)
+        else:
+            self.__register_data_handlers(self.handler.on_tick_event,
+                                          self.__event_handler,
+                                          self.handler._reply_handler)
+        if self.test:
+            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201606", "USD")
+        else:
+            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201606", "USD")#todo duplicate with execution handler
         self.signal = None
         self.state = None
 
@@ -121,8 +133,11 @@ class HFTModel:
 
 
     def time_keeper(self):
-        self.traffic_light.wait()
+        #self.traffic_light.wait()
         while True:
+            if self.test == True:
+                print "timekeeper alive"
+
             self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
             self._market_is_open()
             # OHLC call
@@ -132,7 +147,11 @@ class HFTModel:
             if self.now > self.last_trim + dt.timedelta(minutes=1):
                 print "call trim from scheduler"
                 self.__request_historical_data(self.conn,initial=False)
-                time.sleep(10)#TODO horrible, horrible, but can't be bothered with a lock right now
+                self.__run_indicators(self.ohlc)
+                self.__update_norm_params()
+                if self.test:
+                    print self.ohlc.tail()
+                time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
 
             # ML Call
             if self.last_ml_call is None:
@@ -147,26 +166,27 @@ class HFTModel:
                                  tick_event_handler,
                                  universal_event_handler,order_handler):
         self.conn.registerAll(universal_event_handler)
-        self.conn.unregister(universal_event_handler,
-                             ib_message_type.tickSize,
-                             ib_message_type.tickPrice,
-                             ib_message_type.tickString,
-                             ib_message_type.tickGeneric,
-                             ib_message_type.tickOptionComputation)
-        self.conn.register(tick_event_handler,
-                           ib_message_type.tickPrice,
-                           ib_message_type.tickSize)
-        self.conn.register(order_handler,
-                           ib_message_type.position,
-                           ib_message_type.nextValidId,
-                           ib_message_type.orderStatus,
-                           ib_message_type.openOrder,
-                           ib_message_type.error)
 
-    def __init_stocks_data(self, symbols):
+        self.conn.unregister(universal_event_handler,
+                         ib_message_type.tickSize,
+                         ib_message_type.tickPrice,
+                         ib_message_type.tickString,
+                         ib_message_type.tickGeneric,
+                         ib_message_type.tickOptionComputation)
+        self.conn.register(tick_event_handler,
+                       ib_message_type.tickPrice,
+                       ib_message_type.tickSize)
+        self.conn.register(order_handler,
+                       ib_message_type.position,
+                       ib_message_type.nextValidId,
+                       ib_message_type.orderStatus,
+                       ib_message_type.openOrder,
+                       ib_message_type.error)
+
+    def __init_stocks_data(self, symbols):#todo brutal hack-through
         self.symbols = symbols
 #here we'll store tick and size instead of multiple "symbols"
-        self.prices = pd.DataFrame(columns=("price","size","ask_price","ask_size","bid_price","bid_size"))  # Init price storage
+        # self.prices = pd.DataFrame(columns=("price","size","ask_price","ask_size","bid_price","bid_size"))#todomoved to execution  # Init price storage
         if not os.path.exists(self.data_path):
             self.prices.to_csv(self.data_path)
         self.ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))  # Init ohlc storage
@@ -177,15 +197,29 @@ class HFTModel:
         stock_symbol = self.symbols
         contract = self.ib_util.create_stock_contract(stock_symbol)
         self.stocks_data[stock_symbol] = StockData(contract)
-        
+
+    #this is redundant but required to scaffold/test
+    def create_contract(self, symbol, sec_type, exch, expiry, curr):
+        """Create a Contract object defining what will
+        be purchased, at which exchange and in which currency.
+
+        symbol - The ticker symbol for the contract
+        sec_type - The security type for the contract ('FUT' = Future)
+        exch - The exchange to carry out the contract on
+        prim_exch - The primary exchange to carry out the contract on
+        curr - The currency in which to purchase the contract"""
+        contract = Contract()
+        contract.m_symbol = symbol
+        contract.m_secType = sec_type
+        contract.m_exchange = exch
+        contract.m_expiry = expiry
+        contract.m_currency = curr
+        return contract
 
     def __request_streaming_data(self, ib_conn):
-        # Stream market data. Of note: this enumerate can probably be simplified
-        #cannt be bothered for now TODO: clean this crap, time to be bothered
-        for index, (key, stock_data) in enumerate(
-                self.stocks_data.iteritems()):
-            ib_conn.reqMktData(index,
-                               stock_data.contract,
+        # Stream market data.
+            ib_conn.reqMktData(1,
+                               self.order_template,
                                datatype.GENERIC_TICKS_NONE,
                                datatype.SNAPSHOT_NONE)
 #            time.sleep(5)
@@ -195,16 +229,16 @@ class HFTModel:
 
     def __request_historical_data(self, ib_conn, initial=True):
         """ the same method can be used for scheduled calls"""
-       # self.lock.acquire()
+        # self.ohlc_ok.acquire()
         if initial:
             duration = datatype.DURATION_2_HR
         else:
             duration = datatype.DURATION_1_MIN
         ib_conn.reqHistoricalData(
             1,
-            self.handler.contract,
+            self.order_template,
             time.strftime(datatype.DATE_TIME_FORMAT),
-            datatype.DURATION_2_HR,
+            duration,
             datatype.BAR_SIZE_1_MIN,
             datatype.WHAT_TO_SHOW_TRADES,
             datatype.RTH_ALL,
@@ -236,7 +270,7 @@ class HFTModel:
 
     def __event_handler(self, msg):
         if msg.typeName == datatype.MSG_TYPE_HISTORICAL_DATA:
-            
+
             self.__on_historical_data(msg)
         
 
@@ -247,11 +281,14 @@ class HFTModel:
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
             pass
 
-
-
-
         else:
             print msg
+
+    def null_handler(self,msg):
+        pass
+
+
+
 
     def __on_historical_data(self, msg):
 
@@ -261,6 +298,7 @@ class HFTModel:
         if msg.WAP == -1:
             self.__on_historical_data_completed()
         else:
+
             self.__add_historical_data(ticker_index, msg)
 
     def __on_historical_data_completed(self):
@@ -277,11 +315,14 @@ class HFTModel:
         #print self.flag
 #        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
 
+
     def __add_historical_data(self, ticker_index, msg):
+        if self.test:
+            print "adding  histo line"
         timestamp = pytz.timezone('Singapore').localize(dt.datetime.strptime(msg.date, datatype.DATE_TIME_FORMAT))
-        self.__add_ohlc_data(ticker_index, timestamp, msg.open,msg.high,msg.low,msg.close,msg.volume,msg.count)
+        self.__add_ohlc_data(timestamp, msg.open,msg.high,msg.low,msg.close,msg.volume,msg.count)
     
-    def __add_ohlc_data(self, timestamp, op, hi ,lo,close,vol,cnt ):
+    def __add_ohlc_data(self, timestamp, op, hi ,lo,close,vol,cnt):
     
             self.ohlc.loc[timestamp, "open"] = float(op)
             self.ohlc.loc[timestamp, "high"] = float(hi)
@@ -290,108 +331,10 @@ class HFTModel:
             self.ohlc.loc[timestamp, "volume"] = float(vol)
             self.ohlc.loc[timestamp, "count"] = float(cnt)
 
-    def __on_tick_event(self, msg):
-        ticker_id = msg.tickerId
-        field_type = msg.field
-#        print field_type
-
-        # Store information from last traded price
-        if field_type == datatype.FIELD_LAST_PRICE:
-            last_price = msg.price
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_price, 1)
-            self.last_trade = last_price# TODO this could be obsolete
-            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=last_price, value=float(last_price)))
-        if field_type == datatype.FIELD_LAST_SIZE:
-            last_size = msg.size
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), last_size, 2)
-        if field_type == datatype.FIELD_ASK_PRICE:
-            ask_price = msg.price
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_price, 3)
-            self.last_ask = ask_price
-            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=ask_price, value=float(ask_price)))
-        if field_type == datatype.FIELD_ASK_SIZE:
-            ask_size = msg.size
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), ask_size, 4)
-        if field_type == datatype.FIELD_BID_PRICE:
-            bid_price = msg.price
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_price, 5)
-            self.last_bid = bid_price
-            self.handler.mkt_data_queue.put(dict(time=dt.datetime.now(self.tz), type=bid_price, value=float(bid_price)))
-        if field_type == datatype.FIELD_BID_SIZE:
-            bid_size = msg.size
-            self.__add_market_data(ticker_id, dt.datetime.now(self.tz), bid_size, 6)
-#now to trim the serie every 60 second (logic in trims_serie)     
-        #if not self.lock.locked():#TODO kill the locks once and for all
-            # print"lock locked call trim data"
-        #    self.__trim_data_series()
-        #update Zscore spawn
-        if self.cur_zscore is not None:
-            # print "update zscore traffic light"
-            self.traffic_light.set()
-
-            
-        # if self.trader is not None:
-        #     self.trader.on_tick(self.last_bid,self.last_ask, self.handler.position)
-        #     self.signal = self.trader.update_signal()
-        #     # print self.signal
-        #     self.state = self.trader.update_state()
-        #     # print self.state
-        #this is now processed in execution handler (si Dieu veut)
-        # if self.cur_zscore is not None:
-            #print "I should be ready to handle orders now"
-            # self.handler.on_tick((self.last_trade-self.cur_mean)/self.cur_sd,self.last_bid,self.last_ask,self.flag,self.last_trade,self.cur_mean,self.cur_sd)
-        #     self.thread3 = threading.Thread(target=self.execute_trade, args=(self.signal, self.last_bid, self.last_trade))
-        #     self.thread3.start()
-        #     self.thread3.join()
-        #     #self.execute_trade(self.signal, self.last_bid, self.last_ask)
-            #Hackish af
-
-                
-
-
-    def __add_market_data(self, ticker_index, timestamp, value, col):
-        if col == 1:
-            self.buffer.append({'time':timestamp, "price": float(value)})
 #
-        elif col ==2:
-            self.buffer.append({'time':timestamp, "size": float(value)})
-        elif col ==3:
-            self.buffer.append({'time':timestamp, "ask_price": float(value)})
-        elif col ==4:
-            self.buffer.append({'time':timestamp, "ask_size": float(value)})
-        elif col ==5:
-            self.buffer.append({'time':timestamp, "bid_price": float(value)})
-        elif col ==6:
-            self.buffer.append({'time':timestamp, "bid_size": float(value)})
+            
 
-    def __stream_to_ohlc(self):
-        try:
-            new_ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))
-# very likely ery to be checked at the cutoff
-            t_stmp1 = self.last_trim
-            
-            t_stmp2 =t_stmp1 + self.moving_window_period
-            print t_stmp1
-            
-            intm2 = self.prices.truncate(after=t_stmp2, before=t_stmp1)
-            logging.debug("truncate  ok.Shape: %s", intm2.shape)
-            new_ohlc.loc[t_stmp2, "open"] = float(intm2['price'].dropna().head(1))
-            
-            new_ohlc.loc[t_stmp2, "close"] = float(intm2['price'].dropna().tail(1))
-            
-            new_ohlc.loc[t_stmp2, "high"] = float(intm2['price'].max())
-            
-            new_ohlc.loc[t_stmp2, "low"] = float(intm2['price'].min())
-            
-        
-            new_ohlc.loc[t_stmp2, "volume"] = float(intm2['size'].sum())
-            
-            new_ohlc.loc[t_stmp2, "count"] = float(intm2['size'].count())
-            
-            return new_ohlc
-        except Exception, e:
-            print "fuck:", e
-            new_ohlc.to_csv(os.path.normpath(os.path.join(os.path.curdir,"new_ohlc.csv")))
+
             
     def __run_indicators(self, ohlc):
         #hardcoding ML munging parameters now
@@ -410,14 +353,19 @@ class HFTModel:
         
     def __update_norm_params(self):
 #        print " updating feeder params for zscore"
-        prices = self.prices["price"]
+        prices = self.handler.prices["price"]
 #        print " got prices"
         prices = prices.dropna()
-        prices = prices[prices.index > prices.index[-1] - dt.timedelta(seconds=60)]
+        print "sd crapping potential ahead"
+        # if prices.index[-1]-prices.index[0] > dt.timedelta(seconds=60):
+        # prices = prices[prices.index > self.last_trim]#todo no trim of prices
+        prices = prices.tail(15)#ik,ik
+        print "sd crap avoided"
         if len(prices) !=0:
             last_price = prices.iloc[-1]
 
-            self.cur_mean = np.mean(prices)
+            self.handler.cur_mean = np.mean(prices)
+
             #logging.debug("updated mean")
             print last_price
             prices = prices.diff()
@@ -428,10 +376,11 @@ class HFTModel:
             for i in range(1,len(prices)):
                 tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
             prices = prices.ix[1:]
-            self.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
+            self.handler.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
             #logging.debug("updated sd")
-            self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
+            # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
             print(self.cur_zscore)
+
 
 
     def __trim_data_series(self):
@@ -494,7 +443,7 @@ class HFTModel:
 
 
     def start(self, symbols):
-        print "HFT model started."
+        print "Start sequence"
         logging.debug("started requests")
 
 
@@ -507,36 +456,46 @@ class HFTModel:
         
         self.__init_stocks_data(symbols)
         print "init stock"
+        print "request mkt data"
         self.__request_streaming_data(self.conn)
 
- 
-        start_time = time.time()
+        print "request historicals"
         self.__request_historical_data(self.conn)
 
         try:
-            print "zscore check coming"
-            self.time_keeper()
+            print "getting ohlc data now"
+            #self.time_keeper()
+            time.sleep(5)
+            print "pray I have them now"
+            print self.ohlc.tail(5)
+
+            print "calling ML for the first time"
+            self.flag = self.ml.call_ml(self.ohlc)
+
+            self.handler.flag = self.flag# this is stupid
+            time.sleep(3)
+            print "I believe we will "+ self.flag
+            # if self.test:
+            #     print self.ohlc
+            #     time.sleep(60)
+            #     print "now calling for update"
+            #     self.__request_historical_data(self.conn,initial=False)
+            #     print self.ohlc
+            print "spawn concurrent processes"
+            self.timekeeper = self.executor.submit(self.time_keeper)
+            print "timekeeper spawned"
+            time.sleep(1)
+            self.parser = self.executor.submit(self.handler.queue_parser)
+            print "parser spawned"
+            time.sleep(5)
+
+            self.__update_norm_params()
+            print "sd/mean: passed"
+            time.sleep(5)
+            print "handler spawned"
+            self.handler = self.executor.submit(self.handler.trading_loop)
 
 
-
-
-        
-        
-
-        
-        # # self.thread = threading.Thread(target=self.spawn())
-        # # self.thread.start()
-        # self.thread2 = threading.Thread(target=self.spawn_monitor)
-        # self.thread2.start()
-
-        # def main_loop():
-        #     while 1:
-        #         # do your stuff...
-        #         time.sleep(0.1)
-        #
-        # try:
-        #     main_loop()
-        
 
         
                 
@@ -551,7 +510,7 @@ class HFTModel:
 
             # self.monitor.close_stream()
             print "Disconnecting..."
-            time.sleep(10)
+            time.sleep(5)
             self.conn.disconnect()
             time.sleep(1)
         
@@ -571,3 +530,20 @@ class HFTModel:
     def spawn_test(self):
         self.traffic_light.wait()
         print "fuck spawns"
+
+
+if __name__ == "__main___":
+    print "I'm testing stuff"
+    model = HFTModel(host='localhost',
+                     port=4001,
+                     client_id=101,
+                     is_use_gateway=False, test=True)
+    model.start("CL")
+
+    time.sleep(15)
+
+    import datetime as dt
+    t1 = dt.datetime(2016,5,3,0,1,0)
+
+    t2 = dt.datetime(2016, 5, 3, 0, 1, 15)
+    import pandas as pd
