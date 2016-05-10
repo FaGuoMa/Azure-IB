@@ -10,6 +10,6 @@ PLOTLY_STREAMS = ["wgqspsraap",
                   "kf8pzkv96j"]
 
 # trading paramters
-Z_THRESH = 1.5
+Z_THRESH = 2
 STOP_OFFSET = 0.03
 Z_TARGET = 0.2

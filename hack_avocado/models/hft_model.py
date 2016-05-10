@@ -14,6 +14,7 @@ from classes.stock_data import StockData
 from classes.ml_api_call import MLcall
 import params.ib_data_types as datatype
 from ib.ext.Contract import Contract
+from ib.ext.EWrapper import EWrapper
 #import monitor
 #from classes.monitor_plotly import Monit_stream
 #from algos.ZscoreEventDriven import Zscore
@@ -61,10 +62,10 @@ class HFTModel:
         self.ohlc_ok = Lock()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
         self.timekeeper = None
-        self.handler = None
         self.parser = None
+        self.execution = None
 
-
+        self.handler = None
 
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
@@ -75,17 +76,16 @@ class HFTModel:
         self.ml = MLcall()
         self.last_trim = None
         self.last_ml_call = None
-        self.last_trade = None
-        self.last_bid = None
-        self.last_ask = None
-        self.cur_mean = None
-        self.cur_sd = None
-        self.cur_zscore = None
+        # self.last_trade = None
+        # self.last_bid = None
+        # self.last_ask = None
+        # self.cur_mean = None
+        # self.cur_sd = None
+        # self.cur_zscore = None
 
 
         # Use ibConnection() for TWS, or create connection for API Gateway
-        self.conn = ibConnection() if is_use_gateway else \
-            Connection.create(host=host, port=port, clientId=client_id)
+        self.conn = Connection.create(host=host, port=port, clientId=client_id)
         #self.thread = threading.Thread(target=self.spawn())
         #self.thread.start()
         if not self.test:
@@ -148,9 +148,23 @@ class HFTModel:
                 print "call trim from scheduler"
                 self.__request_historical_data(self.conn,initial=False)
                 self.__run_indicators(self.ohlc)
-                self.__update_norm_params()
+                print "execution process is alive:"
+                self.execution.running()
+                print "parser process is alive:"
+                self.parser.running()
+                print "position is:"
+                print self.handler.position
+                print "I have curmean, cursd, last_trade in execution"
+                print str(self.handler.cur_mean)
+                print str(self.handler.cur_sd)
+                print str(self.handler.last_trade)
+                print "request position:"
+                self.conn.reqPositions()
+                self.update_norm_params()
                 if self.test:
                     print self.ohlc.tail()
+                self.last_trim = self.now
+
                 time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
 
             # ML Call
@@ -160,6 +174,7 @@ class HFTModel:
             if self.now > self.last_ml_call + dt.timedelta(minutes=5):
                 print "ML Call"
                 self.ml.call_ml(self.ohlc)
+                self.last_ml_call = self.now
             time.sleep(1)
 
     def __register_data_handlers(self,
@@ -309,10 +324,7 @@ class HFTModel:
         print "start position is:" + str(self.handler.position)
         self.__run_indicators(self.ohlc)        
         self.ohlc.to_csv(self.ohlc_path)
-        #call Azure #todo Azure needs to be called based on time, not this rickety scaffolding
-        #self.flag = self.ml.call_ml(self.ohlc)
-        #self.last_ml_call = self.last_trim + 5*self.moving_window_period #hackish way to say 5mn
-        #print self.flag
+
 #        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
 
 
@@ -351,15 +363,21 @@ class HFTModel:
         ohlc["busy"] = np.where(ohlc.index.tz_convert("America/Chicago").hour >= 9,np.where(ohlc.index.tz_convert("America/Chicago").hour <= 14,1,0),0)
                 
         
-    def __update_norm_params(self):
+    def update_norm_params(self):
 #        print " updating feeder params for zscore"
+        print "update norm got prices from handler, len:"
+        print len(self.handler.prices)
         prices = self.handler.prices["price"]
+        prices.to_csv(os.path.join(os.path.curdir,"prices_f_norm.csv"))
+
 #        print " got prices"
         prices = prices.dropna()
         print "sd crapping potential ahead"
-        # if prices.index[-1]-prices.index[0] > dt.timedelta(seconds=60):
-        # prices = prices[prices.index > self.last_trim]#todo no trim of prices
-        prices = prices.tail(15)#ik,ik
+        print "last trim in update norm"
+        print self.last_trim
+        if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
+            prices = prices[prices.index > self.last_trim]#todo no trim of prices
+        # prices = prices.tail(15)#ik,ik
         print "sd crap avoided"
         if len(prices) !=0:
             last_price = prices.iloc[-1]
@@ -367,7 +385,8 @@ class HFTModel:
             self.handler.cur_mean = np.mean(prices)
 
             #logging.debug("updated mean")
-            print last_price
+
+            #print last_price
             prices = prices.diff()
             prices = prices.dropna()
             prices = prices**2
@@ -377,57 +396,10 @@ class HFTModel:
                 tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
             prices = prices.ix[1:]
             self.handler.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
-            #logging.debug("updated sd")
+            logging.debug("updated sd")
+            logging.debug(str(self.handler.cur_sd))
             # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-            print(self.cur_zscore)
-
-
-
-    def __trim_data_series(self):
-#        print 'check trim cycle time considered: %s' % str(self.ohlc.index[-1])
-#        print "datetime now %s" % str(dt.datetime.now(self.tz))
-#        print "last trim + moving window %s" % str(self.last_trim + self.moving_window_period)
-        if dt.datetime.now(self.tz) > self.last_trim + self.moving_window_period:
-            print "time condition trim met again"
-            intm = pd.DataFrame(self.buffer).set_index('time')
-            self.buffer = list()            
-            logging.debug("converted list")
-            self.prices = self.prices.append(intm)
-            logging.debug("appended new prices")
-            
- #           print self.ohlc.shape
-            self.ohlc = self.ohlc.append(self.__stream_to_ohlc())
-            #probably could be optimized            
-            self.__run_indicators(self.ohlc)
-            with open(self.ohlc_path, 'a') as f:
-                    self.ohlc.tail(1).to_csv(f, header=False)
-#            print "appended new ohlc. tstp is now:" % str(self.ohlc.index[-1])
-            
-            self.last_trim = self.last_trim + self.moving_window_period
-            print "cleaned buffer"
-#           #update parameters for the zscore
-            self.__update_norm_params()
-            #on minute method
-            # if self.trader is not None:
-            #     print "call on minute"
-            #     self.trader.on_minute(self.cur_mean,self.cur_sd,self.flag)
-
-            #store the cutoff (t - 3 moving windows to csv)
-            if dt.datetime.now(self.tz) > self.prices.index[-1] - 3*self.moving_window_period:
-                with open(self.data_path, 'a') as f:
-                    self.prices[self.prices.index <= self.prices.index[-1] - 3*self.moving_window_period].to_csv(f, header=False)
-             #store the cutoff (t - 3 moving windows to csv)
-                self.prices = self.prices.truncate(before=self.prices.index[-1] - 3*self.moving_window_period)
-                self.prices.to_pickle(os.path.join(os.path.curdir,"prices.pickl"))
-        if dt.datetime.now(self.tz) > self.last_ml_call:
-            self.flag = self.ml.call_ml(self.ohlc)
-            print self.flag
-            self.last_ml_call = self.last_ml_call + 5*self.moving_window_period
-
-
-
-
-
+            #print(self.cur_zscore)
 
 
     def __cancel_market_data_request(self):
@@ -445,23 +417,19 @@ class HFTModel:
     def start(self, symbols):
         print "Start sequence"
         logging.debug("started requests")
-
-
-#        self.trade_qty = trade_qty
-
         self.conn.connect()  # Get IB connection object
-#wasting  my time here
-#        print "time at IB"        
-#        print self.conn.reqCurrentTime()
-        
         self.__init_stocks_data(symbols)
         print "init stock"
         print "request mkt data"
         self.__request_streaming_data(self.conn)
-
+        print "request position"
+        self.conn.reqPositions()
         print "request historicals"
         self.__request_historical_data(self.conn)
-
+        time.sleep(1)
+        if self.handler.position !=0:
+            print "squaring position for a clean start"
+            self.handler.neutralize()
         try:
             print "getting ohlc data now"
             #self.time_keeper()
@@ -489,11 +457,11 @@ class HFTModel:
             print "parser spawned"
             time.sleep(5)
 
-            self.__update_norm_params()
+            self.update_norm_params()
             print "sd/mean: passed"
             time.sleep(5)
             print "handler spawned"
-            self.handler = self.executor.submit(self.handler.trading_loop)
+            self.execution = self.executor.submit(self.handler.trading_loop)
 
 
 
@@ -542,8 +510,4 @@ if __name__ == "__main___":
 
     time.sleep(15)
 
-    import datetime as dt
-    t1 = dt.datetime(2016,5,3,0,1,0)
-
-    t2 = dt.datetime(2016, 5, 3, 0, 1, 15)
-    import pandas as pd
+    model.conn.disconnect()
