@@ -368,6 +368,8 @@ class HFTModel:
         print "update norm got prices from handler, len:"
         print len(self.handler.prices)
         prices = self.handler.prices["price"]
+        sgp_tz = pytz.timezone('Singapore')
+        prices.index = prices.index.tz_localize(sgp_tz)
         prices.to_csv(os.path.join(os.path.curdir,"prices_f_norm.csv"))
 
 #        print " got prices"
