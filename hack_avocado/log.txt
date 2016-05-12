@@ -1,0 +1,193 @@
+2016-05-11 20:57:41,826 Starting new HTTPS connection (1): plot.ly
+2016-05-11 20:57:44,095 "POST /clientresp HTTP/1.1" 200 148
+2016-05-11 20:57:49,615 started requests
+2016-05-11 20:58:32,578 updated sd
+2016-05-11 20:58:32,578 0.0133921618867
+2016-05-11 20:59:01,608 updated sd
+2016-05-11 20:59:01,608 0.0149552205162
+2016-05-11 20:59:50,582 exec - zscore condition
+2016-05-11 20:59:51,901 {'active': True, 'filled': False, 'id': 1412, 'timeout': datetime.datetime(2016, 5, 11, 20, 59, 51, 901000), 'order': <ib.ext.Order.Order object at 0x00000000092CF4E0>}
+2016-05-11 20:59:57,203 exec - main order timed out
+2016-05-11 20:59:57,203 exec - zscore condition
+2016-05-11 20:59:58,512 {'active': True, 'filled': True, 'id': 1413, 'timeout': datetime.datetime(2016, 5, 11, 20, 59, 58, 512000), 'order': <ib.ext.Order.Order object at 0x0000000009397C50>}
+2016-05-11 21:00:01,668 updated sd
+2016-05-11 21:00:01,668 0.0133893742373
+2016-05-11 21:00:06,802 exec - zscore condition
+2016-05-11 21:00:08,121 {'active': True, 'filled': False, 'id': 1415, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 8, 122000), 'order': <ib.ext.Order.Order object at 0x00000000094F5A90>}
+2016-05-11 21:00:22,378 exec - zscore condition
+2016-05-11 21:00:23,690 {'active': True, 'filled': False, 'id': 1417, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 23, 691000), 'order': <ib.ext.Order.Order object at 0x00000000092CF390>}
+2016-05-11 21:00:28,993 exec - main order timed out
+2016-05-11 21:00:28,993 exec - zscore condition
+2016-05-11 21:00:30,299 {'active': True, 'filled': True, 'id': 1418, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 30, 300000), 'order': <ib.ext.Order.Order object at 0x0000000002CCBA90>}
+2016-05-11 21:00:36,493 exec - zscore condition
+2016-05-11 21:00:37,809 {'active': True, 'filled': True, 'id': 1420, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 37, 809000), 'order': <ib.ext.Order.Order object at 0x000000000928CBA8>}
+2016-05-11 21:00:44,072 exec - zscore condition
+2016-05-11 21:00:45,387 {'active': True, 'filled': False, 'id': 1422, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 45, 387000), 'order': <ib.ext.Order.Order object at 0x0000000002CCBA90>}
+2016-05-11 21:00:50,688 exec - main order timed out
+2016-05-11 21:00:50,688 exec - zscore condition
+2016-05-11 21:00:51,996 {'active': True, 'filled': False, 'id': 1423, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 51, 997000), 'order': <ib.ext.Order.Order object at 0x000000000928CBA8>}
+2016-05-11 21:00:57,299 exec - main order timed out
+2016-05-11 21:00:57,299 exec - zscore condition
+2016-05-11 21:00:58,608 {'active': True, 'filled': False, 'id': 1424, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 58, 608000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
+2016-05-11 21:01:01,744 updated sd
+2016-05-11 21:01:01,744 0.0117676303555
+2016-05-11 21:01:03,910 exec - main order timed out
+2016-05-11 21:01:03,910 exec - zscore condition
+2016-05-11 21:01:05,217 {'active': True, 'filled': False, 'id': 1425, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 5, 218000), 'order': <ib.ext.Order.Order object at 0x0000000009397B38>}
+2016-05-11 21:01:10,519 exec - main order timed out
+2016-05-11 21:01:10,519 exec - zscore condition
+2016-05-11 21:01:11,828 {'active': True, 'filled': True, 'id': 1426, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 11, 829000), 'order': <ib.ext.Order.Order object at 0x00000000094F5630>}
+2016-05-11 21:01:17,997 exec - zscore condition
+2016-05-11 21:01:19,309 {'active': True, 'filled': False, 'id': 1428, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 19, 310000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
+2016-05-11 21:01:25,430 exec - zscore condition
+2016-05-11 21:01:26,740 {'active': True, 'filled': True, 'id': 1430, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 26, 741000), 'order': <ib.ext.Order.Order object at 0x00000000094F5630>}
+2016-05-11 21:01:32,614 exec - zscore condition
+2016-05-11 21:01:33,927 {'active': True, 'filled': False, 'id': 1432, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 33, 927000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
+2016-05-11 21:13:15,601 Starting new HTTPS connection (1): plot.ly
+2016-05-11 21:13:17,263 "POST /clientresp HTTP/1.1" 200 148
+2016-05-11 21:13:22,299 started requests
+2016-05-11 21:13:42,482 updated sd
+2016-05-11 21:13:42,482 0.0109739952355
+2016-05-11 21:13:54,506 exec - zscore condition
+2016-05-11 21:13:55,815 {'active': True, 'filled': True, 'id': 1433, 'timeout': datetime.datetime(2016, 5, 11, 21, 13, 55, 815000), 'order': <ib.ext.Order.Order object at 0x00000000095A5438>}
+2016-05-11 21:14:12,125 exec - zscore condition
+2016-05-11 21:14:13,440 {'active': True, 'filled': False, 'id': 1435, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 13, 440000), 'order': <ib.ext.Order.Order object at 0x00000000095A5C50>}
+2016-05-11 21:14:18,740 exec - main order timed out
+2016-05-11 21:14:18,740 exec - zscore condition
+2016-05-11 21:14:20,049 {'active': True, 'filled': False, 'id': 1436, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 20, 49000), 'order': <ib.ext.Order.Order object at 0x00000000093E6B38>}
+2016-05-11 21:14:25,349 exec - main order timed out
+2016-05-11 21:14:25,349 exec - zscore condition
+2016-05-11 21:14:26,658 {'active': True, 'filled': False, 'id': 1437, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 26, 659000), 'order': <ib.ext.Order.Order object at 0x00000000095E05C0>}
+2016-05-11 21:14:31,960 exec - main order timed out
+2016-05-11 21:14:31,960 exec - zscore condition
+2016-05-11 21:14:33,269 {'active': True, 'filled': False, 'id': 1438, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 33, 269000), 'order': <ib.ext.Order.Order object at 0x00000000095A5E48>}
+2016-05-11 21:14:38,571 exec - main order timed out
+2016-05-11 21:14:38,571 exec - zscore condition
+2016-05-11 21:14:39,877 {'active': True, 'filled': True, 'id': 1439, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 39, 877000), 'order': <ib.ext.Order.Order object at 0x00000000095A5C50>}
+2016-05-11 21:15:01,562 updated sd
+2016-05-11 21:15:01,562 0.0105095468367
+2016-05-11 21:16:01,622 updated sd
+2016-05-11 21:16:01,622 0.0105563454174
+2016-05-11 21:17:31,851 Starting new HTTPS connection (1): plot.ly
+2016-05-11 21:17:34,051 "POST /clientresp HTTP/1.1" 200 148
+2016-05-11 21:17:39,003 started requests
+2016-05-11 21:17:59,898 updated sd
+2016-05-11 21:17:59,898 0.0175290235514
+2016-05-11 21:18:32,331 exec - zscore condition
+2016-05-11 21:18:33,644 {'active': True, 'filled': False, 'id': 1441, 'timeout': datetime.datetime(2016, 5, 11, 21, 18, 33, 645000), 'order': <ib.ext.Order.Order object at 0x00000000093A5CF8>}
+2016-05-11 21:18:38,947 exec - main order timed out
+2016-05-11 21:18:47,180 exec - zscore condition
+2016-05-11 21:18:48,492 {'active': True, 'filled': False, 'id': 1442, 'timeout': datetime.datetime(2016, 5, 11, 21, 18, 48, 492000), 'order': <ib.ext.Order.Order object at 0x0000000009456C50>}
+2016-05-11 21:19:01,914 updated sd
+2016-05-11 21:19:01,914 0.0135278971019
+2016-05-11 21:19:24,601 exec - zscore condition
+2016-05-11 21:38:17,538 Starting new HTTPS connection (1): plot.ly
+2016-05-11 21:38:20,502 "POST /clientresp HTTP/1.1" 200 148
+2016-05-11 21:38:25,582 started requests
+2016-05-11 21:38:45,055 updated sd
+2016-05-11 21:38:45,055 0.01
+2016-05-11 21:38:50,293 exec - zscore condition
+2016-05-11 21:38:51,602 {'active': True, 'filled': False, 'id': 1450, 'timeout': datetime.datetime(2016, 5, 11, 21, 38, 51, 603000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
+2016-05-11 21:40:01,144 updated sd
+2016-05-11 21:40:01,144 0.01
+2016-05-11 21:41:01,211 updated sd
+2016-05-11 21:41:01,211 0.01
+2016-05-11 21:42:01,282 updated sd
+2016-05-11 21:42:01,282 0.01
+2016-05-11 21:43:01,358 updated sd
+2016-05-11 21:43:01,358 0.01
+2016-05-11 21:43:10,753 exec - zscore condition
+2016-05-11 21:43:12,069 {'active': True, 'filled': True, 'id': 1452, 'timeout': datetime.datetime(2016, 5, 11, 21, 43, 12, 69000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
+2016-05-11 21:44:01,667 updated sd
+2016-05-11 21:44:01,668 0.01
+2016-05-11 21:44:08,461 exec - zscore condition
+2016-05-11 21:44:09,770 {'active': True, 'filled': False, 'id': 1454, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 9, 771000), 'order': <ib.ext.Order.Order object at 0x0000000009581CF8>}
+2016-05-11 21:44:15,072 exec - main order timed out
+2016-05-11 21:44:16,088 exec - zscore condition
+2016-05-11 21:44:17,400 {'active': True, 'filled': False, 'id': 1455, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 17, 400000), 'order': <ib.ext.Order.Order object at 0x00000000093EA0B8>}
+2016-05-11 21:44:22,701 exec - main order timed out
+2016-05-11 21:44:29,661 exec - zscore condition
+2016-05-11 21:44:30,974 {'active': True, 'filled': True, 'id': 1456, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 30, 975000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
+2016-05-11 21:45:01,746 updated sd
+2016-05-11 21:45:01,746 0.01
+2016-05-11 21:46:01,828 updated sd
+2016-05-11 21:46:01,828 0.01
+2016-05-11 21:47:01,911 updated sd
+2016-05-11 21:47:01,911 0.01
+2016-05-11 21:48:02,000 updated sd
+2016-05-11 21:48:02,000 0.01
+2016-05-11 21:49:02,121 updated sd
+2016-05-11 21:49:02,121 0.01
+2016-05-11 21:49:45,987 exec - zscore condition
+2016-05-11 21:49:47,302 {'active': True, 'filled': False, 'id': 1462, 'timeout': datetime.datetime(2016, 5, 11, 21, 49, 47, 303000), 'order': <ib.ext.Order.Order object at 0x00000000093EA128>}
+2016-05-11 21:50:01,214 updated sd
+2016-05-11 21:50:01,214 0.01
+2016-05-11 21:50:02,861 exec - zscore condition
+2016-05-11 21:50:04,173 {'active': True, 'filled': False, 'id': 1464, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 4, 173000), 'order': <ib.ext.Order.Order object at 0x0000000009322A90>}
+2016-05-11 21:50:09,474 exec - main order timed out
+2016-05-11 21:50:10,400 exec - zscore condition
+2016-05-11 21:50:11,713 {'active': True, 'filled': False, 'id': 1465, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 11, 713000), 'order': <ib.ext.Order.Order object at 0x0000000009322390>}
+2016-05-11 21:50:17,015 exec - main order timed out
+2016-05-11 21:50:49,035 exec - zscore condition
+2016-05-11 21:50:50,348 {'active': True, 'filled': False, 'id': 1466, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 50, 349000), 'order': <ib.ext.Order.Order object at 0x00000000093E0CC0>}
+2016-05-11 21:51:01,322 updated sd
+2016-05-11 21:51:01,322 0.01
+2016-05-11 21:51:37,716 exec - zscore condition
+2016-05-11 21:51:39,029 {'active': True, 'filled': False, 'id': 1472, 'timeout': datetime.datetime(2016, 5, 11, 21, 51, 39, 29000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
+2016-05-11 21:52:01,415 updated sd
+2016-05-11 21:52:01,415 0.01
+2016-05-11 21:52:37,109 exec - zscore condition
+2016-05-11 21:52:38,417 {'active': True, 'filled': True, 'id': 1474, 'timeout': datetime.datetime(2016, 5, 11, 21, 52, 38, 418000), 'order': <ib.ext.Order.Order object at 0x00000000093E0D30>}
+2016-05-11 21:52:47,496 exec - zscore condition
+2016-05-11 21:52:48,808 {'active': True, 'filled': False, 'id': 1476, 'timeout': datetime.datetime(2016, 5, 11, 21, 52, 48, 808000), 'order': <ib.ext.Order.Order object at 0x00000000091EFAC8>}
+2016-05-11 21:53:01,506 updated sd
+2016-05-11 21:53:01,506 0.01
+2016-05-11 21:53:34,602 exec - zscore condition
+2016-05-11 21:53:35,921 {'active': True, 'filled': False, 'id': 1478, 'timeout': datetime.datetime(2016, 5, 11, 21, 53, 35, 922000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
+2016-05-11 21:53:41,223 exec - main order timed out
+2016-05-11 21:53:41,223 exec - zscore condition
+2016-05-11 21:53:42,532 {'active': True, 'filled': False, 'id': 1479, 'timeout': datetime.datetime(2016, 5, 11, 21, 53, 42, 532000), 'order': <ib.ext.Order.Order object at 0x00000000093EABE0>}
+2016-05-11 21:54:01,858 updated sd
+2016-05-11 21:54:01,859 0.01
+2016-05-11 21:54:38,265 exec - zscore condition
+2016-05-11 21:54:39,571 {'active': True, 'filled': True, 'id': 1481, 'timeout': datetime.datetime(2016, 5, 11, 21, 54, 39, 571000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
+2016-05-11 21:55:01,976 updated sd
+2016-05-11 21:55:01,976 0.01
+2016-05-11 21:55:11,688 exec - zscore condition
+2016-05-11 21:55:13,003 {'active': True, 'filled': False, 'id': 1483, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 13, 3000), 'order': <ib.ext.Order.Order object at 0x00000000093EAE48>}
+2016-05-11 21:55:36,023 exec - zscore condition
+2016-05-11 21:55:37,339 {'active': True, 'filled': True, 'id': 1485, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 37, 340000), 'order': <ib.ext.Order.Order object at 0x00000000093EA198>}
+2016-05-11 21:55:51,453 exec - zscore condition
+2016-05-11 21:55:52,772 {'active': True, 'filled': True, 'id': 1487, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 52, 772000), 'order': <ib.ext.Order.Order object at 0x00000000093EAAC8>}
+2016-05-11 21:56:01,099 updated sd
+2016-05-11 21:56:01,099 0.01
+2016-05-11 21:57:01,236 updated sd
+2016-05-11 21:57:01,237 0.01
+2016-05-11 21:58:01,381 updated sd
+2016-05-11 21:58:01,381 0.01
+2016-05-11 21:58:43,410 exec - zscore condition
+2016-05-11 21:58:44,717 {'active': True, 'filled': True, 'id': 1489, 'timeout': datetime.datetime(2016, 5, 11, 21, 58, 44, 717000), 'order': <ib.ext.Order.Order object at 0x00000000093E0B38>}
+2016-05-11 21:58:53,551 exec - zscore condition
+2016-05-11 21:58:54,865 {'active': True, 'filled': False, 'id': 1491, 'timeout': datetime.datetime(2016, 5, 11, 21, 58, 54, 865000), 'order': <ib.ext.Order.Order object at 0x00000000093FC128>}
+2016-05-11 21:59:00,167 exec - main order timed out
+2016-05-11 21:59:00,167 exec - zscore condition
+2016-05-11 21:59:01,473 {'active': True, 'filled': False, 'id': 1492, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 1, 473000), 'order': <ib.ext.Order.Order object at 0x00000000093FCA20>}
+2016-05-11 21:59:01,785 updated sd
+2016-05-11 21:59:01,786 0.01
+2016-05-11 21:59:51,440 exec - zscore condition
+2016-05-11 21:59:52,756 {'active': True, 'filled': False, 'id': 1494, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 52, 756000), 'order': <ib.ext.Order.Order object at 0x00000000093E06A0>}
+2016-05-11 21:59:58,058 exec - main order timed out
+2016-05-11 21:59:58,058 exec - zscore condition
+2016-05-11 21:59:59,365 {'active': True, 'filled': False, 'id': 1495, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 59, 366000), 'order': <ib.ext.Order.Order object at 0x00000000091EFAC8>}
+2016-05-11 22:00:01,934 updated sd
+2016-05-11 22:00:01,934 0.01
+2016-05-11 22:00:12,927 exec - zscore condition
+2016-05-11 22:00:14,244 {'active': True, 'filled': True, 'id': 1497, 'timeout': datetime.datetime(2016, 5, 11, 22, 0, 14, 245000), 'order': <ib.ext.Order.Order object at 0x0000000009581668>}
+2016-05-11 22:01:02,114 updated sd
+2016-05-11 22:01:02,114 0.01
+2016-05-11 22:01:33,334 exec - zscore condition
+2016-05-11 22:01:34,642 {'active': True, 'filled': False, 'id': 1499, 'timeout': datetime.datetime(2016, 5, 11, 22, 1, 34, 643000), 'order': <ib.ext.Order.Order object at 0x00000000093EAC88>}
+2016-05-11 22:02:02,265 updated sd
+2016-05-11 22:02:02,265 0.01
+2016-05-11 22:03:02,440 updated sd
+2016-05-11 22:03:02,441 0.01

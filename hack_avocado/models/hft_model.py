@@ -395,7 +395,7 @@ class HFTModel:
             for i in range(1,len(prices)):
                 tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
             prices = prices.ix[1:]
-            self.handler.cur_sd = sqrt(sum(prices * tdiffs)/len(prices))
+            self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
             logging.debug("updated sd")
             logging.debug(str(self.handler.cur_sd))
             # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
