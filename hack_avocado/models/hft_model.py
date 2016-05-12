@@ -135,8 +135,8 @@ class HFTModel:
     def time_keeper(self):
         #self.traffic_light.wait()
         while True:
-            if self.test == True:
-                print "timekeeper alive"
+            # if self.test == True:
+            print "timekeeper alive"
 
             self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
             self._market_is_open()
@@ -173,6 +173,8 @@ class HFTModel:
 
             if self.now > self.last_ml_call + dt.timedelta(minutes=5):
                 print "ML Call"
+                logging.debug("ML Call")
+                logging.debug(str(self.ohlc))
                 self.ml.call_ml(self.ohlc)
                 self.last_ml_call = self.now
             time.sleep(1)
@@ -384,7 +386,7 @@ class HFTModel:
         if len(prices) !=0:
             last_price = prices.iloc[-1]
 
-            self.handler.cur_mean = np.mean(prices)
+            self.handler.cur_mean = round(np.mean(prices),2)
 
             #logging.debug("updated mean")
 

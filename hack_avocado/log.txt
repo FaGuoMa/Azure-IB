@@ -1,193 +1,821 @@
-2016-05-11 20:57:41,826 Starting new HTTPS connection (1): plot.ly
-2016-05-11 20:57:44,095 "POST /clientresp HTTP/1.1" 200 148
-2016-05-11 20:57:49,615 started requests
-2016-05-11 20:58:32,578 updated sd
-2016-05-11 20:58:32,578 0.0133921618867
-2016-05-11 20:59:01,608 updated sd
-2016-05-11 20:59:01,608 0.0149552205162
-2016-05-11 20:59:50,582 exec - zscore condition
-2016-05-11 20:59:51,901 {'active': True, 'filled': False, 'id': 1412, 'timeout': datetime.datetime(2016, 5, 11, 20, 59, 51, 901000), 'order': <ib.ext.Order.Order object at 0x00000000092CF4E0>}
-2016-05-11 20:59:57,203 exec - main order timed out
-2016-05-11 20:59:57,203 exec - zscore condition
-2016-05-11 20:59:58,512 {'active': True, 'filled': True, 'id': 1413, 'timeout': datetime.datetime(2016, 5, 11, 20, 59, 58, 512000), 'order': <ib.ext.Order.Order object at 0x0000000009397C50>}
-2016-05-11 21:00:01,668 updated sd
-2016-05-11 21:00:01,668 0.0133893742373
-2016-05-11 21:00:06,802 exec - zscore condition
-2016-05-11 21:00:08,121 {'active': True, 'filled': False, 'id': 1415, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 8, 122000), 'order': <ib.ext.Order.Order object at 0x00000000094F5A90>}
-2016-05-11 21:00:22,378 exec - zscore condition
-2016-05-11 21:00:23,690 {'active': True, 'filled': False, 'id': 1417, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 23, 691000), 'order': <ib.ext.Order.Order object at 0x00000000092CF390>}
-2016-05-11 21:00:28,993 exec - main order timed out
-2016-05-11 21:00:28,993 exec - zscore condition
-2016-05-11 21:00:30,299 {'active': True, 'filled': True, 'id': 1418, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 30, 300000), 'order': <ib.ext.Order.Order object at 0x0000000002CCBA90>}
-2016-05-11 21:00:36,493 exec - zscore condition
-2016-05-11 21:00:37,809 {'active': True, 'filled': True, 'id': 1420, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 37, 809000), 'order': <ib.ext.Order.Order object at 0x000000000928CBA8>}
-2016-05-11 21:00:44,072 exec - zscore condition
-2016-05-11 21:00:45,387 {'active': True, 'filled': False, 'id': 1422, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 45, 387000), 'order': <ib.ext.Order.Order object at 0x0000000002CCBA90>}
-2016-05-11 21:00:50,688 exec - main order timed out
-2016-05-11 21:00:50,688 exec - zscore condition
-2016-05-11 21:00:51,996 {'active': True, 'filled': False, 'id': 1423, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 51, 997000), 'order': <ib.ext.Order.Order object at 0x000000000928CBA8>}
-2016-05-11 21:00:57,299 exec - main order timed out
-2016-05-11 21:00:57,299 exec - zscore condition
-2016-05-11 21:00:58,608 {'active': True, 'filled': False, 'id': 1424, 'timeout': datetime.datetime(2016, 5, 11, 21, 0, 58, 608000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
-2016-05-11 21:01:01,744 updated sd
-2016-05-11 21:01:01,744 0.0117676303555
-2016-05-11 21:01:03,910 exec - main order timed out
-2016-05-11 21:01:03,910 exec - zscore condition
-2016-05-11 21:01:05,217 {'active': True, 'filled': False, 'id': 1425, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 5, 218000), 'order': <ib.ext.Order.Order object at 0x0000000009397B38>}
-2016-05-11 21:01:10,519 exec - main order timed out
-2016-05-11 21:01:10,519 exec - zscore condition
-2016-05-11 21:01:11,828 {'active': True, 'filled': True, 'id': 1426, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 11, 829000), 'order': <ib.ext.Order.Order object at 0x00000000094F5630>}
-2016-05-11 21:01:17,997 exec - zscore condition
-2016-05-11 21:01:19,309 {'active': True, 'filled': False, 'id': 1428, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 19, 310000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
-2016-05-11 21:01:25,430 exec - zscore condition
-2016-05-11 21:01:26,740 {'active': True, 'filled': True, 'id': 1430, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 26, 741000), 'order': <ib.ext.Order.Order object at 0x00000000094F5630>}
-2016-05-11 21:01:32,614 exec - zscore condition
-2016-05-11 21:01:33,927 {'active': True, 'filled': False, 'id': 1432, 'timeout': datetime.datetime(2016, 5, 11, 21, 1, 33, 927000), 'order': <ib.ext.Order.Order object at 0x0000000009397F60>}
-2016-05-11 21:13:15,601 Starting new HTTPS connection (1): plot.ly
-2016-05-11 21:13:17,263 "POST /clientresp HTTP/1.1" 200 148
-2016-05-11 21:13:22,299 started requests
-2016-05-11 21:13:42,482 updated sd
-2016-05-11 21:13:42,482 0.0109739952355
-2016-05-11 21:13:54,506 exec - zscore condition
-2016-05-11 21:13:55,815 {'active': True, 'filled': True, 'id': 1433, 'timeout': datetime.datetime(2016, 5, 11, 21, 13, 55, 815000), 'order': <ib.ext.Order.Order object at 0x00000000095A5438>}
-2016-05-11 21:14:12,125 exec - zscore condition
-2016-05-11 21:14:13,440 {'active': True, 'filled': False, 'id': 1435, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 13, 440000), 'order': <ib.ext.Order.Order object at 0x00000000095A5C50>}
-2016-05-11 21:14:18,740 exec - main order timed out
-2016-05-11 21:14:18,740 exec - zscore condition
-2016-05-11 21:14:20,049 {'active': True, 'filled': False, 'id': 1436, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 20, 49000), 'order': <ib.ext.Order.Order object at 0x00000000093E6B38>}
-2016-05-11 21:14:25,349 exec - main order timed out
-2016-05-11 21:14:25,349 exec - zscore condition
-2016-05-11 21:14:26,658 {'active': True, 'filled': False, 'id': 1437, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 26, 659000), 'order': <ib.ext.Order.Order object at 0x00000000095E05C0>}
-2016-05-11 21:14:31,960 exec - main order timed out
-2016-05-11 21:14:31,960 exec - zscore condition
-2016-05-11 21:14:33,269 {'active': True, 'filled': False, 'id': 1438, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 33, 269000), 'order': <ib.ext.Order.Order object at 0x00000000095A5E48>}
-2016-05-11 21:14:38,571 exec - main order timed out
-2016-05-11 21:14:38,571 exec - zscore condition
-2016-05-11 21:14:39,877 {'active': True, 'filled': True, 'id': 1439, 'timeout': datetime.datetime(2016, 5, 11, 21, 14, 39, 877000), 'order': <ib.ext.Order.Order object at 0x00000000095A5C50>}
-2016-05-11 21:15:01,562 updated sd
-2016-05-11 21:15:01,562 0.0105095468367
-2016-05-11 21:16:01,622 updated sd
-2016-05-11 21:16:01,622 0.0105563454174
-2016-05-11 21:17:31,851 Starting new HTTPS connection (1): plot.ly
-2016-05-11 21:17:34,051 "POST /clientresp HTTP/1.1" 200 148
-2016-05-11 21:17:39,003 started requests
-2016-05-11 21:17:59,898 updated sd
-2016-05-11 21:17:59,898 0.0175290235514
-2016-05-11 21:18:32,331 exec - zscore condition
-2016-05-11 21:18:33,644 {'active': True, 'filled': False, 'id': 1441, 'timeout': datetime.datetime(2016, 5, 11, 21, 18, 33, 645000), 'order': <ib.ext.Order.Order object at 0x00000000093A5CF8>}
-2016-05-11 21:18:38,947 exec - main order timed out
-2016-05-11 21:18:47,180 exec - zscore condition
-2016-05-11 21:18:48,492 {'active': True, 'filled': False, 'id': 1442, 'timeout': datetime.datetime(2016, 5, 11, 21, 18, 48, 492000), 'order': <ib.ext.Order.Order object at 0x0000000009456C50>}
-2016-05-11 21:19:01,914 updated sd
-2016-05-11 21:19:01,914 0.0135278971019
-2016-05-11 21:19:24,601 exec - zscore condition
-2016-05-11 21:38:17,538 Starting new HTTPS connection (1): plot.ly
-2016-05-11 21:38:20,502 "POST /clientresp HTTP/1.1" 200 148
-2016-05-11 21:38:25,582 started requests
-2016-05-11 21:38:45,055 updated sd
-2016-05-11 21:38:45,055 0.01
-2016-05-11 21:38:50,293 exec - zscore condition
-2016-05-11 21:38:51,602 {'active': True, 'filled': False, 'id': 1450, 'timeout': datetime.datetime(2016, 5, 11, 21, 38, 51, 603000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
-2016-05-11 21:40:01,144 updated sd
-2016-05-11 21:40:01,144 0.01
-2016-05-11 21:41:01,211 updated sd
-2016-05-11 21:41:01,211 0.01
-2016-05-11 21:42:01,282 updated sd
-2016-05-11 21:42:01,282 0.01
-2016-05-11 21:43:01,358 updated sd
-2016-05-11 21:43:01,358 0.01
-2016-05-11 21:43:10,753 exec - zscore condition
-2016-05-11 21:43:12,069 {'active': True, 'filled': True, 'id': 1452, 'timeout': datetime.datetime(2016, 5, 11, 21, 43, 12, 69000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
-2016-05-11 21:44:01,667 updated sd
-2016-05-11 21:44:01,668 0.01
-2016-05-11 21:44:08,461 exec - zscore condition
-2016-05-11 21:44:09,770 {'active': True, 'filled': False, 'id': 1454, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 9, 771000), 'order': <ib.ext.Order.Order object at 0x0000000009581CF8>}
-2016-05-11 21:44:15,072 exec - main order timed out
-2016-05-11 21:44:16,088 exec - zscore condition
-2016-05-11 21:44:17,400 {'active': True, 'filled': False, 'id': 1455, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 17, 400000), 'order': <ib.ext.Order.Order object at 0x00000000093EA0B8>}
-2016-05-11 21:44:22,701 exec - main order timed out
-2016-05-11 21:44:29,661 exec - zscore condition
-2016-05-11 21:44:30,974 {'active': True, 'filled': True, 'id': 1456, 'timeout': datetime.datetime(2016, 5, 11, 21, 44, 30, 975000), 'order': <ib.ext.Order.Order object at 0x00000000095810B8>}
-2016-05-11 21:45:01,746 updated sd
-2016-05-11 21:45:01,746 0.01
-2016-05-11 21:46:01,828 updated sd
-2016-05-11 21:46:01,828 0.01
-2016-05-11 21:47:01,911 updated sd
-2016-05-11 21:47:01,911 0.01
-2016-05-11 21:48:02,000 updated sd
-2016-05-11 21:48:02,000 0.01
-2016-05-11 21:49:02,121 updated sd
-2016-05-11 21:49:02,121 0.01
-2016-05-11 21:49:45,987 exec - zscore condition
-2016-05-11 21:49:47,302 {'active': True, 'filled': False, 'id': 1462, 'timeout': datetime.datetime(2016, 5, 11, 21, 49, 47, 303000), 'order': <ib.ext.Order.Order object at 0x00000000093EA128>}
-2016-05-11 21:50:01,214 updated sd
-2016-05-11 21:50:01,214 0.01
-2016-05-11 21:50:02,861 exec - zscore condition
-2016-05-11 21:50:04,173 {'active': True, 'filled': False, 'id': 1464, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 4, 173000), 'order': <ib.ext.Order.Order object at 0x0000000009322A90>}
-2016-05-11 21:50:09,474 exec - main order timed out
-2016-05-11 21:50:10,400 exec - zscore condition
-2016-05-11 21:50:11,713 {'active': True, 'filled': False, 'id': 1465, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 11, 713000), 'order': <ib.ext.Order.Order object at 0x0000000009322390>}
-2016-05-11 21:50:17,015 exec - main order timed out
-2016-05-11 21:50:49,035 exec - zscore condition
-2016-05-11 21:50:50,348 {'active': True, 'filled': False, 'id': 1466, 'timeout': datetime.datetime(2016, 5, 11, 21, 50, 50, 349000), 'order': <ib.ext.Order.Order object at 0x00000000093E0CC0>}
-2016-05-11 21:51:01,322 updated sd
-2016-05-11 21:51:01,322 0.01
-2016-05-11 21:51:37,716 exec - zscore condition
-2016-05-11 21:51:39,029 {'active': True, 'filled': False, 'id': 1472, 'timeout': datetime.datetime(2016, 5, 11, 21, 51, 39, 29000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
-2016-05-11 21:52:01,415 updated sd
-2016-05-11 21:52:01,415 0.01
-2016-05-11 21:52:37,109 exec - zscore condition
-2016-05-11 21:52:38,417 {'active': True, 'filled': True, 'id': 1474, 'timeout': datetime.datetime(2016, 5, 11, 21, 52, 38, 418000), 'order': <ib.ext.Order.Order object at 0x00000000093E0D30>}
-2016-05-11 21:52:47,496 exec - zscore condition
-2016-05-11 21:52:48,808 {'active': True, 'filled': False, 'id': 1476, 'timeout': datetime.datetime(2016, 5, 11, 21, 52, 48, 808000), 'order': <ib.ext.Order.Order object at 0x00000000091EFAC8>}
-2016-05-11 21:53:01,506 updated sd
-2016-05-11 21:53:01,506 0.01
-2016-05-11 21:53:34,602 exec - zscore condition
-2016-05-11 21:53:35,921 {'active': True, 'filled': False, 'id': 1478, 'timeout': datetime.datetime(2016, 5, 11, 21, 53, 35, 922000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
-2016-05-11 21:53:41,223 exec - main order timed out
-2016-05-11 21:53:41,223 exec - zscore condition
-2016-05-11 21:53:42,532 {'active': True, 'filled': False, 'id': 1479, 'timeout': datetime.datetime(2016, 5, 11, 21, 53, 42, 532000), 'order': <ib.ext.Order.Order object at 0x00000000093EABE0>}
-2016-05-11 21:54:01,858 updated sd
-2016-05-11 21:54:01,859 0.01
-2016-05-11 21:54:38,265 exec - zscore condition
-2016-05-11 21:54:39,571 {'active': True, 'filled': True, 'id': 1481, 'timeout': datetime.datetime(2016, 5, 11, 21, 54, 39, 571000), 'order': <ib.ext.Order.Order object at 0x00000000091EF588>}
-2016-05-11 21:55:01,976 updated sd
-2016-05-11 21:55:01,976 0.01
-2016-05-11 21:55:11,688 exec - zscore condition
-2016-05-11 21:55:13,003 {'active': True, 'filled': False, 'id': 1483, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 13, 3000), 'order': <ib.ext.Order.Order object at 0x00000000093EAE48>}
-2016-05-11 21:55:36,023 exec - zscore condition
-2016-05-11 21:55:37,339 {'active': True, 'filled': True, 'id': 1485, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 37, 340000), 'order': <ib.ext.Order.Order object at 0x00000000093EA198>}
-2016-05-11 21:55:51,453 exec - zscore condition
-2016-05-11 21:55:52,772 {'active': True, 'filled': True, 'id': 1487, 'timeout': datetime.datetime(2016, 5, 11, 21, 55, 52, 772000), 'order': <ib.ext.Order.Order object at 0x00000000093EAAC8>}
-2016-05-11 21:56:01,099 updated sd
-2016-05-11 21:56:01,099 0.01
-2016-05-11 21:57:01,236 updated sd
-2016-05-11 21:57:01,237 0.01
-2016-05-11 21:58:01,381 updated sd
-2016-05-11 21:58:01,381 0.01
-2016-05-11 21:58:43,410 exec - zscore condition
-2016-05-11 21:58:44,717 {'active': True, 'filled': True, 'id': 1489, 'timeout': datetime.datetime(2016, 5, 11, 21, 58, 44, 717000), 'order': <ib.ext.Order.Order object at 0x00000000093E0B38>}
-2016-05-11 21:58:53,551 exec - zscore condition
-2016-05-11 21:58:54,865 {'active': True, 'filled': False, 'id': 1491, 'timeout': datetime.datetime(2016, 5, 11, 21, 58, 54, 865000), 'order': <ib.ext.Order.Order object at 0x00000000093FC128>}
-2016-05-11 21:59:00,167 exec - main order timed out
-2016-05-11 21:59:00,167 exec - zscore condition
-2016-05-11 21:59:01,473 {'active': True, 'filled': False, 'id': 1492, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 1, 473000), 'order': <ib.ext.Order.Order object at 0x00000000093FCA20>}
-2016-05-11 21:59:01,785 updated sd
-2016-05-11 21:59:01,786 0.01
-2016-05-11 21:59:51,440 exec - zscore condition
-2016-05-11 21:59:52,756 {'active': True, 'filled': False, 'id': 1494, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 52, 756000), 'order': <ib.ext.Order.Order object at 0x00000000093E06A0>}
-2016-05-11 21:59:58,058 exec - main order timed out
-2016-05-11 21:59:58,058 exec - zscore condition
-2016-05-11 21:59:59,365 {'active': True, 'filled': False, 'id': 1495, 'timeout': datetime.datetime(2016, 5, 11, 21, 59, 59, 366000), 'order': <ib.ext.Order.Order object at 0x00000000091EFAC8>}
-2016-05-11 22:00:01,934 updated sd
-2016-05-11 22:00:01,934 0.01
-2016-05-11 22:00:12,927 exec - zscore condition
-2016-05-11 22:00:14,244 {'active': True, 'filled': True, 'id': 1497, 'timeout': datetime.datetime(2016, 5, 11, 22, 0, 14, 245000), 'order': <ib.ext.Order.Order object at 0x0000000009581668>}
-2016-05-11 22:01:02,114 updated sd
-2016-05-11 22:01:02,114 0.01
-2016-05-11 22:01:33,334 exec - zscore condition
-2016-05-11 22:01:34,642 {'active': True, 'filled': False, 'id': 1499, 'timeout': datetime.datetime(2016, 5, 11, 22, 1, 34, 643000), 'order': <ib.ext.Order.Order object at 0x00000000093EAC88>}
-2016-05-11 22:02:02,265 updated sd
-2016-05-11 22:02:02,265 0.01
-2016-05-11 22:03:02,440 updated sd
-2016-05-11 22:03:02,441 0.01
+2016-05-12 22:20:21,062 Starting new HTTPS connection (1): plot.ly
+2016-05-12 22:20:23,704 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 22:20:28,529 started requests
+2016-05-12 22:20:46,532 updated sd
+2016-05-12 22:20:46,532 0.01
+2016-05-12 22:23:06,779 exec - zscore condition
+2016-05-12 22:23:07,891 {'active': True, 'filled': False, 'id': 1510, 'timeout': datetime.datetime(2016, 5, 12, 22, 23, 7, 891000), 'order': <ib.ext.Order.Order object at 0x00000000096AC438>}
+2016-05-12 22:23:34,697 exec - zscore condition
+2016-05-12 22:23:35,809 {'active': True, 'filled': False, 'id': 1512, 'timeout': datetime.datetime(2016, 5, 12, 22, 23, 35, 809000), 'order': <ib.ext.Order.Order object at 0x00000000049E9978>}
+2016-05-12 22:24:34,835 exec - zscore condition
+2016-05-12 22:24:35,956 {'active': True, 'filled': False, 'id': 1514, 'timeout': datetime.datetime(2016, 5, 12, 22, 24, 35, 956000), 'order': <ib.ext.Order.Order object at 0x00000000096ACB70>}
+2016-05-12 22:24:52,433 exec - zscore condition
+2016-05-12 22:24:53,549 {'active': True, 'filled': False, 'id': 1516, 'timeout': datetime.datetime(2016, 5, 12, 22, 24, 53, 549000), 'order': <ib.ext.Order.Order object at 0x00000000096ACEB8>}
+2016-05-12 22:25:33,739 exec - zscore condition
+2016-05-12 22:25:34,854 {'active': True, 'filled': True, 'id': 1518, 'timeout': datetime.datetime(2016, 5, 12, 22, 25, 34, 854000), 'order': <ib.ext.Order.Order object at 0x00000000049E9978>}
+2016-05-12 22:30:52,757 Starting new HTTPS connection (1): plot.ly
+2016-05-12 22:30:55,108 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 22:31:00,049 started requests
+2016-05-12 22:32:55,107 Starting new HTTPS connection (1): plot.ly
+2016-05-12 22:32:57,941 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 22:33:03,028 started requests
+2016-05-12 22:33:20,674 updated sd
+2016-05-12 22:33:20,674 0.01
+2016-05-12 22:33:25,782 exec - zscore condition
+2016-05-12 22:33:26,891 {'active': True, 'filled': False, 'id': 1520, 'timeout': datetime.datetime(2016, 5, 12, 22, 33, 26, 892000), 'order': <ib.ext.Order.Order object at 0x0000000009413518>}
+2016-05-12 22:33:31,993 exec - main order timed out
+2016-05-12 22:33:31,993 exec - zscore condition
+2016-05-12 22:33:33,101 {'active': True, 'filled': True, 'id': 1521, 'timeout': datetime.datetime(2016, 5, 12, 22, 33, 33, 102000), 'order': <ib.ext.Order.Order object at 0x0000000009413CF8>}
+2016-05-12 22:34:01,727 updated sd
+2016-05-12 22:34:01,727 0.01
+2016-05-12 22:34:35,714 started requests
+2016-05-12 22:36:25,992 started requests
+2016-05-12 22:36:27,782 Exception in message dispatch.  Handler '__event_handler' for 'historicalData'
+Traceback (most recent call last):
+  File "C:\Users\treyd_000\Anaconda2\lib\site-packages\ib\opt\dispatcher.py", line 44, in __call__
+    results.append(listener(message))
+  File "C:\Users\treyd_000\Desktop\Quantinsti\Azure-IB\Azure-IB\hack_avocado\models\hft_model.py", line 289, in __event_handler
+    self.__on_historical_data(msg)
+  File "C:\Users\treyd_000\Desktop\Quantinsti\Azure-IB\Azure-IB\hack_avocado\models\hft_model.py", line 314, in __on_historical_data
+    self.__on_historical_data_completed()
+  File "C:\Users\treyd_000\Desktop\Quantinsti\Azure-IB\Azure-IB\hack_avocado\models\hft_model.py", line 324, in __on_historical_data_completed
+    print "start position is:" + str(self.handler.position)
+AttributeError: 'NoneType' object has no attribute 'position'
+2016-05-12 22:37:47,236 Starting new HTTPS connection (1): plot.ly
+2016-05-12 22:37:50,009 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 22:37:55,536 started requests
+2016-05-12 22:38:15,033 updated sd
+2016-05-12 22:38:15,033 0.01
+2016-05-12 22:38:21,813 exec - zscore condition
+2016-05-12 22:38:22,924 {'active': True, 'filled': True, 'id': 1524, 'timeout': datetime.datetime(2016, 5, 12, 22, 38, 22, 925000), 'order': <ib.ext.Order.Order object at 0x00000000095ECCF8>}
+2016-05-12 22:38:44,056 exec - zscore condition
+2016-05-12 22:38:45,168 {'active': True, 'filled': False, 'id': 1526, 'timeout': datetime.datetime(2016, 5, 12, 22, 38, 45, 169000), 'order': <ib.ext.Order.Order object at 0x00000000095EC240>}
+2016-05-12 22:38:50,272 exec - main order timed out
+2016-05-12 22:38:54,734 exec - zscore condition
+2016-05-12 22:38:55,846 {'active': True, 'filled': False, 'id': 1527, 'timeout': datetime.datetime(2016, 5, 12, 22, 38, 55, 847000), 'order': <ib.ext.Order.Order object at 0x00000000097DBD68>}
+2016-05-12 22:39:00,948 exec - main order timed out
+2016-05-12 22:39:00,948 exec - zscore condition
+2016-05-12 22:39:01,091 updated sd
+2016-05-12 22:39:01,091 0.01
+2016-05-12 22:39:02,058 {'active': True, 'filled': False, 'id': 1528, 'timeout': datetime.datetime(2016, 5, 12, 22, 39, 2, 58000), 'order': <ib.ext.Order.Order object at 0x00000000097DBC18>}
+2016-05-12 22:39:07,160 exec - main order timed out
+2016-05-12 22:39:10,851 exec - zscore condition
+2016-05-12 22:39:11,963 {'active': True, 'filled': True, 'id': 1529, 'timeout': datetime.datetime(2016, 5, 12, 22, 39, 11, 964000), 'order': <ib.ext.Order.Order object at 0x000000000964E780>}
+2016-05-12 22:39:34,880 exec - zscore condition
+2016-05-12 22:39:36,000 {'active': True, 'filled': True, 'id': 1531, 'timeout': datetime.datetime(2016, 5, 12, 22, 39, 36), 'order': <ib.ext.Order.Order object at 0x00000000097DBD68>}
+2016-05-12 22:39:53,693 exec - zscore condition
+2016-05-12 22:39:54,812 {'active': True, 'filled': True, 'id': 1533, 'timeout': datetime.datetime(2016, 5, 12, 22, 39, 54, 813000), 'order': <ib.ext.Order.Order object at 0x000000000964EA58>}
+2016-05-12 22:40:01,157 updated sd
+2016-05-12 22:40:01,157 0.01
+2016-05-12 22:40:16,243 exec - zscore condition
+2016-05-12 22:40:17,357 {'active': True, 'filled': True, 'id': 1535, 'timeout': datetime.datetime(2016, 5, 12, 22, 40, 17, 357000), 'order': <ib.ext.Order.Order object at 0x000000000964E6A0>}
+2016-05-12 22:41:01,243 updated sd
+2016-05-12 22:41:01,243 0.01
+2016-05-12 22:41:03,226 exec - zscore condition
+2016-05-12 22:41:04,336 {'active': True, 'filled': False, 'id': 1537, 'timeout': datetime.datetime(2016, 5, 12, 22, 41, 4, 337000), 'order': <ib.ext.Order.Order object at 0x00000000095ECB00>}
+2016-05-12 22:42:01,332 updated sd
+2016-05-12 22:42:01,334 0.01
+2016-05-12 22:42:27,842 exec - zscore condition
+2016-05-12 22:42:28,954 {'active': True, 'filled': False, 'id': 1539, 'timeout': datetime.datetime(2016, 5, 12, 22, 42, 28, 955000), 'order': <ib.ext.Order.Order object at 0x00000000080919B0>}
+2016-05-12 22:42:38,341 exec - zscore condition
+2016-05-12 22:42:39,450 {'active': True, 'filled': False, 'id': 1541, 'timeout': datetime.datetime(2016, 5, 12, 22, 42, 39, 450000), 'order': <ib.ext.Order.Order object at 0x00000000080919B0>}
+2016-05-12 22:42:44,551 exec - main order timed out
+2016-05-12 22:43:01,413 updated sd
+2016-05-12 22:43:01,414 0.01
+2016-05-12 22:43:04,032 exec - zscore condition
+2016-05-12 22:43:05,145 {'active': True, 'filled': True, 'id': 1542, 'timeout': datetime.datetime(2016, 5, 12, 22, 43, 5, 146000), 'order': <ib.ext.Order.Order object at 0x000000000964EF28>}
+2016-05-12 22:44:01,752 exec - zscore condition
+2016-05-12 22:44:01,757 updated sd
+2016-05-12 22:44:01,757 0.01
+2016-05-12 22:44:02,864 {'active': True, 'filled': False, 'id': 1544, 'timeout': datetime.datetime(2016, 5, 12, 22, 44, 2, 864000), 'order': <ib.ext.Order.Order object at 0x00000000097DBCF8>}
+2016-05-12 22:44:43,625 exec - zscore condition
+2016-05-12 22:44:44,747 {'active': True, 'filled': False, 'id': 1546, 'timeout': datetime.datetime(2016, 5, 12, 22, 44, 44, 748000), 'order': <ib.ext.Order.Order object at 0x00000000097DB278>}
+2016-05-12 22:44:49,849 exec - main order timed out
+2016-05-12 22:44:50,298 exec - zscore condition
+2016-05-12 22:44:51,408 {'active': True, 'filled': True, 'id': 1547, 'timeout': datetime.datetime(2016, 5, 12, 22, 44, 51, 409000), 'order': <ib.ext.Order.Order object at 0x00000000095EC828>}
+2016-05-12 22:45:01,845 updated sd
+2016-05-12 22:45:01,845 0.01
+2016-05-12 22:45:07,887 exec - zscore condition
+2016-05-12 22:45:09,007 {'active': True, 'filled': False, 'id': 1549, 'timeout': datetime.datetime(2016, 5, 12, 22, 45, 9, 8000), 'order': <ib.ext.Order.Order object at 0x00000000097DB278>}
+2016-05-12 22:45:14,109 exec - main order timed out
+2016-05-12 22:45:14,109 exec - zscore condition
+2016-05-12 22:45:15,217 {'active': True, 'filled': True, 'id': 1550, 'timeout': datetime.datetime(2016, 5, 12, 22, 45, 15, 218000), 'order': <ib.ext.Order.Order object at 0x00000000095EC898>}
+2016-05-12 22:45:50,572 exec - zscore condition
+2016-05-12 22:45:51,686 {'active': True, 'filled': False, 'id': 1552, 'timeout': datetime.datetime(2016, 5, 12, 22, 45, 51, 686000), 'order': <ib.ext.Order.Order object at 0x00000000097DBB70>}
+2016-05-12 22:46:01,950 updated sd
+2016-05-12 22:46:01,951 0.01
+2016-05-12 22:47:01,058 updated sd
+2016-05-12 22:47:01,058 0.01
+2016-05-12 22:48:01,164 updated sd
+2016-05-12 22:48:01,164 0.01
+2016-05-12 22:48:24,401 exec - zscore condition
+2016-05-12 22:48:25,512 {'active': True, 'filled': True, 'id': 1554, 'timeout': datetime.datetime(2016, 5, 12, 22, 48, 25, 512000), 'order': <ib.ext.Order.Order object at 0x00000000095EC278>}
+2016-05-12 22:48:49,729 exec - zscore condition
+2016-05-12 22:48:50,844 {'active': True, 'filled': False, 'id': 1556, 'timeout': datetime.datetime(2016, 5, 12, 22, 48, 50, 844000), 'order': <ib.ext.Order.Order object at 0x00000000095EC6A0>}
+2016-05-12 22:49:01,822 updated sd
+2016-05-12 22:49:01,823 0.01
+2016-05-12 22:50:01,921 exec - zscore condition
+2016-05-12 22:50:01,927 updated sd
+2016-05-12 22:50:01,927 0.02
+2016-05-12 22:50:03,033 {'active': True, 'filled': True, 'id': 1558, 'timeout': datetime.datetime(2016, 5, 12, 22, 50, 3, 34000), 'order': <ib.ext.Order.Order object at 0x000000000964E2B0>}
+2016-05-12 22:51:02,039 updated sd
+2016-05-12 22:51:02,039 0.01
+2016-05-12 22:52:01,138 exec - zscore condition
+2016-05-12 22:52:01,145 updated sd
+2016-05-12 22:52:01,147 0.01
+2016-05-12 22:52:02,250 {'active': True, 'filled': False, 'id': 1560, 'timeout': datetime.datetime(2016, 5, 12, 22, 52, 2, 251000), 'order': <ib.ext.Order.Order object at 0x00000000095EC1D0>}
+2016-05-12 22:52:07,352 exec - main order timed out
+2016-05-12 22:52:07,352 exec - zscore condition
+2016-05-12 22:52:08,460 {'active': True, 'filled': False, 'id': 1561, 'timeout': datetime.datetime(2016, 5, 12, 22, 52, 8, 461000), 'order': <ib.ext.Order.Order object at 0x000000000727F470>}
+2016-05-12 22:53:09,635 exec - zscore condition
+2016-05-12 22:53:10,746 {'active': True, 'filled': False, 'id': 1563, 'timeout': datetime.datetime(2016, 5, 12, 22, 53, 10, 747000), 'order': <ib.ext.Order.Order object at 0x000000000963FE10>}
+2016-05-12 23:09:55,088 Starting new HTTPS connection (1): plot.ly
+2016-05-12 23:09:56,993 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 23:10:02,075 started requests
+2016-05-12 23:10:58,374 Starting new HTTPS connection (1): plot.ly
+2016-05-12 23:11:00,526 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 23:11:05,526 started requests
+2016-05-12 23:11:22,773 updated sd
+2016-05-12 23:11:22,773 0.01
+2016-05-12 23:11:31,805 exec - zscore condition
+2016-05-12 23:11:32,915 {'active': True, 'filled': False, 'id': 1566, 'timeout': datetime.datetime(2016, 5, 12, 23, 11, 32, 916000), 'order': <ib.ext.Order.Order object at 0x00000000091AA710>}
+2016-05-12 23:11:46,128 exec - zscore condition
+2016-05-12 23:11:47,237 {'active': True, 'filled': False, 'id': 1568, 'timeout': datetime.datetime(2016, 5, 12, 23, 11, 47, 238000), 'order': <ib.ext.Order.Order object at 0x00000000091AACF8>}
+2016-05-12 23:11:52,339 exec - main order timed out
+2016-05-12 23:11:54,707 exec - zscore condition
+2016-05-12 23:11:55,815 {'active': True, 'filled': False, 'id': 1569, 'timeout': datetime.datetime(2016, 5, 12, 23, 11, 55, 816000), 'order': <ib.ext.Order.Order object at 0x00000000091AABA8>}
+2016-05-12 23:12:00,917 exec - main order timed out
+2016-05-12 23:12:01,835 updated sd
+2016-05-12 23:12:01,835 0.01
+2016-05-12 23:12:06,361 exec - zscore condition
+2016-05-12 23:12:07,473 {'active': True, 'filled': False, 'id': 1570, 'timeout': datetime.datetime(2016, 5, 12, 23, 12, 7, 473000), 'order': <ib.ext.Order.Order object at 0x0000000009230E80>}
+2016-05-12 23:14:06,734 Starting new HTTPS connection (1): plot.ly
+2016-05-12 23:14:08,628 "POST /clientresp HTTP/1.1" 200 148
+2016-05-12 23:14:13,526 started requests
+2016-05-12 23:14:32,867 updated sd
+2016-05-12 23:14:32,868 0.02
+2016-05-12 23:16:01,983 updated sd
+2016-05-12 23:16:01,983 0.01
+2016-05-12 23:16:03,517 exec - zscore condition
+2016-05-12 23:16:04,630 {'active': True, 'filled': False, 'id': 1572, 'timeout': datetime.datetime(2016, 5, 12, 23, 16, 4, 630000), 'order': <ib.ext.Order.Order object at 0x00000000092B1E10>}
+2016-05-12 23:17:01,072 updated sd
+2016-05-12 23:17:01,073 0.01
+2016-05-12 23:17:19,931 exec - zscore condition
+2016-05-12 23:17:21,046 {'active': True, 'filled': False, 'id': 1574, 'timeout': datetime.datetime(2016, 5, 12, 23, 17, 21, 46000), 'order': <ib.ext.Order.Order object at 0x00000000092B19B0>}
+2016-05-12 23:18:01,161 updated sd
+2016-05-12 23:18:01,163 0.01
+2016-05-12 23:18:25,400 exec - zscore condition
+2016-05-12 23:18:26,516 {'active': True, 'filled': False, 'id': 1576, 'timeout': datetime.datetime(2016, 5, 12, 23, 18, 26, 517000), 'order': <ib.ext.Order.Order object at 0x0000000009272940>}
+2016-05-12 23:18:31,619 exec - main order timed out
+2016-05-12 23:19:01,250 updated sd
+2016-05-12 23:19:01,250 0.01
+2016-05-12 23:19:05,744 exec - zscore condition
+2016-05-12 23:19:06,855 {'active': True, 'filled': False, 'id': 1577, 'timeout': datetime.datetime(2016, 5, 12, 23, 19, 6, 855000), 'order': <ib.ext.Order.Order object at 0x0000000009272470>}
+2016-05-12 23:19:11,957 exec - main order timed out
+2016-05-12 23:19:15,082 exec - zscore condition
+2016-05-12 23:19:16,193 {'active': True, 'filled': False, 'id': 1578, 'timeout': datetime.datetime(2016, 5, 12, 23, 19, 16, 193000), 'order': <ib.ext.Order.Order object at 0x00000000091E5AC8>}
+2016-05-12 23:19:21,295 exec - main order timed out
+2016-05-12 23:19:21,688 exec - zscore condition
+2016-05-12 23:19:22,796 {'active': True, 'filled': False, 'id': 1579, 'timeout': datetime.datetime(2016, 5, 12, 23, 19, 22, 797000), 'order': <ib.ext.Order.Order object at 0x00000000092BD828>}
+2016-05-12 23:19:27,273 ML Call
+2016-05-12 23:19:27,516                             open   high    low  close volume count   returns  \
+2016-05-12 21:13:00+08:00  46.89  46.91  46.85  46.87    981   382       NaN   
+2016-05-12 21:14:00+08:00  46.88  46.88  46.83  46.85   1309   466       NaN   
+2016-05-12 21:15:00+08:00  46.85  46.88  46.84  46.86    849   253       NaN   
+2016-05-12 21:16:00+08:00  46.86  46.91  46.84  46.87   1244   403       NaN   
+2016-05-12 21:17:00+08:00  46.88  46.91  46.86  46.88   1109   314       NaN   
+2016-05-12 21:18:00+08:00  46.88  46.95  46.88  46.89   1928   729       NaN   
+2016-05-12 21:19:00+08:00  46.89  46.94  46.88  46.93    920   292       NaN   
+2016-05-12 21:20:00+08:00  46.93  46.99  46.92  46.96   2342   817       NaN   
+2016-05-12 21:21:00+08:00  46.96  46.98  46.92  46.97   1241   461       NaN   
+2016-05-12 21:22:00+08:00  46.97  46.98  46.94  46.95    566   193       NaN   
+2016-05-12 21:23:00+08:00  46.95  46.98  46.94  46.95    659   195  0.170685   
+2016-05-12 21:24:00+08:00  46.95  47.02  46.93  46.97   2148   753  0.256137   
+2016-05-12 21:25:00+08:00  46.98  47.02  46.91  46.92   1960   586  0.128041   
+2016-05-12 21:26:00+08:00  46.92  46.95  46.88   46.9   1156   475  0.064007   
+2016-05-12 21:27:00+08:00  46.91  46.95   46.9   46.9    828   258  0.042662   
+2016-05-12 21:28:00+08:00  46.91  46.94   46.9  46.92    432   158  0.063980   
+2016-05-12 21:29:00+08:00  46.92  46.92  46.88  46.91    695   236 -0.042617   
+2016-05-12 21:30:00+08:00   46.9  46.92  46.86  46.89   1346   528 -0.149063   
+2016-05-12 21:31:00+08:00  46.89  46.91   46.8  46.83   2089   796 -0.298063   
+2016-05-12 21:32:00+08:00  46.84  46.85  46.75  46.79   2112   736 -0.340788   
+2016-05-12 21:33:00+08:00   46.8   46.8  46.72  46.76   1756   615 -0.404686   
+2016-05-12 21:34:00+08:00  46.76  46.78  46.73  46.76   1076   379 -0.447094   
+2016-05-12 21:35:00+08:00  46.76  46.77  46.74  46.77   1086   362 -0.319693   
+2016-05-12 21:36:00+08:00  46.76  46.81   46.7   46.7   1809   747 -0.426439   
+2016-05-12 21:37:00+08:00  46.71  46.72  46.48  46.53   5200  2121 -0.788913   
+2016-05-12 21:38:00+08:00  46.53  46.61  46.52  46.57   2997  1041 -0.745951   
+2016-05-12 21:39:00+08:00  46.57  46.58  46.51  46.51   1615   641 -0.852697   
+2016-05-12 21:40:00+08:00  46.51  46.53  46.39  46.45   3761  1418 -0.938366   
+2016-05-12 21:41:00+08:00  46.45  46.52  46.43  46.52   2016   676 -0.661969   
+2016-05-12 21:42:00+08:00  46.51  46.65  46.48  46.61   2471   981 -0.384698   
+...                          ...    ...    ...    ...    ...   ...       ...   
+2016-05-12 22:49:00+08:00  46.29  46.31  46.24  46.24    514   200 -0.215796   
+2016-05-12 22:50:00+08:00  46.24  46.29  46.21  46.27   1078   427 -0.043206   
+2016-05-12 22:51:00+08:00  46.27  46.34  46.26  46.32   1216   465  0.000000   
+2016-05-12 22:52:00+08:00  46.33  46.41  46.32  46.38   1511   653  0.129534   
+2016-05-12 22:53:00+08:00  46.38  46.38  46.29  46.32    732   329  0.129702   
+2016-05-12 22:54:00+08:00  46.32  46.35  46.31  46.33    354   124  0.216310   
+2016-05-12 22:55:00+08:00  46.32  46.34  46.29  46.33    470   163  0.216310   
+2016-05-12 22:56:00+08:00  46.34  46.34  46.26  46.29    589   172 -0.021598   
+2016-05-12 22:57:00+08:00  46.29  46.32  46.26  46.28    457   140 -0.021603   
+2016-05-12 22:58:00+08:00  46.27  46.32  46.25  46.32    647   230  0.043197   
+2016-05-12 22:59:00+08:00  46.31  46.35  46.29  46.29    405   161  0.108131   
+2016-05-12 23:00:00+08:00  46.28  46.28  46.14  46.17   2143   821 -0.216123   
+2016-05-12 23:01:00+08:00  46.16  46.19  46.14  46.17    944   348 -0.323834   
+2016-05-12 23:02:00+08:00  46.17   46.2  46.12  46.12    758   270 -0.560586   
+2016-05-12 23:03:00+08:00  46.14  46.15  46.04  46.06   2236   841 -0.561313   
+2016-05-12 23:04:00+08:00  46.05  46.06  45.94  45.98   4251  1526 -0.755450   
+2016-05-12 23:05:00+08:00  45.99  45.99  45.94  45.95   1416   496 -0.820203   
+2016-05-12 23:06:00+08:00  45.94  45.98  45.82  45.86   3274  1076 -0.928926   
+2016-05-12 23:07:00+08:00  45.86  45.92  45.82  45.91   2713   875 -0.799481   
+2016-05-12 23:08:00+08:00   45.9  45.91  45.76  45.82   2846   933 -1.079447   
+2016-05-12 23:09:00+08:00  45.81  45.87  45.79  45.86   1911   604 -0.928926   
+2016-05-12 23:10:00+08:00  45.87  45.87  45.81  45.82   1120   413 -0.758068   
+2016-05-12 23:11:00+08:00  45.83  45.84   45.8  45.83   1109   447 -0.736409   
+2016-05-12 23:12:00+08:00  45.83  45.92  45.82  45.89   1522   558 -0.498699   
+2016-05-12 23:13:00+08:00  45.89  45.91  45.87  45.87    842   283 -0.412505   
+2016-05-12 23:14:00+08:00  45.88  45.89  45.87  45.88    122    44 -0.217486   
+2016-05-12 23:15:00+08:00  45.88  45.88  45.78  45.79   2119   712 -0.348205   
+2016-05-12 23:16:00+08:00  45.77  45.77  45.66  45.69   3100  1054 -0.370693   
+2016-05-12 23:17:00+08:00  45.71  45.77  45.71  45.76   1259   456 -0.326726   
+2016-05-12 23:18:00+08:00  45.75  45.77  45.72  45.75    999   360 -0.152772   
+
+                              sma        lma        rsi       atr  monday  \
+2016-05-12 21:13:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:14:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:15:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:16:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:17:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:18:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:19:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:20:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:21:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:22:00+08:00  46.903        NaN        NaN       NaN       0   
+2016-05-12 21:23:00+08:00  46.911        NaN        NaN  0.055000       0   
+2016-05-12 21:24:00+08:00  46.923        NaN        NaN  0.058500       0   
+2016-05-12 21:25:00+08:00  46.929        NaN        NaN  0.063650       0   
+2016-05-12 21:26:00+08:00  46.932        NaN        NaN  0.064285       0   
+2016-05-12 21:27:00+08:00  46.934        NaN  56.000000  0.062857       0   
+2016-05-12 21:28:00+08:00  46.937        NaN  59.490085  0.060571       0   
+2016-05-12 21:29:00+08:00  46.935        NaN  57.053292  0.058514       0   
+2016-05-12 21:30:00+08:00  46.928        NaN  52.427873  0.058662       0   
+2016-05-12 21:31:00+08:00  46.914        NaN  41.545963  0.063796       0   
+2016-05-12 21:32:00+08:00  46.898        NaN  36.157826  0.067417       0   
+2016-05-12 21:33:00+08:00  46.879        NaN  32.729408  0.068675       0   
+2016-05-12 21:34:00+08:00  46.858        NaN  32.729408  0.066807       0   
+2016-05-12 21:35:00+08:00  46.843        NaN  35.108057  0.063127       0   
+2016-05-12 21:36:00+08:00  46.823        NaN  27.719316  0.067814       0   
+2016-05-12 21:37:00+08:00  46.786        NaN  17.878512  0.085033       0   
+2016-05-12 21:38:00+08:00  46.751        NaN  24.656340  0.085529       0   
+2016-05-12 21:39:00+08:00  46.711        NaN  21.755766  0.083976       0   
+2016-05-12 21:40:00+08:00  46.667        NaN  19.309462  0.089579       0   
+2016-05-12 21:41:00+08:00  46.636        NaN  29.297943  0.089621       0   
+2016-05-12 21:42:00+08:00  46.618        NaN  39.643015  0.097659       0   
+...                           ...        ...        ...       ...     ...   
+2016-05-12 22:49:00+08:00  46.278        NaN  45.696346  0.067789       0   
+2016-05-12 22:50:00+08:00  46.276        NaN  49.363722  0.069010       0   
+2016-05-12 22:51:00+08:00  46.276        NaN  54.838070  0.070109       0   
+2016-05-12 22:52:00+08:00  46.282        NaN  60.374293  0.072098       0   
+2016-05-12 22:53:00+08:00  46.288        NaN  53.333439  0.073888       0   
+2016-05-12 22:54:00+08:00  46.298        NaN  54.290227  0.070500       0   
+2016-05-12 22:55:00+08:00  46.308        NaN  54.290227  0.068450       0   
+2016-05-12 22:56:00+08:00  46.307        NaN  49.575005  0.069605       0   
+2016-05-12 22:57:00+08:00  46.306        NaN  48.442267  0.068644       0   
+2016-05-12 22:58:00+08:00  46.308        NaN  53.062186  0.068780       0   
+2016-05-12 22:59:00+08:00  46.313        NaN  49.481015  0.067902       0   
+2016-05-12 23:00:00+08:00  46.303        NaN  38.335786  0.076112       0   
+2016-05-12 23:01:00+08:00  46.288        NaN  38.335786  0.073500       0   
+2016-05-12 23:02:00+08:00  46.262        NaN  34.572718  0.074150       0   
+2016-05-12 23:03:00+08:00  46.236        NaN  30.680747  0.077735       0   
+2016-05-12 23:04:00+08:00  46.201        NaN  26.411490  0.081962       0   
+2016-05-12 23:05:00+08:00  46.163        NaN  25.006249  0.078766       0   
+2016-05-12 23:06:00+08:00  46.120        NaN  21.338296  0.086889       0   
+2016-05-12 23:07:00+08:00  46.083        NaN  27.684563  0.088200       0   
+2016-05-12 23:08:00+08:00  46.033        NaN  23.940483  0.094380       0   
+2016-05-12 23:09:00+08:00  45.990        NaN  28.564543  0.092942       0   
+2016-05-12 23:10:00+08:00  45.955        NaN  26.809289  0.089648       0   
+2016-05-12 23:11:00+08:00  45.921        NaN  28.000441  0.084683       0   
+2016-05-12 23:12:00+08:00  45.898  46.407417  34.851411  0.086215       0   
+2016-05-12 23:13:00+08:00  45.879  46.399083  33.700294  0.081593       0   
+2016-05-12 23:14:00+08:00  45.869  46.391000  34.858830  0.075434       0   
+2016-05-12 23:15:00+08:00  45.853  46.382083  29.810039  0.077891       0   
+2016-05-12 23:16:00+08:00  45.836  46.372250  25.406848  0.083102       0   
+2016-05-12 23:17:00+08:00  45.821  46.362917  32.880555  0.082791       0   
+2016-05-12 23:18:00+08:00  45.814  46.353417  32.381418  0.079512       0   
+
+                           roll  busy  
+2016-05-12 21:13:00+08:00     0     0  
+2016-05-12 21:14:00+08:00     0     0  
+2016-05-12 21:15:00+08:00     0     0  
+2016-05-12 21:16:00+08:00     0     0  
+2016-05-12 21:17:00+08:00     0     0  
+2016-05-12 21:18:00+08:00     0     0  
+2016-05-12 21:19:00+08:00     0     0  
+2016-05-12 21:20:00+08:00     0     0  
+2016-05-12 21:21:00+08:00     0     0  
+2016-05-12 21:22:00+08:00     0     0  
+2016-05-12 21:23:00+08:00     0     0  
+2016-05-12 21:24:00+08:00     0     0  
+2016-05-12 21:25:00+08:00     0     0  
+2016-05-12 21:26:00+08:00     0     0  
+2016-05-12 21:27:00+08:00     0     0  
+2016-05-12 21:28:00+08:00     0     0  
+2016-05-12 21:29:00+08:00     0     0  
+2016-05-12 21:30:00+08:00     0     0  
+2016-05-12 21:31:00+08:00     0     0  
+2016-05-12 21:32:00+08:00     0     0  
+2016-05-12 21:33:00+08:00     0     0  
+2016-05-12 21:34:00+08:00     0     0  
+2016-05-12 21:35:00+08:00     0     0  
+2016-05-12 21:36:00+08:00     0     0  
+2016-05-12 21:37:00+08:00     0     0  
+2016-05-12 21:38:00+08:00     0     0  
+2016-05-12 21:39:00+08:00     0     0  
+2016-05-12 21:40:00+08:00     0     0  
+2016-05-12 21:41:00+08:00     0     0  
+2016-05-12 21:42:00+08:00     0     0  
+...                         ...   ...  
+2016-05-12 22:49:00+08:00     0     1  
+2016-05-12 22:50:00+08:00     0     1  
+2016-05-12 22:51:00+08:00     0     1  
+2016-05-12 22:52:00+08:00     0     1  
+2016-05-12 22:53:00+08:00     0     1  
+2016-05-12 22:54:00+08:00     0     1  
+2016-05-12 22:55:00+08:00     0     1  
+2016-05-12 22:56:00+08:00     0     1  
+2016-05-12 22:57:00+08:00     0     1  
+2016-05-12 22:58:00+08:00     0     1  
+2016-05-12 22:59:00+08:00     0     1  
+2016-05-12 23:00:00+08:00     0     1  
+2016-05-12 23:01:00+08:00     0     1  
+2016-05-12 23:02:00+08:00     0     1  
+2016-05-12 23:03:00+08:00     0     1  
+2016-05-12 23:04:00+08:00     0     1  
+2016-05-12 23:05:00+08:00     0     1  
+2016-05-12 23:06:00+08:00     0     1  
+2016-05-12 23:07:00+08:00     0     1  
+2016-05-12 23:08:00+08:00     0     1  
+2016-05-12 23:09:00+08:00     0     1  
+2016-05-12 23:10:00+08:00     0     1  
+2016-05-12 23:11:00+08:00     0     1  
+2016-05-12 23:12:00+08:00     0     1  
+2016-05-12 23:13:00+08:00     0     1  
+2016-05-12 23:14:00+08:00     0     1  
+2016-05-12 23:15:00+08:00     0     1  
+2016-05-12 23:16:00+08:00     0     1  
+2016-05-12 23:17:00+08:00     0     1  
+2016-05-12 23:18:00+08:00     0     1  
+
+[126 rows x 14 columns]
+2016-05-12 23:19:27,898 exec - main order timed out
+2016-05-12 23:19:28,315 exec - zscore condition
+2016-05-12 23:19:29,424 {'active': True, 'filled': False, 'id': 1580, 'timeout': datetime.datetime(2016, 5, 12, 23, 19, 29, 424000), 'order': <ib.ext.Order.Order object at 0x00000000091E5BE0>}
+2016-05-12 23:19:34,526 exec - main order timed out
+2016-05-12 23:20:01,313 updated sd
+2016-05-12 23:20:01,313 0.01
+2016-05-12 23:20:10,910 exec - zscore condition
+2016-05-12 23:20:12,023 {'active': True, 'filled': False, 'id': 1581, 'timeout': datetime.datetime(2016, 5, 12, 23, 20, 12, 23000), 'order': <ib.ext.Order.Order object at 0x00000000091E50B8>}
+2016-05-12 23:20:17,125 exec - main order timed out
+2016-05-12 23:21:01,407 updated sd
+2016-05-12 23:21:01,407 0.01
+2016-05-12 23:21:11,812 exec - zscore condition
+2016-05-12 23:21:12,924 {'active': True, 'filled': False, 'id': 1582, 'timeout': datetime.datetime(2016, 5, 12, 23, 21, 12, 924000), 'order': <ib.ext.Order.Order object at 0x00000000092BDBA8>}
+2016-05-12 23:21:43,793 exec - zscore condition
+2016-05-12 23:21:44,911 {'active': True, 'filled': False, 'id': 1584, 'timeout': datetime.datetime(2016, 5, 12, 23, 21, 44, 912000), 'order': <ib.ext.Order.Order object at 0x00000000092B1860>}
+2016-05-12 23:21:50,013 exec - main order timed out
+2016-05-12 23:21:58,242 exec - zscore condition
+2016-05-12 23:21:59,351 {'active': True, 'filled': False, 'id': 1585, 'timeout': datetime.datetime(2016, 5, 12, 23, 21, 59, 352000), 'order': <ib.ext.Order.Order object at 0x00000000092B1160>}
+2016-05-12 23:22:01,502 updated sd
+2016-05-12 23:22:01,502 0.01
+2016-05-12 23:22:04,453 exec - main order timed out
+2016-05-12 23:22:23,168 exec - zscore condition
+2016-05-12 23:22:24,282 {'active': True, 'filled': False, 'id': 1586, 'timeout': datetime.datetime(2016, 5, 12, 23, 22, 24, 283000), 'order': <ib.ext.Order.Order object at 0x0000000009272860>}
+2016-05-12 23:23:01,634 updated sd
+2016-05-12 23:23:01,634 0.01
+2016-05-12 23:23:06,142 exec - zscore condition
+2016-05-12 23:23:07,253 {'active': True, 'filled': False, 'id': 1588, 'timeout': datetime.datetime(2016, 5, 12, 23, 23, 7, 254000), 'order': <ib.ext.Order.Order object at 0x00000000091645F8>}
+2016-05-12 23:23:12,355 exec - main order timed out
+2016-05-12 23:23:12,355 exec - zscore condition
+2016-05-12 23:23:13,463 {'active': True, 'filled': False, 'id': 1589, 'timeout': datetime.datetime(2016, 5, 12, 23, 23, 13, 464000), 'order': <ib.ext.Order.Order object at 0x0000000009272278>}
+2016-05-12 23:23:26,654 exec - zscore condition
+2016-05-12 23:23:27,766 {'active': True, 'filled': False, 'id': 1591, 'timeout': datetime.datetime(2016, 5, 12, 23, 23, 27, 767000), 'order': <ib.ext.Order.Order object at 0x00000000092B1438>}
+2016-05-12 23:24:00,868 exec - zscore condition
+2016-05-12 23:24:01,710 updated sd
+2016-05-12 23:24:01,710 0.01
+2016-05-12 23:24:01,980 {'active': True, 'filled': False, 'id': 1593, 'timeout': datetime.datetime(2016, 5, 12, 23, 24, 1, 980000), 'order': <ib.ext.Order.Order object at 0x00000000092BD940>}
+2016-05-12 23:24:09,811 exec - zscore condition
+2016-05-12 23:24:10,926 {'active': True, 'filled': False, 'id': 1595, 'timeout': datetime.datetime(2016, 5, 12, 23, 24, 10, 926000), 'order': <ib.ext.Order.Order object at 0x00000000092BDBE0>}
+2016-05-12 23:24:16,028 exec - main order timed out
+2016-05-12 23:24:18,915 exec - zscore condition
+2016-05-12 23:24:20,026 {'active': True, 'filled': False, 'id': 1596, 'timeout': datetime.datetime(2016, 5, 12, 23, 24, 20, 27000), 'order': <ib.ext.Order.Order object at 0x00000000092BD470>}
+2016-05-12 23:24:27,730 ML Call
+2016-05-12 23:24:27,868                             open   high    low  close volume count   returns  \
+2016-05-12 21:13:00+08:00  46.89  46.91  46.85  46.87    981   382       NaN   
+2016-05-12 21:14:00+08:00  46.88  46.88  46.83  46.85   1309   466       NaN   
+2016-05-12 21:15:00+08:00  46.85  46.88  46.84  46.86    849   253       NaN   
+2016-05-12 21:16:00+08:00  46.86  46.91  46.84  46.87   1244   403       NaN   
+2016-05-12 21:17:00+08:00  46.88  46.91  46.86  46.88   1109   314       NaN   
+2016-05-12 21:18:00+08:00  46.88  46.95  46.88  46.89   1928   729       NaN   
+2016-05-12 21:19:00+08:00  46.89  46.94  46.88  46.93    920   292       NaN   
+2016-05-12 21:20:00+08:00  46.93  46.99  46.92  46.96   2342   817       NaN   
+2016-05-12 21:21:00+08:00  46.96  46.98  46.92  46.97   1241   461       NaN   
+2016-05-12 21:22:00+08:00  46.97  46.98  46.94  46.95    566   193       NaN   
+2016-05-12 21:23:00+08:00  46.95  46.98  46.94  46.95    659   195  0.170685   
+2016-05-12 21:24:00+08:00  46.95  47.02  46.93  46.97   2148   753  0.256137   
+2016-05-12 21:25:00+08:00  46.98  47.02  46.91  46.92   1960   586  0.128041   
+2016-05-12 21:26:00+08:00  46.92  46.95  46.88   46.9   1156   475  0.064007   
+2016-05-12 21:27:00+08:00  46.91  46.95   46.9   46.9    828   258  0.042662   
+2016-05-12 21:28:00+08:00  46.91  46.94   46.9  46.92    432   158  0.063980   
+2016-05-12 21:29:00+08:00  46.92  46.92  46.88  46.91    695   236 -0.042617   
+2016-05-12 21:30:00+08:00   46.9  46.92  46.86  46.89   1346   528 -0.149063   
+2016-05-12 21:31:00+08:00  46.89  46.91   46.8  46.83   2089   796 -0.298063   
+2016-05-12 21:32:00+08:00  46.84  46.85  46.75  46.79   2112   736 -0.340788   
+2016-05-12 21:33:00+08:00   46.8   46.8  46.72  46.76   1756   615 -0.404686   
+2016-05-12 21:34:00+08:00  46.76  46.78  46.73  46.76   1076   379 -0.447094   
+2016-05-12 21:35:00+08:00  46.76  46.77  46.74  46.77   1086   362 -0.319693   
+2016-05-12 21:36:00+08:00  46.76  46.81   46.7   46.7   1809   747 -0.426439   
+2016-05-12 21:37:00+08:00  46.71  46.72  46.48  46.53   5200  2121 -0.788913   
+2016-05-12 21:38:00+08:00  46.53  46.61  46.52  46.57   2997  1041 -0.745951   
+2016-05-12 21:39:00+08:00  46.57  46.58  46.51  46.51   1615   641 -0.852697   
+2016-05-12 21:40:00+08:00  46.51  46.53  46.39  46.45   3761  1418 -0.938366   
+2016-05-12 21:41:00+08:00  46.45  46.52  46.43  46.52   2016   676 -0.661969   
+2016-05-12 21:42:00+08:00  46.51  46.65  46.48  46.61   2471   981 -0.384698   
+...                          ...    ...    ...    ...    ...   ...       ...   
+2016-05-12 22:54:00+08:00  46.32  46.35  46.31  46.33    354   124  0.216310   
+2016-05-12 22:55:00+08:00  46.32  46.34  46.29  46.33    470   163  0.216310   
+2016-05-12 22:56:00+08:00  46.34  46.34  46.26  46.29    589   172 -0.021598   
+2016-05-12 22:57:00+08:00  46.29  46.32  46.26  46.28    457   140 -0.021603   
+2016-05-12 22:58:00+08:00  46.27  46.32  46.25  46.32    647   230  0.043197   
+2016-05-12 22:59:00+08:00  46.31  46.35  46.29  46.29    405   161  0.108131   
+2016-05-12 23:00:00+08:00  46.28  46.28  46.14  46.17   2143   821 -0.216123   
+2016-05-12 23:01:00+08:00  46.16  46.19  46.14  46.17    944   348 -0.323834   
+2016-05-12 23:02:00+08:00  46.17   46.2  46.12  46.12    758   270 -0.560586   
+2016-05-12 23:03:00+08:00  46.14  46.15  46.04  46.06   2236   841 -0.561313   
+2016-05-12 23:04:00+08:00  46.05  46.06  45.94  45.98   4251  1526 -0.755450   
+2016-05-12 23:05:00+08:00  45.99  45.99  45.94  45.95   1416   496 -0.820203   
+2016-05-12 23:06:00+08:00  45.94  45.98  45.82  45.86   3274  1076 -0.928926   
+2016-05-12 23:07:00+08:00  45.86  45.92  45.82  45.91   2713   875 -0.799481   
+2016-05-12 23:08:00+08:00   45.9  45.91  45.76  45.82   2846   933 -1.079447   
+2016-05-12 23:09:00+08:00  45.81  45.87  45.79  45.86   1911   604 -0.928926   
+2016-05-12 23:10:00+08:00  45.87  45.87  45.81  45.82   1120   413 -0.758068   
+2016-05-12 23:11:00+08:00  45.83  45.84   45.8  45.83   1109   447 -0.736409   
+2016-05-12 23:12:00+08:00  45.83  45.92  45.82  45.89   1522   558 -0.498699   
+2016-05-12 23:13:00+08:00  45.89  45.91  45.87  45.87    842   283 -0.412505   
+2016-05-12 23:14:00+08:00  45.88  45.89  45.87  45.88    122    44 -0.217486   
+2016-05-12 23:15:00+08:00  45.88  45.88  45.78  45.79   2119   712 -0.348205   
+2016-05-12 23:16:00+08:00  45.77  45.77  45.66  45.69   3100  1054 -0.370693   
+2016-05-12 23:17:00+08:00  45.71  45.77  45.71  45.76   1259   456 -0.326726   
+2016-05-12 23:18:00+08:00  45.75  45.77  45.72  45.75    999   360 -0.152772   
+2016-05-12 23:19:00+08:00  45.74  45.76  45.73  45.75    456   215 -0.239860   
+2016-05-12 23:20:00+08:00  45.75   45.8  45.72  45.77   1001   364 -0.109123   
+2016-05-12 23:21:00+08:00  45.77  45.77  45.69  45.75   1064   397 -0.174558   
+2016-05-12 23:22:00+08:00  45.76  45.77  45.71  45.75   1268   393 -0.305077   
+2016-05-12 23:23:00+08:00  45.76  45.77  45.67  45.71   1370   486 -0.348812   
+
+                              sma        lma        rsi       atr  monday  \
+2016-05-12 21:13:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:14:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:15:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:16:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:17:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:18:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:19:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:20:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:21:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:22:00+08:00  46.903        NaN        NaN       NaN       0   
+2016-05-12 21:23:00+08:00  46.911        NaN        NaN  0.055000       0   
+2016-05-12 21:24:00+08:00  46.923        NaN        NaN  0.058500       0   
+2016-05-12 21:25:00+08:00  46.929        NaN        NaN  0.063650       0   
+2016-05-12 21:26:00+08:00  46.932        NaN        NaN  0.064285       0   
+2016-05-12 21:27:00+08:00  46.934        NaN  56.000000  0.062857       0   
+2016-05-12 21:28:00+08:00  46.937        NaN  59.490085  0.060571       0   
+2016-05-12 21:29:00+08:00  46.935        NaN  57.053292  0.058514       0   
+2016-05-12 21:30:00+08:00  46.928        NaN  52.427873  0.058662       0   
+2016-05-12 21:31:00+08:00  46.914        NaN  41.545963  0.063796       0   
+2016-05-12 21:32:00+08:00  46.898        NaN  36.157826  0.067417       0   
+2016-05-12 21:33:00+08:00  46.879        NaN  32.729408  0.068675       0   
+2016-05-12 21:34:00+08:00  46.858        NaN  32.729408  0.066807       0   
+2016-05-12 21:35:00+08:00  46.843        NaN  35.108057  0.063127       0   
+2016-05-12 21:36:00+08:00  46.823        NaN  27.719316  0.067814       0   
+2016-05-12 21:37:00+08:00  46.786        NaN  17.878512  0.085033       0   
+2016-05-12 21:38:00+08:00  46.751        NaN  24.656340  0.085529       0   
+2016-05-12 21:39:00+08:00  46.711        NaN  21.755766  0.083976       0   
+2016-05-12 21:40:00+08:00  46.667        NaN  19.309462  0.089579       0   
+2016-05-12 21:41:00+08:00  46.636        NaN  29.297943  0.089621       0   
+2016-05-12 21:42:00+08:00  46.618        NaN  39.643015  0.097659       0   
+...                           ...        ...        ...       ...     ...   
+2016-05-12 22:54:00+08:00  46.298        NaN  54.290227  0.070500       0   
+2016-05-12 22:55:00+08:00  46.308        NaN  54.290227  0.068450       0   
+2016-05-12 22:56:00+08:00  46.307        NaN  49.575005  0.069605       0   
+2016-05-12 22:57:00+08:00  46.306        NaN  48.442267  0.068644       0   
+2016-05-12 22:58:00+08:00  46.308        NaN  53.062186  0.068780       0   
+2016-05-12 22:59:00+08:00  46.313        NaN  49.481015  0.067902       0   
+2016-05-12 23:00:00+08:00  46.303        NaN  38.335786  0.076112       0   
+2016-05-12 23:01:00+08:00  46.288        NaN  38.335786  0.073500       0   
+2016-05-12 23:02:00+08:00  46.262        NaN  34.572718  0.074150       0   
+2016-05-12 23:03:00+08:00  46.236        NaN  30.680747  0.077735       0   
+2016-05-12 23:04:00+08:00  46.201        NaN  26.411490  0.081962       0   
+2016-05-12 23:05:00+08:00  46.163        NaN  25.006249  0.078766       0   
+2016-05-12 23:06:00+08:00  46.120        NaN  21.338296  0.086889       0   
+2016-05-12 23:07:00+08:00  46.083        NaN  27.684563  0.088200       0   
+2016-05-12 23:08:00+08:00  46.033        NaN  23.940483  0.094380       0   
+2016-05-12 23:09:00+08:00  45.990        NaN  28.564543  0.092942       0   
+2016-05-12 23:10:00+08:00  45.955        NaN  26.809289  0.089648       0   
+2016-05-12 23:11:00+08:00  45.921        NaN  28.000441  0.084683       0   
+2016-05-12 23:12:00+08:00  45.898  46.407417  34.851411  0.086215       0   
+2016-05-12 23:13:00+08:00  45.879  46.399083  33.700294  0.081593       0   
+2016-05-12 23:14:00+08:00  45.869  46.391000  34.858830  0.075434       0   
+2016-05-12 23:15:00+08:00  45.853  46.382083  29.810039  0.077891       0   
+2016-05-12 23:16:00+08:00  45.836  46.372250  25.406848  0.083102       0   
+2016-05-12 23:17:00+08:00  45.821  46.362917  32.880555  0.082791       0   
+2016-05-12 23:18:00+08:00  45.814  46.353417  32.381418  0.079512       0   
+2016-05-12 23:19:00+08:00  45.803  46.343583  32.381418  0.074561       0   
+2016-05-12 23:20:00+08:00  45.798  46.333667  34.681360  0.075105       0   
+2016-05-12 23:21:00+08:00  45.790  46.323500  33.455875  0.075594       0   
+2016-05-12 23:22:00+08:00  45.776  46.313500  33.455875  0.074035       0   
+2016-05-12 23:23:00+08:00  45.760  46.303167  30.921496  0.076631       0   
+
+                           roll  busy  
+2016-05-12 21:13:00+08:00     0     0  
+2016-05-12 21:14:00+08:00     0     0  
+2016-05-12 21:15:00+08:00     0     0  
+2016-05-12 21:16:00+08:00     0     0  
+2016-05-12 21:17:00+08:00     0     0  
+2016-05-12 21:18:00+08:00     0     0  
+2016-05-12 21:19:00+08:00     0     0  
+2016-05-12 21:20:00+08:00     0     0  
+2016-05-12 21:21:00+08:00     0     0  
+2016-05-12 21:22:00+08:00     0     0  
+2016-05-12 21:23:00+08:00     0     0  
+2016-05-12 21:24:00+08:00     0     0  
+2016-05-12 21:25:00+08:00     0     0  
+2016-05-12 21:26:00+08:00     0     0  
+2016-05-12 21:27:00+08:00     0     0  
+2016-05-12 21:28:00+08:00     0     0  
+2016-05-12 21:29:00+08:00     0     0  
+2016-05-12 21:30:00+08:00     0     0  
+2016-05-12 21:31:00+08:00     0     0  
+2016-05-12 21:32:00+08:00     0     0  
+2016-05-12 21:33:00+08:00     0     0  
+2016-05-12 21:34:00+08:00     0     0  
+2016-05-12 21:35:00+08:00     0     0  
+2016-05-12 21:36:00+08:00     0     0  
+2016-05-12 21:37:00+08:00     0     0  
+2016-05-12 21:38:00+08:00     0     0  
+2016-05-12 21:39:00+08:00     0     0  
+2016-05-12 21:40:00+08:00     0     0  
+2016-05-12 21:41:00+08:00     0     0  
+2016-05-12 21:42:00+08:00     0     0  
+...                         ...   ...  
+2016-05-12 22:54:00+08:00     0     1  
+2016-05-12 22:55:00+08:00     0     1  
+2016-05-12 22:56:00+08:00     0     1  
+2016-05-12 22:57:00+08:00     0     1  
+2016-05-12 22:58:00+08:00     0     1  
+2016-05-12 22:59:00+08:00     0     1  
+2016-05-12 23:00:00+08:00     0     1  
+2016-05-12 23:01:00+08:00     0     1  
+2016-05-12 23:02:00+08:00     0     1  
+2016-05-12 23:03:00+08:00     0     1  
+2016-05-12 23:04:00+08:00     0     1  
+2016-05-12 23:05:00+08:00     0     1  
+2016-05-12 23:06:00+08:00     0     1  
+2016-05-12 23:07:00+08:00     0     1  
+2016-05-12 23:08:00+08:00     0     1  
+2016-05-12 23:09:00+08:00     0     1  
+2016-05-12 23:10:00+08:00     0     1  
+2016-05-12 23:11:00+08:00     0     1  
+2016-05-12 23:12:00+08:00     0     1  
+2016-05-12 23:13:00+08:00     0     1  
+2016-05-12 23:14:00+08:00     0     1  
+2016-05-12 23:15:00+08:00     0     1  
+2016-05-12 23:16:00+08:00     0     1  
+2016-05-12 23:17:00+08:00     0     1  
+2016-05-12 23:18:00+08:00     0     1  
+2016-05-12 23:19:00+08:00     0     1  
+2016-05-12 23:20:00+08:00     0     1  
+2016-05-12 23:21:00+08:00     0     1  
+2016-05-12 23:22:00+08:00     0     1  
+2016-05-12 23:23:00+08:00     0     1  
+
+[131 rows x 14 columns]
+2016-05-12 23:25:01,805 updated sd
+2016-05-12 23:25:01,805 0.01
+2016-05-12 23:25:04,671 exec - zscore condition
+2016-05-12 23:25:05,782 {'active': True, 'filled': False, 'id': 1598, 'timeout': datetime.datetime(2016, 5, 12, 23, 25, 5, 783000), 'order': <ib.ext.Order.Order object at 0x00000000091E5C18>}
+2016-05-12 23:25:10,884 exec - main order timed out
+2016-05-12 23:25:27,658 exec - zscore condition
+2016-05-12 23:25:28,772 {'active': True, 'filled': False, 'id': 1599, 'timeout': datetime.datetime(2016, 5, 12, 23, 25, 28, 772000), 'order': <ib.ext.Order.Order object at 0x0000000002D55AC8>}
+2016-05-12 23:26:01,934 updated sd
+2016-05-12 23:26:01,934 0.01
+2016-05-12 23:26:11,142 exec - zscore condition
+2016-05-12 23:26:12,257 {'active': True, 'filled': False, 'id': 1601, 'timeout': datetime.datetime(2016, 5, 12, 23, 26, 12, 258000), 'order': <ib.ext.Order.Order object at 0x00000000092BDC18>}
+2016-05-12 23:26:54,421 exec - zscore condition
+2016-05-12 23:26:55,532 {'active': True, 'filled': False, 'id': 1603, 'timeout': datetime.datetime(2016, 5, 12, 23, 26, 55, 533000), 'order': <ib.ext.Order.Order object at 0x00000000092BD160>}
+2016-05-12 23:27:02,053 updated sd
+2016-05-12 23:27:02,053 0.01
+2016-05-12 23:27:14,700 exec - zscore condition
+2016-05-12 23:27:15,812 {'active': True, 'filled': False, 'id': 1605, 'timeout': datetime.datetime(2016, 5, 12, 23, 27, 15, 813000), 'order': <ib.ext.Order.Order object at 0x00000000092B12B0>}
+2016-05-12 23:28:01,171 updated sd
+2016-05-12 23:28:01,171 0.01
+2016-05-12 23:29:01,295 updated sd
+2016-05-12 23:29:01,296 0.01
+2016-05-12 23:29:11,101 exec - zscore condition
+2016-05-12 23:29:12,213 {'active': True, 'filled': False, 'id': 1607, 'timeout': datetime.datetime(2016, 5, 12, 23, 29, 12, 213000), 'order': <ib.ext.Order.Order object at 0x00000000092B1BA8>}
+2016-05-12 23:29:17,315 exec - main order timed out
+2016-05-12 23:29:28,315 ML Call
+2016-05-12 23:29:28,436                             open   high    low  close volume count   returns  \
+2016-05-12 21:13:00+08:00  46.89  46.91  46.85  46.87    981   382       NaN   
+2016-05-12 21:14:00+08:00  46.88  46.88  46.83  46.85   1309   466       NaN   
+2016-05-12 21:15:00+08:00  46.85  46.88  46.84  46.86    849   253       NaN   
+2016-05-12 21:16:00+08:00  46.86  46.91  46.84  46.87   1244   403       NaN   
+2016-05-12 21:17:00+08:00  46.88  46.91  46.86  46.88   1109   314       NaN   
+2016-05-12 21:18:00+08:00  46.88  46.95  46.88  46.89   1928   729       NaN   
+2016-05-12 21:19:00+08:00  46.89  46.94  46.88  46.93    920   292       NaN   
+2016-05-12 21:20:00+08:00  46.93  46.99  46.92  46.96   2342   817       NaN   
+2016-05-12 21:21:00+08:00  46.96  46.98  46.92  46.97   1241   461       NaN   
+2016-05-12 21:22:00+08:00  46.97  46.98  46.94  46.95    566   193       NaN   
+2016-05-12 21:23:00+08:00  46.95  46.98  46.94  46.95    659   195  0.170685   
+2016-05-12 21:24:00+08:00  46.95  47.02  46.93  46.97   2148   753  0.256137   
+2016-05-12 21:25:00+08:00  46.98  47.02  46.91  46.92   1960   586  0.128041   
+2016-05-12 21:26:00+08:00  46.92  46.95  46.88   46.9   1156   475  0.064007   
+2016-05-12 21:27:00+08:00  46.91  46.95   46.9   46.9    828   258  0.042662   
+2016-05-12 21:28:00+08:00  46.91  46.94   46.9  46.92    432   158  0.063980   
+2016-05-12 21:29:00+08:00  46.92  46.92  46.88  46.91    695   236 -0.042617   
+2016-05-12 21:30:00+08:00   46.9  46.92  46.86  46.89   1346   528 -0.149063   
+2016-05-12 21:31:00+08:00  46.89  46.91   46.8  46.83   2089   796 -0.298063   
+2016-05-12 21:32:00+08:00  46.84  46.85  46.75  46.79   2112   736 -0.340788   
+2016-05-12 21:33:00+08:00   46.8   46.8  46.72  46.76   1756   615 -0.404686   
+2016-05-12 21:34:00+08:00  46.76  46.78  46.73  46.76   1076   379 -0.447094   
+2016-05-12 21:35:00+08:00  46.76  46.77  46.74  46.77   1086   362 -0.319693   
+2016-05-12 21:36:00+08:00  46.76  46.81   46.7   46.7   1809   747 -0.426439   
+2016-05-12 21:37:00+08:00  46.71  46.72  46.48  46.53   5200  2121 -0.788913   
+2016-05-12 21:38:00+08:00  46.53  46.61  46.52  46.57   2997  1041 -0.745951   
+2016-05-12 21:39:00+08:00  46.57  46.58  46.51  46.51   1615   641 -0.852697   
+2016-05-12 21:40:00+08:00  46.51  46.53  46.39  46.45   3761  1418 -0.938366   
+2016-05-12 21:41:00+08:00  46.45  46.52  46.43  46.52   2016   676 -0.661969   
+2016-05-12 21:42:00+08:00  46.51  46.65  46.48  46.61   2471   981 -0.384698   
+...                          ...    ...    ...    ...    ...   ...       ...   
+2016-05-12 22:59:00+08:00  46.31  46.35  46.29  46.29    405   161  0.108131   
+2016-05-12 23:00:00+08:00  46.28  46.28  46.14  46.17   2143   821 -0.216123   
+2016-05-12 23:01:00+08:00  46.16  46.19  46.14  46.17    944   348 -0.323834   
+2016-05-12 23:02:00+08:00  46.17   46.2  46.12  46.12    758   270 -0.560586   
+2016-05-12 23:03:00+08:00  46.14  46.15  46.04  46.06   2236   841 -0.561313   
+2016-05-12 23:04:00+08:00  46.05  46.06  45.94  45.98   4251  1526 -0.755450   
+2016-05-12 23:05:00+08:00  45.99  45.99  45.94  45.95   1416   496 -0.820203   
+2016-05-12 23:06:00+08:00  45.94  45.98  45.82  45.86   3274  1076 -0.928926   
+2016-05-12 23:07:00+08:00  45.86  45.92  45.82  45.91   2713   875 -0.799481   
+2016-05-12 23:08:00+08:00   45.9  45.91  45.76  45.82   2846   933 -1.079447   
+2016-05-12 23:09:00+08:00  45.81  45.87  45.79  45.86   1911   604 -0.928926   
+2016-05-12 23:10:00+08:00  45.87  45.87  45.81  45.82   1120   413 -0.758068   
+2016-05-12 23:11:00+08:00  45.83  45.84   45.8  45.83   1109   447 -0.736409   
+2016-05-12 23:12:00+08:00  45.83  45.92  45.82  45.89   1522   558 -0.498699   
+2016-05-12 23:13:00+08:00  45.89  45.91  45.87  45.87    842   283 -0.412505   
+2016-05-12 23:14:00+08:00  45.88  45.89  45.87  45.88    122    44 -0.217486   
+2016-05-12 23:15:00+08:00  45.88  45.88  45.78  45.79   2119   712 -0.348205   
+2016-05-12 23:16:00+08:00  45.77  45.77  45.66  45.69   3100  1054 -0.370693   
+2016-05-12 23:17:00+08:00  45.71  45.77  45.71  45.76   1259   456 -0.326726   
+2016-05-12 23:18:00+08:00  45.75  45.77  45.72  45.75    999   360 -0.152772   
+2016-05-12 23:19:00+08:00  45.74  45.76  45.73  45.75    456   215 -0.239860   
+2016-05-12 23:20:00+08:00  45.75   45.8  45.72  45.77   1001   364 -0.109123   
+2016-05-12 23:21:00+08:00  45.77  45.77  45.69  45.75   1064   397 -0.174558   
+2016-05-12 23:22:00+08:00  45.76  45.77  45.71  45.75   1268   393 -0.305077   
+2016-05-12 23:23:00+08:00  45.76  45.77  45.67  45.71   1370   486 -0.348812   
+2016-05-12 23:24:00+08:00  45.74  45.78  45.72  45.76    949   302 -0.261552   
+2016-05-12 23:25:00+08:00  45.77  45.83  45.74  45.83   1255   447  0.087355   
+2016-05-12 23:26:00+08:00  45.82  45.84  45.77  45.81   1053   448  0.262640   
+2016-05-12 23:27:00+08:00  45.82  45.83  45.78  45.82    683   246  0.131119   
+2016-05-12 23:28:00+08:00  45.83  45.87  45.82  45.83   1074   345  0.174863   
+
+                              sma        lma        rsi       atr  monday  \
+2016-05-12 21:13:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:14:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:15:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:16:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:17:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:18:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:19:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:20:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:21:00+08:00     NaN        NaN        NaN       NaN       0   
+2016-05-12 21:22:00+08:00  46.903        NaN        NaN       NaN       0   
+2016-05-12 21:23:00+08:00  46.911        NaN        NaN  0.055000       0   
+2016-05-12 21:24:00+08:00  46.923        NaN        NaN  0.058500       0   
+2016-05-12 21:25:00+08:00  46.929        NaN        NaN  0.063650       0   
+2016-05-12 21:26:00+08:00  46.932        NaN        NaN  0.064285       0   
+2016-05-12 21:27:00+08:00  46.934        NaN  56.000000  0.062857       0   
+2016-05-12 21:28:00+08:00  46.937        NaN  59.490085  0.060571       0   
+2016-05-12 21:29:00+08:00  46.935        NaN  57.053292  0.058514       0   
+2016-05-12 21:30:00+08:00  46.928        NaN  52.427873  0.058662       0   
+2016-05-12 21:31:00+08:00  46.914        NaN  41.545963  0.063796       0   
+2016-05-12 21:32:00+08:00  46.898        NaN  36.157826  0.067417       0   
+2016-05-12 21:33:00+08:00  46.879        NaN  32.729408  0.068675       0   
+2016-05-12 21:34:00+08:00  46.858        NaN  32.729408  0.066807       0   
+2016-05-12 21:35:00+08:00  46.843        NaN  35.108057  0.063127       0   
+2016-05-12 21:36:00+08:00  46.823        NaN  27.719316  0.067814       0   
+2016-05-12 21:37:00+08:00  46.786        NaN  17.878512  0.085033       0   
+2016-05-12 21:38:00+08:00  46.751        NaN  24.656340  0.085529       0   
+2016-05-12 21:39:00+08:00  46.711        NaN  21.755766  0.083976       0   
+2016-05-12 21:40:00+08:00  46.667        NaN  19.309462  0.089579       0   
+2016-05-12 21:41:00+08:00  46.636        NaN  29.297943  0.089621       0   
+2016-05-12 21:42:00+08:00  46.618        NaN  39.643015  0.097659       0   
+...                           ...        ...        ...       ...     ...   
+2016-05-12 22:59:00+08:00  46.313        NaN  49.481015  0.067902       0   
+2016-05-12 23:00:00+08:00  46.303        NaN  38.335786  0.076112       0   
+2016-05-12 23:01:00+08:00  46.288        NaN  38.335786  0.073500       0   
+2016-05-12 23:02:00+08:00  46.262        NaN  34.572718  0.074150       0   
+2016-05-12 23:03:00+08:00  46.236        NaN  30.680747  0.077735       0   
+2016-05-12 23:04:00+08:00  46.201        NaN  26.411490  0.081962       0   
+2016-05-12 23:05:00+08:00  46.163        NaN  25.006249  0.078766       0   
+2016-05-12 23:06:00+08:00  46.120        NaN  21.338296  0.086889       0   
+2016-05-12 23:07:00+08:00  46.083        NaN  27.684563  0.088200       0   
+2016-05-12 23:08:00+08:00  46.033        NaN  23.940483  0.094380       0   
+2016-05-12 23:09:00+08:00  45.990        NaN  28.564543  0.092942       0   
+2016-05-12 23:10:00+08:00  45.955        NaN  26.809289  0.089648       0   
+2016-05-12 23:11:00+08:00  45.921        NaN  28.000441  0.084683       0   
+2016-05-12 23:12:00+08:00  45.898  46.407417  34.851411  0.086215       0   
+2016-05-12 23:13:00+08:00  45.879  46.399083  33.700294  0.081593       0   
+2016-05-12 23:14:00+08:00  45.869  46.391000  34.858830  0.075434       0   
+2016-05-12 23:15:00+08:00  45.853  46.382083  29.810039  0.077891       0   
+2016-05-12 23:16:00+08:00  45.836  46.372250  25.406848  0.083102       0   
+2016-05-12 23:17:00+08:00  45.821  46.362917  32.880555  0.082791       0   
+2016-05-12 23:18:00+08:00  45.814  46.353417  32.381418  0.079512       0   
+2016-05-12 23:19:00+08:00  45.803  46.343583  32.381418  0.074561       0   
+2016-05-12 23:20:00+08:00  45.798  46.333667  34.681360  0.075105       0   
+2016-05-12 23:21:00+08:00  45.790  46.323500  33.455875  0.075594       0   
+2016-05-12 23:22:00+08:00  45.776  46.313500  33.455875  0.074035       0   
+2016-05-12 23:23:00+08:00  45.760  46.303167  30.921496  0.076631       0   
+2016-05-12 23:24:00+08:00  45.748  46.293083  37.313914  0.075968       0   
+2016-05-12 23:25:00+08:00  45.752  46.284000  44.989019  0.077372       0   
+2016-05-12 23:26:00+08:00  45.764  46.274917  43.355682  0.076634       0   
+2016-05-12 23:27:00+08:00  45.770  46.265917  44.441788  0.073971       0   
+2016-05-12 23:28:00+08:00  45.778  46.256833  45.565804  0.071574       0   
+
+                           roll  busy  
+2016-05-12 21:13:00+08:00     0     0  
+2016-05-12 21:14:00+08:00     0     0  
+2016-05-12 21:15:00+08:00     0     0  
+2016-05-12 21:16:00+08:00     0     0  
+2016-05-12 21:17:00+08:00     0     0  
+2016-05-12 21:18:00+08:00     0     0  
+2016-05-12 21:19:00+08:00     0     0  
+2016-05-12 21:20:00+08:00     0     0  
+2016-05-12 21:21:00+08:00     0     0  
+2016-05-12 21:22:00+08:00     0     0  
+2016-05-12 21:23:00+08:00     0     0  
+2016-05-12 21:24:00+08:00     0     0  
+2016-05-12 21:25:00+08:00     0     0  
+2016-05-12 21:26:00+08:00     0     0  
+2016-05-12 21:27:00+08:00     0     0  
+2016-05-12 21:28:00+08:00     0     0  
+2016-05-12 21:29:00+08:00     0     0  
+2016-05-12 21:30:00+08:00     0     0  
+2016-05-12 21:31:00+08:00     0     0  
+2016-05-12 21:32:00+08:00     0     0  
+2016-05-12 21:33:00+08:00     0     0  
+2016-05-12 21:34:00+08:00     0     0  
+2016-05-12 21:35:00+08:00     0     0  
+2016-05-12 21:36:00+08:00     0     0  
+2016-05-12 21:37:00+08:00     0     0  
+2016-05-12 21:38:00+08:00     0     0  
+2016-05-12 21:39:00+08:00     0     0  
+2016-05-12 21:40:00+08:00     0     0  
+2016-05-12 21:41:00+08:00     0     0  
+2016-05-12 21:42:00+08:00     0     0  
+...                         ...   ...  
+2016-05-12 22:59:00+08:00     0     1  
+2016-05-12 23:00:00+08:00     0     1  
+2016-05-12 23:01:00+08:00     0     1  
+2016-05-12 23:02:00+08:00     0     1  
+2016-05-12 23:03:00+08:00     0     1  
+2016-05-12 23:04:00+08:00     0     1  
+2016-05-12 23:05:00+08:00     0     1  
+2016-05-12 23:06:00+08:00     0     1  
+2016-05-12 23:07:00+08:00     0     1  
+2016-05-12 23:08:00+08:00     0     1  
+2016-05-12 23:09:00+08:00     0     1  
+2016-05-12 23:10:00+08:00     0     1  
+2016-05-12 23:11:00+08:00     0     1  
+2016-05-12 23:12:00+08:00     0     1  
+2016-05-12 23:13:00+08:00     0     1  
+2016-05-12 23:14:00+08:00     0     1  
+2016-05-12 23:15:00+08:00     0     1  
+2016-05-12 23:16:00+08:00     0     1  
+2016-05-12 23:17:00+08:00     0     1  
+2016-05-12 23:18:00+08:00     0     1  
+2016-05-12 23:19:00+08:00     0     1  
+2016-05-12 23:20:00+08:00     0     1  
+2016-05-12 23:21:00+08:00     0     1  
+2016-05-12 23:22:00+08:00     0     1  
+2016-05-12 23:23:00+08:00     0     1  
+2016-05-12 23:24:00+08:00     0     1  
+2016-05-12 23:25:00+08:00     0     1  
+2016-05-12 23:26:00+08:00     0     1  
+2016-05-12 23:27:00+08:00     0     1  
+2016-05-12 23:28:00+08:00     0     1  
+
+[136 rows x 14 columns]
+2016-05-12 23:30:01,934 updated sd
+2016-05-12 23:30:01,934 0.01
+2016-05-12 23:30:04,609 exec - zscore condition
+2016-05-12 23:30:05,727 {'active': True, 'filled': True, 'id': 1608, 'timeout': datetime.datetime(2016, 5, 12, 23, 30, 5, 728000), 'order': <ib.ext.Order.Order object at 0x00000000092BDF60>}
