@@ -176,6 +176,7 @@ class HFTModel:
                 logging.debug("ML Call")
                 logging.debug(str(self.ohlc))
                 self.ml.call_ml(self.ohlc)
+                print "ML call complete"
                 self.last_ml_call = self.now
             time.sleep(1)
 
