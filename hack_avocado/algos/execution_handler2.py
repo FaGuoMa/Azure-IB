@@ -294,7 +294,7 @@ class ExecutionHandler(object):
                         if action == "SELL":
                             offset = self.stop_offset
                         if self.stop == 0:
-                            self.stop = self.last_trade + offset
+                            self.stop = self.fill_dict[-1][1] + offset
                         # print "stop at " + str(self.stop)
                         # print "last trade at :" +str(self.last_trade)
 

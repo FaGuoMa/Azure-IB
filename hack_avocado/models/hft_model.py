@@ -148,10 +148,11 @@ class HFTModel:
                 print "call trim from scheduler"
                 self.__request_historical_data(self.conn,initial=False)
                 self.__run_indicators(self.ohlc)
+
                 print "execution process is alive:"
-                self.execution.running()
+                print self.execution.running()
                 print "parser process is alive:"
-                self.parser.running()
+                print self.parser.running()
                 print "position is:"
                 print self.handler.position
                 print "I have curmean, cursd, last_trade in execution"
@@ -161,9 +162,11 @@ class HFTModel:
                 print "request position:"
                 self.conn.reqPositions()
                 self.update_norm_params()
+                self.last_trim = self.now
+
                 if self.test:
                     print self.ohlc.tail()
-                self.last_trim = self.now
+
 
                 time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
 
@@ -173,9 +176,12 @@ class HFTModel:
 
             if self.now > self.last_ml_call + dt.timedelta(minutes=5):
                 print "ML Call"
-                logging.debug("ML Call")
-                logging.debug(str(self.ohlc))
-                self.ml.call_ml(self.ohlc)
+                logging.DEBUG("ML Call")
+                logging.DEBUG(str(self.ohlc))
+                try:
+                    self.ml.call_ml(self.ohlc)
+                except:
+                    print "ml call failed"
                 print "ML call complete"
                 self.last_ml_call = self.now
             time.sleep(1)
@@ -370,42 +376,47 @@ class HFTModel:
 #        print " updating feeder params for zscore"
         print "update norm got prices from handler, len:"
         print len(self.handler.prices)
-        prices = self.handler.prices["price"]
-        sgp_tz = pytz.timezone('Singapore')
-        prices.index = prices.index.tz_localize(sgp_tz)
-        prices.to_csv(os.path.join(os.path.curdir,"prices_f_norm.csv"))
+        try:
+            prices = self.handler.prices["price"]
+            sgp_tz = pytz.timezone('Singapore')
+            prices.index = prices.index.tz_localize(sgp_tz)
+            prices.to_csv(os.path.join(os.path.curdir,"prices_f_norm.csv"))
 
-#        print " got prices"
-        prices = prices.dropna()
-        print "sd crapping potential ahead"
-        print "last trim in update norm"
-        print self.last_trim
-        if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
-            prices = prices[prices.index > self.last_trim]#todo no trim of prices
-        # prices = prices.tail(15)#ik,ik
-        print "sd crap avoided"
-        if len(prices) !=0:
-            last_price = prices.iloc[-1]
-
-            self.handler.cur_mean = round(np.mean(prices),2)
-
-            #logging.debug("updated mean")
-
-            #print last_price
-            prices = prices.diff()
+    #        print " got prices"
             prices = prices.dropna()
-            prices = prices**2
+            print "sd crapping potential ahead"
+            print "last trim in update norm"
+            print self.last_trim
+            if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
+                prices = prices[prices.index > self.last_trim]#todo no trim of prices
+            # prices = prices.tail(15)#ik,ik
+            print "sd crap avoided"
+        except:
+            print "update norm FAILED - from update norm"
+        try:
+            if len(prices) !=0:
+                last_price = prices.iloc[-1]
 
-            tdiffs = list()
-            for i in range(1,len(prices)):
-                tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
-            prices = prices.ix[1:]
-            self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
-            logging.debug("updated sd")
-            logging.debug(str(self.handler.cur_sd))
-            # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-            #print(self.cur_zscore)
+                self.handler.cur_mean = round(np.mean(prices),2)
 
+                #logging.debug("updated mean")
+
+                #print last_price
+                prices = prices.diff()
+                prices = prices.dropna()
+                prices = prices**2
+
+                tdiffs = list()
+                for i in range(1,len(prices)):
+                    tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
+                prices = prices.ix[1:]
+                self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+                logging.debug("updated sd")
+                logging.debug(str(self.handler.cur_sd))
+                # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
+                #print(self.cur_zscore)
+        except:
+            print "update normfailed - second halh - from update norm"
 
     def __cancel_market_data_request(self):
 

@@ -16,7 +16,7 @@ class MLcall:
 
 
 #this will fairly easily plug in a interm datastore
-    @staticmethod    
+    @staticmethod
     def call_ml(ohlc):
         url = settings.ML_URL
         api_key = settings.ML_API
@@ -69,4 +69,4 @@ class MLcall:
             print(error.info())
         
             print(json.loads(error.read()))  
-            
+
