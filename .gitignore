@@ -19,6 +19,9 @@
 .idea/dynamic.xml
 .idea/uiDesigner.xml
 
+#settings
+./Python_Code/params/settings.py
+
 # Gradle:
 .idea/gradle.xml
 .idea/libraries

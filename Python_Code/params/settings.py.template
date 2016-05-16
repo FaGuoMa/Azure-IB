@@ -1,0 +1,17 @@
+#replace empty strings with API key, URL of API, plot.ly ids and streams
+
+ML_URL = ''
+ML_API = ''
+PLOTLY_USER = ''
+PLOTLY_API = ''
+PLOTLY_STREAMS = ["",
+                  "",
+                  "",
+                  "",
+                  "",
+                  ""]
+
+# trading paramters
+Z_THRESH = 2
+STOP_OFFSET = 0.03
+Z_TARGET = 0.2
