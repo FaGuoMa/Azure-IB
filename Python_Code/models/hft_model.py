@@ -31,8 +31,12 @@ from algos.execution_handler2 import ExecutionHandler
 
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
-logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
 
+print "Clearing lOgger"
+logging.getLogger('').handlers = []
+#logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
+#logging.basicConfig(format='%s(asctime)s %(message)s')
+#test_logger = logging.getLogger('hftModelLogger')
 
 #this will need be checked
 
@@ -43,6 +47,12 @@ class HFTModel:
     def __init__(self, host='localhost', port=4001,
                  client_id=130, is_use_gateway=False,
                  moving_window_period=dt.timedelta(seconds=60), test=False):
+        logging.basicConfig(format='%(asctime)s %(message)s')
+        self.test_logger = logging.getLogger('hftModelLogger')
+        self.test_logger.setLevel(logging.INFO)
+        #logging.warning("TEst Log")
+        self.test_logger.error("adsfsadas")
+
         self.test = test
         self.tz = pytz.timezone('Singapore')
         self.moving_window_period = moving_window_period
@@ -54,7 +64,7 @@ class HFTModel:
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
         self.ohlc = None # I need another store for minute data (I think)
-        self.buffer = list()        
+        self.buffer = list()
         self.trade_qty = 0
 
         #self.lock = Lock()
@@ -176,8 +186,8 @@ class HFTModel:
 
             if self.now > self.last_ml_call + dt.timedelta(minutes=5):
                 print "ML Call"
-                logging.DEBUG("ML Call")
-                logging.DEBUG(str(self.ohlc))
+                #logging.DEBUG("ML Call")
+                #logging.DEBUG(str(self.ohlc))
                 try:
                     self.ml.call_ml(self.ohlc)
                 except:
@@ -210,7 +220,7 @@ class HFTModel:
     def __init_stocks_data(self, symbols):#todo brutal hack-through
         self.symbols = symbols
 #here we'll store tick and size instead of multiple "symbols"
-        # self.prices = pd.DataFrame(columns=("price","size","ask_price","ask_size","bid_price","bid_size"))#todomoved to execution  # Init price storage
+        self.prices = pd.DataFrame(columns=("price","size","ask_price","ask_size","bid_price","bid_size"))#todomoved to execution  # Init price storage
         if not os.path.exists(self.data_path):
             self.prices.to_csv(self.data_path)
         self.ohlc = pd.DataFrame(columns=("open","high","low","close","volume","count"))  # Init ohlc storage
@@ -296,10 +306,10 @@ class HFTModel:
         if msg.typeName == datatype.MSG_TYPE_HISTORICAL_DATA:
 
             self.__on_historical_data(msg)
-        
+
 
         elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
-          
+
             self.__on_portfolio_update(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
@@ -331,7 +341,7 @@ class HFTModel:
         self.last_trim = self.ohlc.index[-1]+self.moving_window_period
         print "trim time properly set now %s" % self.last_trim
         print "start position is:" + str(self.handler.position)
-        self.__run_indicators(self.ohlc)        
+        self.__run_indicators(self.ohlc)
         self.ohlc.to_csv(self.ohlc_path)
 
 #        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
@@ -342,9 +352,9 @@ class HFTModel:
             print "adding  histo line"
         timestamp = pytz.timezone('Singapore').localize(dt.datetime.strptime(msg.date, datatype.DATE_TIME_FORMAT))
         self.__add_ohlc_data(timestamp, msg.open,msg.high,msg.low,msg.close,msg.volume,msg.count)
-    
+
     def __add_ohlc_data(self, timestamp, op, hi ,lo,close,vol,cnt):
-    
+
             self.ohlc.loc[timestamp, "open"] = float(op)
             self.ohlc.loc[timestamp, "high"] = float(hi)
             self.ohlc.loc[timestamp, "low"] = float(lo)
@@ -353,10 +363,10 @@ class HFTModel:
             self.ohlc.loc[timestamp, "count"] = float(cnt)
 
 #
-            
 
 
-            
+
+
     def __run_indicators(self, ohlc):
         #hardcoding ML munging parameters now
         ohlc['returns']=ta.ROC(np.asarray(ohlc['close']).astype(float))
@@ -365,13 +375,13 @@ class HFTModel:
         ohlc['rsi']=ta.RSI(np.asarray(ohlc['close']).astype(float))
         ohlc['atr']=ta.ATR(np.asarray(ohlc['high']).astype(float),np.asarray(ohlc['low']).astype(float),np.asarray(ohlc['close']).astype(float),10)
         ohlc['monday'] = np.where(ohlc.index.weekday == 0,1,0)
-#bellow is because I don't know how to np.where with multiple conditions        
+#bellow is because I don't know how to np.where with multiple conditions
         ohlc['roll'] = np.where(ohlc.index.month % 3 == 0,1,0)
 #hackish as balls:
         # ohlc.index = ohlc.index.tz_localize("Singapore")
         ohlc["busy"] = np.where(ohlc.index.tz_convert("America/Chicago").hour >= 9,np.where(ohlc.index.tz_convert("America/Chicago").hour <= 14,1,0),0)
-                
-        
+
+
     def update_norm_params(self):
 #        print " updating feeder params for zscore"
         print "update norm got prices from handler, len:"
@@ -411,8 +421,8 @@ class HFTModel:
                     tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
                 prices = prices.ix[1:]
                 self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
-                logging.debug("updated sd")
-                logging.debug(str(self.handler.cur_sd))
+                #logging.debug("updated sd")
+                #logging.debug(str(self.handler.cur_sd))
                 # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
                 #print(self.cur_zscore)
         except:
@@ -431,16 +441,15 @@ class HFTModel:
 
 
     def start(self, symbols):
-        print "Start sequence"
-        logging.debug("started requests")
+        self.test_logger.info("Started Requests !!!!")
         self.conn.connect()  # Get IB connection object
         self.__init_stocks_data(symbols)
-        print "init stock"
-        print "request mkt data"
+        self.test_logger.info("Init Stock")
+        self.test_logger.info("Request Market Data")
         self.__request_streaming_data(self.conn)
-        print "request position"
+        self.test_logger.info("Request Position")
         self.conn.reqPositions()
-        print "request historicals"
+        self.test_logger.info("Request Historicals")
         self.__request_historical_data(self.conn)
         time.sleep(1)
         if self.handler.position !=0:
@@ -481,8 +490,8 @@ class HFTModel:
 
 
 
-        
-                
+
+
 
         except (Exception, KeyboardInterrupt):
             print "Exception:"
@@ -497,7 +506,7 @@ class HFTModel:
             time.sleep(5)
             self.conn.disconnect()
             time.sleep(1)
-        
+
 
             print "Disconnected."
 
@@ -508,7 +517,7 @@ class HFTModel:
         #self.monitor.close_stream()
         print "Disconnecting..."
         self.conn.disconnect()
-        
+
 #        self.store.close()
 
     def spawn_test(self):
