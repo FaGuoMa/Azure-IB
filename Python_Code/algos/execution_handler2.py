@@ -454,7 +454,7 @@ class ExecutionHandler(object):
 
     def neutralize(self):
 
-        if self.position > 0:
+        if self.position > 0 and self.position is not None:
             neut = self.create_order("MKT",abs(self.position),"SELL")
         if self.position < 0:
             neut = self.create_order("MKT", abs(self.position), "BUY")
