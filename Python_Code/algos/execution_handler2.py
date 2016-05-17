@@ -12,7 +12,7 @@ from ib.ext.Order import Order
 
 from ib.opt import ibConnection, Connection, message as ib_message_type
 # from ib.ext.EWrapper import EWrapper
-import logging
+#import logging
 import pandas as pd
 from params import settings
 
@@ -29,9 +29,9 @@ import datetime as dt
 from params import settings
 import params.ib_data_types as datatype
 
-logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir, "log.txt")),
-                    level=logging.DEBUG,
-                    format='%(asctime)s %(message)s')
+#logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir, "log.txt")),
+#                    level=logging.DEBUG,
+#                    format='%(asctime)s %(message)s')
 
 class ExecutionHandler(object):
     """
@@ -216,7 +216,7 @@ class ExecutionHandler(object):
                     #check change of state and kill positions TODO this is simplistic
                     if self.hist_flag != self.flag and self.main_order["active"]:
                         print "change of state, killing main position"
-                        logging.debug("exec - change of state, killing position")
+                        #logging.debug("exec - change of state, killing position")
                         self.stop_order["active"] = True
                         self.execute_order(self.stop_order["order"])
                         self.hist_flag = self.flag
@@ -225,7 +225,7 @@ class ExecutionHandler(object):
                     #first, checkzscore and do an order
                     #print "current z " + str(self.zscore) + " vs " + str(self.zscore_thresh)
                     if abs(zscore) >= self.zscore_thresh and not self.main_order["active"] and abs(zscore) <= self.zscore_thresh + 0.5:#todo harcoded, not nice
-                        logging.debug("exec - zscore condition")
+                        #logging.debug("exec - zscore condition")
                         if zscore >= self.zscore_thresh:
                             if self.flag == "trend":
                                 action = "BUY"
@@ -264,7 +264,7 @@ class ExecutionHandler(object):
                         self.main_order["timeout"] = dt.datetime.now()
                         print "FROM SPAWN, NOT EXEC:"
                         print "main:"
-                        logging.debug(str(self.main_order))
+                        #logging.debug(str(self.main_order))
                         print self.main_order
                         print "stop:"
                         print self.stop_order
@@ -284,7 +284,7 @@ class ExecutionHandler(object):
                         time.sleep(x_delay)
 
                         print "Main order timed out"
-                        logging.debug("exec - main order timed out")
+                        #logging.debug("exec - main order timed out")
 
                     if self.main_order["active"] and self.main_order["filled"] and not (self.stop_order["active"] or self.profit_order["active"]):
                         # print "stop/profit loop active"
