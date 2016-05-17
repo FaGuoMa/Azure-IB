@@ -51,7 +51,7 @@ class HFTModel:
         self.test_logger = logging.getLogger('hftModelLogger')
         self.test_logger.setLevel(logging.INFO)
         #logging.warning("TEst Log")
-        self.test_logger.error("adsfsadas")
+
 
         self.test = test
         self.tz = pytz.timezone('Singapore')
@@ -145,55 +145,51 @@ class HFTModel:
     def time_keeper(self):
         #self.traffic_light.wait()
         while True:
-            # if self.test == True:
-            print "timekeeper alive"
-
-            self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
-            self._market_is_open()
-            # OHLC call
-            if self.last_trim is None:
-                self.last_trim = self.now
-
-            if self.now > self.last_trim + dt.timedelta(minutes=1):
-                print "call trim from scheduler"
-                self.__request_historical_data(self.conn,initial=False)
-                self.__run_indicators(self.ohlc)
-
-                print "execution process is alive:"
-                print self.execution.running()
-                print "parser process is alive:"
-                print self.parser.running()
-                print "position is:"
-                print self.handler.position
-                print "I have curmean, cursd, last_trade in execution"
-                print str(self.handler.cur_mean)
-                print str(self.handler.cur_sd)
-                print str(self.handler.last_trade)
-                print "request position:"
-                self.conn.reqPositions()
-                self.update_norm_params()
-                self.last_trim = self.now
-
-                if self.test:
-                    print self.ohlc.tail()
+            try:
 
 
-                time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
+                self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
+                self._market_is_open()
+                # OHLC call
+                if self.last_trim is None:
+                    self.last_trim = self.now
 
-            # ML Call
-            if self.last_ml_call is None:
-                self.last_ml_call = self.now
+                if self.now > self.last_trim + dt.timedelta(minutes=1):
+                    if self.parser.running:
+                        self.test_logger.error("parser thread is alive - timekeeper")
+                    if self.execution.running:
+                        self.test_logger.error("execution thread is alive - timekeeper")
+                    self.test_logger.error("timekeeper minute call")
+                    self.__request_historical_data(self.conn,initial=False)
+                    self.__run_indicators(self.ohlc)
 
-            if self.now > self.last_ml_call + dt.timedelta(minutes=5):
-                print "ML Call"
-                #logging.DEBUG("ML Call")
-                #logging.DEBUG(str(self.ohlc))
-                try:
-                    self.ml.call_ml(self.ohlc)
-                except:
-                    print "ml call failed"
-                print "ML call complete"
-                self.last_ml_call = self.now
+                    self.test_logger.error("requesting position from hft/timekeep")
+                    self.conn.reqPositions()
+                    self.update_norm_params()
+                    self.last_trim = self.now
+
+                    if self.test:
+                        print self.ohlc.tail()
+
+
+                    time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
+
+                # ML Call
+                if self.last_ml_call is None:
+                    self.last_ml_call = self.now
+
+                if self.now > self.last_ml_call + dt.timedelta(minutes=5):
+                    print "ML Call"
+                    #logging.DEBUG("ML Call")
+                    #logging.DEBUG(str(self.ohlc))
+                    try:
+                        self.ml.call_ml(self.ohlc)
+                    except:
+                        print "ml call failed"
+                    print "ML call complete"
+                    self.last_ml_call = self.now
+            except:
+                self.test_logger.error("uh, oh, timekeeper had an error - hft")
             time.sleep(1)
 
     def __register_data_handlers(self,
@@ -384,8 +380,7 @@ class HFTModel:
 
     def update_norm_params(self):
 #        print " updating feeder params for zscore"
-        print "update norm got prices from handler, len:"
-        print len(self.handler.prices)
+        
         try:
             prices = self.handler.prices["price"]
             sgp_tz = pytz.timezone('Singapore')
@@ -402,32 +397,32 @@ class HFTModel:
             # prices = prices.tail(15)#ik,ik
             print "sd crap avoided"
         except:
-            print "update norm FAILED - from update norm"
-        try:
-            if len(prices) !=0:
-                last_price = prices.iloc[-1]
+            self.test_logger.error("update norm failed in half 1 - hft")
 
-                self.handler.cur_mean = round(np.mean(prices),2)
+        if len(prices) !=0:
+            last_price = prices.iloc[-1]
 
-                #logging.debug("updated mean")
+            self.handler.cur_mean = round(np.mean(prices),2)
+            self.test_logger.error("mean updated - update norm/hft")
+            #logging.debug("updated mean")
 
-                #print last_price
-                prices = prices.diff()
-                prices = prices.dropna()
-                prices = prices**2
+            #print last_price
+            prices = prices.diff()
+            prices = prices.dropna()
+            prices = prices**2
 
-                tdiffs = list()
-                for i in range(1,len(prices)):
-                    tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
-                prices = prices.ix[1:]
-                self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
-                #logging.debug("updated sd")
-                #logging.debug(str(self.handler.cur_sd))
-                # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-                #print(self.cur_zscore)
-        except:
-            print "update normfailed - second halh - from update norm"
+            tdiffs = list()
+            for i in range(1,len(prices)):
+                tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
+            prices = prices.ix[1:]
+            self.test_logger.error("update time diffs for vol estimate - update norm/hft")
+            self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+            #logging.debug("updated sd")
+            #logging.debug(str(self.handler.cur_sd))
+            # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
+            #print(self.cur_zscore)
 
+    self.test_logger.error("update norm parameters completed - update norm/hft")
     def __cancel_market_data_request(self):
 
         self.conn.cancelMktData(1)
@@ -453,16 +448,17 @@ class HFTModel:
         self.__request_historical_data(self.conn)
         time.sleep(1)
         if self.handler.position !=0:
-            print "squaring position for a clean start"
+            self.test_logger.info("Squaring off for a clean start")
             self.handler.neutralize()
         try:
-            print "getting ohlc data now"
             #self.time_keeper()
             time.sleep(5)
-            print "pray I have them now"
+            self.test_logger.info("I hope Ihave ohlc now, from hft")
+
             print self.ohlc.tail(5)
 
-            print "calling ML for the first time"
+            self.test_logger.info("call ML first time - HFT")
+
             self.flag = self.ml.call_ml(self.ohlc)
 
             self.handler.flag = self.flag# this is stupid
@@ -474,18 +470,20 @@ class HFTModel:
             #     print "now calling for update"
             #     self.__request_historical_data(self.conn,initial=False)
             #     print self.ohlc
-            print "spawn concurrent processes"
+            self.test_logger.info("Spawn concurrent processes")
+
             self.timekeeper = self.executor.submit(self.time_keeper)
-            print "timekeeper spawned"
+            self.test_logger.info("Time keeper spawned")
             time.sleep(1)
             self.parser = self.executor.submit(self.handler.queue_parser)
-            print "parser spawned"
+            self.test_logger.info("Parser spawned")
             time.sleep(5)
 
             self.update_norm_params()
-            print "sd/mean: passed"
+            self.test_logger.info("First normalized parameters passed")
             time.sleep(5)
-            print "handler spawned"
+            self.test_logger.info("Spawning execution handler")
+
             self.execution = self.executor.submit(self.handler.trading_loop)
 
 

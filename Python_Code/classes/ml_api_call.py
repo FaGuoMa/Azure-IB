@@ -9,6 +9,7 @@ import pandas as pd
 import urllib2
 import json as json
 from params import settings
+import logging
 class MLcall:
     def __init__(self):
         pass
@@ -61,7 +62,7 @@ class MLcall:
             result = response.read()
             return str(json.loads(result)["Results"]["output1"]["value"]["Values"][0][0])
 #            self.flag = self.json_loads_byteified(result)["Results"]["output1"]["value"]["Values"][1]
-             
+        #self.test_logger.error("ML call successful - from ML call lib")
         except urllib2.HTTPError, error:
             print("The request failed with status code: " + str(error.code))
         
