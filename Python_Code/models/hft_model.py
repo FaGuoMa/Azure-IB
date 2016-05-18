@@ -146,59 +146,64 @@ class HFTModel:
     def time_keeper(self):
         #self.traffic_light.wait()
         while True:
-            try:
 
 
-                self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
-                self._market_is_open()
-                # OHLC call
-                if self.last_trim is None:
-                    self.last_trim = self.now
 
-                if self.now > self.last_trim + dt.timedelta(minutes=1):
-                    if self.parser.running():
-                        self.test_logger.error("parser thread is alive - timekeeper")
-                    if self.execution.running():
-                        self.test_logger.error("execution thread is alive - timekeeper")
-                    else:
-                        #self.rekindle_execution()
-                        self.test_logger.error("!!!execution thread  is DEAD- timekeeper")
+            self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
+            self._market_is_open()
+            # OHLC call
+            if self.last_trim is None:
+                self.last_trim = self.now
 
-                    self.test_logger.error("timekeeper minute call")
+            if self.now > self.last_trim + dt.timedelta(minutes=1):
+                if self.parser.running():
+                    self.test_logger.error("parser thread is alive - timekeeper")
+                if self.execution.running():
+                    self.test_logger.error("execution thread is alive - timekeeper")
+                else:
+                    #self.rekindle_execution()
+                    self.test_logger.error("!!!execution thread  is DEAD- timekeeper")
+
+                self.test_logger.error("timekeeper minute call")
+                try:
                     self.__request_historical_data(self.conn,initial=False)
+                except:
+                    self.test_logger.error("req of update historicals failed - timekeep/hft")
+                try:
                     self.__run_indicators(self.ohlc)
-
-                    self.test_logger.error("requesting position from hft/timekeep")
-                    self.conn.reqPositions()
-                    self.update_norm_params()
+                except:
+                    self.test_logger.error("runnning indicators failed - timekeep/hft")
 
 
-                    if self.test:
-                        print self.ohlc.tail()
+                self.conn.reqPositions()
+                self.update_norm_params()
 
 
-                    time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
+                if self.test:
+                    print self.ohlc.tail()
 
-                # ML Call
-                if self.last_ml_call is None:
+
+                time.sleep(5)#TODO horrible, horrible, but can't be bothered with a lock right now
+
+            # ML Call
+            if self.last_ml_call is None:
+                self.last_ml_call = self.now
+
+            if self.now > self.last_ml_call + dt.timedelta(minutes=5):
+
+                #logging.DEBUG("ML Call")
+                #logging.DEBUG(str(self.ohlc))
+                try:
+                    self.flag = self.ml.call_ml(self.ohlc)
+
+                    self.handler.flag = self.flag  # this is stupid todo why why why
+                    self.test_logger.error("I believe we will " + self.handler.flag)
                     self.last_ml_call = self.now
-
-                if self.now > self.last_ml_call + dt.timedelta(minutes=5):
-
-                    #logging.DEBUG("ML Call")
-                    #logging.DEBUG(str(self.ohlc))
-                    try:
-                        self.flag = self.ml.call_ml(self.ohlc)
-
-                        self.handler.flag = self.flag  # this is stupid
-                        self.test_logger.error("I believe we will " + self.handler.flag)
-                        self.last_ml_call = self.now
-                    except:
-                        self.test_logger.error("!!! Call ML failed - timekeeper/hft")
+                except:
+                    self.test_logger.error("!!! Call ML failed - timekeeper/hft")
 
 
-            except:
-                self.test_logger.error("uh, oh, timekeeper had an error - hft")
+
             time.sleep(1)
 
     def __register_data_handlers(self,

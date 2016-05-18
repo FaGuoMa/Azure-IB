@@ -83,7 +83,8 @@ class ExecutionHandler(object):
         self.watermark = 0
         self.stop_offset = settings.STOP_OFFSET
         self.stop = 0
-        self.shelflife = 5
+        self.shelflife = 3
+        self.stop_profit = None
         #fill dict as a list
         self.fill_dict = []
         #store fills in CSV for post-mortem
@@ -257,7 +258,7 @@ class ExecutionHandler(object):
                             self.main_order["order"] = self.create_order("LMT",1,action,price)
                             self.stop_order["id"] = self.valid_id + 1
                             self.stop_order["order"] = self.create_order("MKT", 1, naction)
-                            self.profit_order["id"] = self.valid_id + 2
+                            self.profit_order["id"] = self.valid_id + 1
                             self.profit_order["order"] = self.create_order("MKT", 1, naction)#if this work, we might switch to limit
                             #execute the main order
                             self.main_order["active"] = True
@@ -308,6 +309,7 @@ class ExecutionHandler(object):
                                 # print "new watermark is:" + str(self.watermark)
                                 if self.last_trade <= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
                                     self.exec_logger.error("executing stop order buy- exec")
+                                    self.stop_profit = "stop"
                                     self.stop_order["active"] = True
                                     self.execute_order(self.stop_order["order"])
                                     time.sleep(x_delay)
@@ -320,6 +322,7 @@ class ExecutionHandler(object):
                                     if self.last_trade <= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
                                         self.profit_order["active"] = True
                                         self.execute_order(self.profit_order["order"])
+                                        self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order buy/trends - exec")
                                         time.sleep(x_delay)
                                 except:
@@ -332,6 +335,7 @@ class ExecutionHandler(object):
                                 if self.last_trade >= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
                                     self.stop_order["active"] = True
                                     self.execute_order(self.stop_order["order"])
+                                    self.stop_profit = "stop"
                                     time.sleep(x_delay)
                                     self.exec_logger.error("executing stop order sell- exec")
                             except:
@@ -343,6 +347,7 @@ class ExecutionHandler(object):
                                     if self.last_trade >= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
                                         self.profit_order["active"] = True
                                         self.execute_order(self.profit_order["order"])
+                                        self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order sell/trend - exec")
                                         time.sleep(x_delay)
                                 except:
@@ -357,6 +362,7 @@ class ExecutionHandler(object):
                             try:
                                 self.profit_order["active"] = True
                                 self.execute_order(self.profit_order["order"])
+                                self.stop_profit = "profit"
                                 self.exec_logger.error("executing profit order, range mean revert target - exec")
                                 time.sleep(x_delay)
 
@@ -408,13 +414,13 @@ class ExecutionHandler(object):
                 self.main_order["filled"] = True
                 type = "main"
                 direction = self.main_order["order"].m_action
-            elif self.stop_order["id"] == int(msg.orderId):
+            elif self.stop_order["id"] == int(msg.orderId) and self.stop_profit == "stop":
                 self.stop_order["filled"] = True
                 type = "stop"
                 direction = self.stop_order["order"].m_action
                 time.sleep(1)
                 self.reset_trading_pos()
-            elif self.profit_order["id"] == int(msg.orderId):
+            elif self.profit_order["id"] == int(msg.orderId) and self.stop_profit == "profit":
                 self.profit_order["filled"] = True
                 type = "profit"
                 direction = self.profit_order["order"].m_action
@@ -450,7 +456,7 @@ class ExecutionHandler(object):
         time.sleep(1)
 
         # Increment the order ID TODO I'm skipping order numbers, but shouldn't be an issue
-        self.valid_id += 2
+        self.valid_id += 1
 
     def cancel_order(self,id):
         self.ib_conn.cancelOrder(id)
