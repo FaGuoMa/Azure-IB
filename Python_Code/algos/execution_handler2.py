@@ -391,8 +391,8 @@ class ExecutionHandler(object):
                              "active": False}
         self.watermark = 0
         self.stop = 0
+        self.stop_profit = None
         self.exec_logger.error("reseted trading state - reset")
-
 
 
 
