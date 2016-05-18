@@ -79,7 +79,7 @@ class HFTModel:
 
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
-        self.last_trim = None
+
         #range/trend flag
         self.flag = None
         self.event_market_on = Event()
@@ -155,9 +155,9 @@ class HFTModel:
                     self.last_trim = self.now
 
                 if self.now > self.last_trim + dt.timedelta(minutes=1):
-                    if self.parser.running:
+                    if self.parser.running():
                         self.test_logger.error("parser thread is alive - timekeeper")
-                    if self.execution.running:
+                    if self.execution.running():
                         self.test_logger.error("execution thread is alive - timekeeper")
                     self.test_logger.error("timekeeper minute call")
                     self.__request_historical_data(self.conn,initial=False)
@@ -179,15 +179,19 @@ class HFTModel:
                     self.last_ml_call = self.now
 
                 if self.now > self.last_ml_call + dt.timedelta(minutes=5):
-                    print "ML Call"
+
                     #logging.DEBUG("ML Call")
                     #logging.DEBUG(str(self.ohlc))
                     try:
-                        self.ml.call_ml(self.ohlc)
+                        self.flag = self.ml.call_ml(self.ohlc)
+
+                        self.handler.flag = self.flag  # this is stupid
+                        self.test_logger.error("I believe we will " + self.handler.flag)
+                        self.last_ml_call = self.now
                     except:
-                        print "ml call failed"
-                    print "ML call complete"
-                    self.last_ml_call = self.now
+                        self.test_logger.error("!!! Call ML failed - timekeeper/hft")
+
+
             except:
                 self.test_logger.error("uh, oh, timekeeper had an error - hft")
             time.sleep(1)
@@ -383,46 +387,65 @@ class HFTModel:
         
         try:
             prices = self.handler.prices["price"]
-            sgp_tz = pytz.timezone('Singapore')
-            prices.index = prices.index.tz_localize(sgp_tz)
-            prices.to_csv(os.path.join(os.path.curdir,"prices_f_norm.csv"))
-
-    #        print " got prices"
-            prices = prices.dropna()
-            print "sd crapping potential ahead"
-            print "last trim in update norm"
-            print self.last_trim
-            if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
-                prices = prices[prices.index > self.last_trim]#todo no trim of prices
-            # prices = prices.tail(15)#ik,ik
-            print "sd crap avoided"
         except:
-            self.test_logger.error("update norm failed in half 1 - hft")
+            self.test_logger.error("getting price from handler failed - update norm/hft")
+
+        sgp_tz = pytz.timezone('Singapore')
+
+        try:
+            prices.index = prices.index.tz_localize(sgp_tz)
+            #prices.to_pick  (os.path.join(os.path.curdir,"prices_f_norm.csv"))
+        except:
+            self.test_logger.error("prices localization failed - update norm/hft")
+    #        print " got prices"
+        try:
+            prices = prices.dropna()
+        except:
+            self.test_logger.error("dropna failed - update norm/hft")
+
+        #self.test_logger.info("last trim was: " + self.last_trim)
+
+        try:
+            if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
+                prices = prices[prices.index > self.last_trim]#todo no trim of prices as of now
+                print prices
+                #prices.to_pickle(os.path.join(os.path.curdir(), "prices.pkl"))
+        except:
+
+            self.test_logger.error("minute trim of prices failed - update norm/hft")
 
         if len(prices) !=0:
             last_price = prices.iloc[-1]
-
-            self.handler.cur_mean = round(np.mean(prices),2)
-            self.test_logger.error("mean updated - update norm/hft")
+            try:
+                self.handler.cur_mean = round(np.mean(prices),2)
+            except:
+                self.test_logger.error("mean update failed- update norm/hft")
             #logging.debug("updated mean")
 
             #print last_price
-            prices = prices.diff()
-            prices = prices.dropna()
-            prices = prices**2
+            try:
+                prices = prices.diff()
+                prices = prices.dropna()
+                prices = prices**2
+            except:
+                self.test_logger.error("diff/square failed- update norm/hft")
 
             tdiffs = list()
-            for i in range(1,len(prices)):
-                tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
-            prices = prices.ix[1:]
-            self.test_logger.error("update time diffs for vol estimate - update norm/hft")
-            self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
-            #logging.debug("updated sd")
-            #logging.debug(str(self.handler.cur_sd))
-            # self.cur_zscore = (last_price - self.cur_mean)/self.cur_sd
-            #print(self.cur_zscore)
+            try:
+                for i in range(1,len(prices)):
+                    tdiffs.append((prices.index[i]-prices.index[i-1]).total_seconds())
+                prices = prices.ix[1:]
+                print prices
+            except:
 
-    self.test_logger.error("update norm parameters completed - update norm/hft")
+                self.test_logger.error("time diffs creation failed - update norm/hft")
+            try:
+
+                self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+            except:
+                self.test_logger.error("StDev udpate failed - update norm/hft")
+
+        self.test_logger.error("update norm parameters completed - update norm/hft")
     def __cancel_market_data_request(self):
 
         self.conn.cancelMktData(1)
@@ -461,7 +484,7 @@ class HFTModel:
 
             self.flag = self.ml.call_ml(self.ohlc)
 
-            self.handler.flag = self.flag# this is stupid
+            self.handler.flag = self.flag  # this is stupid
             time.sleep(3)
             print "I believe we will "+ self.flag
             # if self.test:
