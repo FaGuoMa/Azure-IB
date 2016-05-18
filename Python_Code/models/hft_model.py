@@ -12,6 +12,7 @@ from classes.ib_util import IBUtil
 from classes.stock_data import StockData
 #import our ML class call (btw, API key in clear = not smart)
 from classes.ml_api_call import MLcall
+from params import settings
 import params.ib_data_types as datatype
 from ib.ext.Contract import Contract
 from ib.ext.EWrapper import EWrapper
@@ -159,6 +160,10 @@ class HFTModel:
                         self.test_logger.error("parser thread is alive - timekeeper")
                     if self.execution.running():
                         self.test_logger.error("execution thread is alive - timekeeper")
+                    else:
+                        #self.rekindle_execution()
+                        self.test_logger.error("!!!execution thread  is DEAD- timekeeper")
+
                     self.test_logger.error("timekeeper minute call")
                     self.__request_historical_data(self.conn,initial=False)
                     self.__run_indicators(self.ohlc)
@@ -166,7 +171,7 @@ class HFTModel:
                     self.test_logger.error("requesting position from hft/timekeep")
                     self.conn.reqPositions()
                     self.update_norm_params()
-                    self.last_trim = self.now
+
 
                     if self.test:
                         print self.ohlc.tail()
@@ -407,7 +412,8 @@ class HFTModel:
 
         try:
             if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
-                prices = prices[prices.index > self.last_trim]#todo no trim of prices as of now
+                prices = prices[prices.index > prices.index.max()-dt.timedelta(seconds=60)]#todo no trim of prices as of now
+                print "trimmed prices"
                 print prices
                 #prices.to_pickle(os.path.join(os.path.curdir(), "prices.pkl"))
         except:
@@ -442,8 +448,10 @@ class HFTModel:
             try:
 
                 self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+                self.last_trim = self.now
             except:
                 self.test_logger.error("StDev udpate failed - update norm/hft")
+                self.handler.cur_sd = settings.STOP_OFFSET  # in case the stdev failed
 
         self.test_logger.error("update norm parameters completed - update norm/hft")
     def __cancel_market_data_request(self):
@@ -541,9 +549,9 @@ class HFTModel:
 
 #        self.store.close()
 
-    def spawn_test(self):
-        self.traffic_light.wait()
-        print "fuck spawns"
+    def rekindle_execution(self):
+        self.execution = self.executor.submit(self.handler.trading_loop)
+
 
 
 if __name__ == "__main___":

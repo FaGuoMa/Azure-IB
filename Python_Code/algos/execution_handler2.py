@@ -9,6 +9,7 @@ import sys
 import ib.ext
 from ib.ext.Contract import Contract
 from ib.ext.Order import Order
+import traceback
 
 from ib.opt import ibConnection, Connection, message as ib_message_type
 # from ib.ext.EWrapper import EWrapper
@@ -197,153 +198,172 @@ class ExecutionHandler(object):
         So, this one will not take any outside input, but loop forever instead. *Should be thread-safe*
 
         """
-        print "in trader loop"
+
         x_delay = 0.1
         while True:
+            try:
 
+                if self.cur_mean is not None and self.cur_sd is not None and self.last_trade is not None:
 
-            if self.cur_mean is not None and self.cur_sd is not None and self.last_trade is not None:
+                    try:
+                        zscore = (self.last_trade - self.cur_mean)/self.cur_sd
+                    except:
+                        self.exec_logger.error("zscore update failed - exec")
 
-                zscore = (self.last_trade - self.cur_mean)/self.cur_sd
-                # self.last_bid = cur_bid
-                # self.last_ask = cur_ask
-                # self.last_trade = cur_trade
-                # self.flag = cur_flag
-                # self.cur_mean = cur_mean
-                # self.cur_sd =cur_sd
-                # if not (self.last_trade or self.cur_mean or self.cur_sd or self.flag) == 0:
-                #     self.monitor.update_data_point(self.last_trade, self.cur_mean, self.cur_sd, self.flag)
-                if self.hist_flag is None:
-                    self.hist_flag = self.flag
-                    self.exec_logger.error("set hist flag in trading loop")
-                #check change of state and kill positions TODO this is simplistic
-                if self.hist_flag != self.flag and self.main_order["active"]:
-                    self.exec_logger.error("killing pos for change of flag")
-                    #logging.debug("exec - change of state, killing position")
-                    self.exec_order["active"] = True
-                    self.execute_order(self.stop_order["order"])
-                    self.hist_flag = self.flag
-                    return
-
-                #first, checkzscore and do an order
-                #print "current z " + str(self.zscore) + " vs " + str(self.zscore_thresh)
-                if abs(zscore) >= self.zscore_thresh and not self.main_order["active"] and abs(zscore) <= self.zscore_thresh + 0.5:#todo harcoded, not nice
-                    self.exec_logger.error("in zscore condition")
-                    if zscore >= self.zscore_thresh:
-                        if self.flag == "trend":
-                            action = "BUY"
-
-                        if self.flag == "range":
-                            action = "SELL"
-
-                    if zscore <= -self.zscore_thresh:
-                        if self.flag == "trend":
-                            action = "SELL"
-
-                        if self.flag == "range":
-                            action = "BUY"
-
-                    if action == "BUY":
-                        naction = "SELL"
-                        price = self.last_bid
-                        offset = -self.stop_offset
-                    if action == "SELL":
-                        naction = "BUY"
-                        price = self.last_ask
-                        offset = self.stop_offset
-
-                    #spawn main order, stop and profit
-                    self.main_order["id"] = self.valid_id
-                    self.main_order["order"] = self.create_order("LMT",1,action,price)
-                    self.stop_order["id"] = self.valid_id+1
-                    self.stop_order["order"] = self.create_order("MKT", 1, naction)
-                    self.profit_order["id"] = self.valid_id + 1
-                    self.profit_order["order"] = self.create_order("MKT", 1, naction)#if this work, we might switch to limit
-                    #execute the main order
-                    self.main_order["active"] = True
-                    self.execute_order(self.main_order["order"])
-
-                    time.sleep(x_delay)
-                    self.main_order["timeout"] = dt.datetime.now()
-                    print "FROM SPAWN, NOT EXEC:"
-                    print "main:"
-                    #logging.debug(str(self.main_order))
-                    print self.main_order
-                    print "stop:"
-                    print self.stop_order
-                    print "profit:"
-                    print self.profit_order
-                    print "CURRENT POS IS:"
-                    print self.position
-                #if self.main_order["active"] and not self.main_order["filled"]:
-                    #print "shelf life of main:"
-                    #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds()
-                    #print (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife
-                if self.main_order["active"] \
-                        and not self.main_order["filled"] \
-                        and (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife:
-                    self.main_order["active"] = False
-                    self.cancel_order(self.main_order["id"])
-                    time.sleep(x_delay)
-
-                    self.exec_logger.error("main timed out - exec")
-                    #logging.debug("exec - main order timed out")
-
-                if self.main_order["active"] and self.main_order["filled"] and not (self.stop_order["active"] or self.profit_order["active"]):
-                    # print "stop/profit loop active"
-                    action = self.main_order["order"].m_action
-                    if action == "BUY":
-                        offset = -self.stop_offset
-                    if action == "SELL":
-                        offset = self.stop_offset
-                    if self.stop == 0:
-                        self.stop = self.fill_dict[-1][1] + offset
-                    # print "stop at " + str(self.stop)
-                    # print "last trade at :" +str(self.last_trade)
-
-                    if action == "BUY":
-                        self.watermark = max(self.last_trade, self.watermark)
-                        # print "new watermark is:" + str(self.watermark)
-                        if self.last_trade <= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
-                            self.exec_logger.error("executing stop order buy- exec")
+                    if self.hist_flag is None:
+                        self.hist_flag = self.flag
+                        self.exec_logger.error("set hist flag in trading loop - exec")
+                    #check change of state and kill positions TODO this is simplistic
+                    try:
+                        if self.hist_flag != self.flag and self.main_order["active"]:
+                            self.exec_logger.error("killing pos for change of flag - exec")
+                            #logging.debug("exec - change of state, killing position")
                             self.stop_order["active"] = True
                             self.execute_order(self.stop_order["order"])
+                            self.hist_flag = self.flag
+
+                    except:
+                        self.exec_logger.error("market in change of trend failed - exec")
+
+
+                    if abs(zscore) >= self.zscore_thresh and not self.main_order["active"] and abs(zscore) <= self.zscore_thresh + 0.5:#todo harcoded, not nice
+                        try:
+
+                            if zscore >= self.zscore_thresh:
+                                if self.flag == "trend":
+                                    action = "BUY"
+
+                                if self.flag == "range":
+                                    action = "SELL"
+
+                            if zscore <= -self.zscore_thresh:
+                                if self.flag == "trend":
+                                    action = "SELL"
+
+                                if self.flag == "range":
+                                    action = "BUY"
+
+                            if action == "BUY":
+                                naction = "SELL"
+                                price = self.last_bid
+                                offset = -self.stop_offset
+                            if action == "SELL":
+                                naction = "BUY"
+                                price = self.last_ask
+                                offset = self.stop_offset
+
+                            #spawn main order, stop and profit
+                            self.main_order["id"] = self.valid_id
+                            self.main_order["order"] = self.create_order("LMT",1,action,price)
+                            self.stop_order["id"] = self.valid_id + 1
+                            self.stop_order["order"] = self.create_order("MKT", 1, naction)
+                            self.profit_order["id"] = self.valid_id + 2
+                            self.profit_order["order"] = self.create_order("MKT", 1, naction)#if this work, we might switch to limit
+                            #execute the main order
+                            self.main_order["active"] = True
+                            self.execute_order(self.main_order["order"])
+
                             time.sleep(x_delay)
-                             #really necessary ? I wonder
-                            print "stopped out"
-                        if self.flag == "trend":
-                            if self.last_trade <= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
+                            self.main_order["timeout"] = dt.datetime.now()
+                            print "FROM SPAWN, NOT EXEC:"
+                            print "main:"
+                            #logging.debug(str(self.main_order))
+                            print self.main_order
+                            print "stop:"
+                            print self.stop_order
+                            print "profit:"
+                            print self.profit_order
+                            print "CURRENT POS IS:"
+                            print self.position
+                        except:
+                            self.exec_logger.error("main order failed - exec")
+
+                    if self.main_order["active"] \
+                            and not self.main_order["filled"] \
+                            and (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife:
+                        try:
+                            self.main_order["active"] = False
+                            self.cancel_order(self.main_order["id"])
+                            time.sleep(x_delay)
+
+                        except:
+
+                            self.exec_logger.error("timeout of main order failed - exec")
+
+                    if self.main_order["active"] and self.main_order["filled"] and not (self.stop_order["active"] or self.profit_order["active"]):
+                        # print "stop/profit loop active"
+                        action = self.main_order["order"].m_action
+                        if action == "BUY":
+                            offset = -self.stop_offset
+                        if action == "SELL":
+                            offset = self.stop_offset
+                        if self.stop == 0:
+                            self.stop = self.fill_dict[-1][1] + offset
+                        # print "stop at " + str(self.stop)
+                        # print "last trade at :" +str(self.last_trade)
+
+                        if action == "BUY":
+                            try:
+                                self.watermark = max(self.last_trade, self.watermark)
+                                # print "new watermark is:" + str(self.watermark)
+                                if self.last_trade <= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
+                                    self.exec_logger.error("executing stop order buy- exec")
+                                    self.stop_order["active"] = True
+                                    self.execute_order(self.stop_order["order"])
+                                    time.sleep(x_delay)
+                            except:
+
+                                self.exec_logger.error("buy stop failed - exec")
+
+                            if self.flag == "trend":
+                                try:
+                                    if self.last_trade <= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
+                                        self.profit_order["active"] = True
+                                        self.execute_order(self.profit_order["order"])
+                                        self.exec_logger.error("executing profit order buy/trends - exec")
+                                        time.sleep(x_delay)
+                                except:
+                                    self.exec_logger.error("buy profit failed - exec")
+
+
+                        if action == "SELL":
+                            try:
+                                self.watermark = min(self.last_trade, self.watermark)
+                                if self.last_trade >= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
+                                    self.stop_order["active"] = True
+                                    self.execute_order(self.stop_order["order"])
+                                    time.sleep(x_delay)
+                                    self.exec_logger.error("executing stop order sell- exec")
+                            except:
+
+                                self.exec_logger.error("sell stop failed - exec")
+
+                            if self.flag == "trend":
+                                try:
+                                    if self.last_trade >= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
+                                        self.profit_order["active"] = True
+                                        self.execute_order(self.profit_order["order"])
+                                        self.exec_logger.error("executing profit order sell/trend - exec")
+                                        time.sleep(x_delay)
+                                except:
+                                    self.exec_logger.error("sell profit failed - exec")
+
+
+
+                                                #for now, simple is nice
+                        # print self.flag
+                        # print str(abs(zscore))
+                        if self.flag == "range" and abs(zscore) <= settings.Z_TARGET:
+                            try:
                                 self.profit_order["active"] = True
                                 self.execute_order(self.profit_order["order"])
-                                self.exec_logger.error("executing profit order buy/trends - exec")
+                                self.exec_logger.error("executing profit order, range mean revert target - exec")
                                 time.sleep(x_delay)
 
-
-                    if action == "SELL":
-                        self.watermark = min(self.last_trade, self.watermark)
-                        if self.last_trade >= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
-                            self.stop_order["active"] = True
-                            self.execute_order(self.stop_order["order"])
-                            time.sleep(x_delay)
-                            self.exec_logger.error("executing stop order sell- exec")
-
-                        if self.flag == "trend":
-                            if self.last_trade >= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
-                                self.profit_order["active"] = True
-                                self.execute_order(self.profit_order["order"])
-                                self.exec_logger.error("executing profit order sell/trend - exec")
-                                time.sleep(x_delay)
-
-
-
-                                            #for now, simple is nice
-                    # print self.flag
-                    # print str(abs(zscore))
-                    if self.flag == "range" and abs(zscore) <= settings.Z_TARGET:
-                        self.profit_order["active"] = True
-                        self.execute_order(self.profit_order["order"])
-                        self.exec_logger.error("executing profit order, range mean revert target - exec")
-                        time.sleep(x_delay)
+                            except:
+                                self.exec_logger.error("range profit failed - exec")
+            except:
+                traceback.print_exc()
 
 
 
@@ -365,6 +385,7 @@ class ExecutionHandler(object):
                              "active": False}
         self.watermark = 0
         self.stop = 0
+        self.exec_logger.error("reseted trading state - reset")
 
 
 
@@ -391,13 +412,13 @@ class ExecutionHandler(object):
                 self.stop_order["filled"] = True
                 type = "stop"
                 direction = self.stop_order["order"].m_action
-                time.sleep(5)
+                time.sleep(1)
                 self.reset_trading_pos()
             elif self.profit_order["id"] == int(msg.orderId):
                 self.profit_order["filled"] = True
                 type = "profit"
                 direction = self.profit_order["order"].m_action
-                time.sleep(5)
+                time.sleep(1)
                 self.reset_trading_pos()#TODO I suspect something fishy here. Maybe the time.sleep will help
             else:
                 print "uh, oh .. fill didn't match"
@@ -428,8 +449,8 @@ class ExecutionHandler(object):
         # order goes through!
         time.sleep(1)
 
-        # Increment the order ID TODO not sure we need to instanciate there
-        self.valid_id += 1
+        # Increment the order ID TODO I'm skipping order numbers, but shouldn't be an issue
+        self.valid_id += 2
 
     def cancel_order(self,id):
         self.ib_conn.cancelOrder(id)
