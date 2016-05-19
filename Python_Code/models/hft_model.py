@@ -1,5 +1,6 @@
 """
-Heavily inspiredfrom Jack Ma "high Frequency", although a lot of things have to go...
+A model leveraging a Microsoft Azure instance and Interactive Brokers' API to trade CME's WTI
+Do not try this at home
 
 """
 import pandas as pd
@@ -8,17 +9,7 @@ from ib.opt import Connection
 
 import datetime as dt
 import time
-from classes.ib_util import IBUtil
-#from classes.stock_data import StockData
-#import our ML class call (btw, API key in clear = not smart)
-from classes.ml_api_call import MLcall
-from params import settings
-import params.ib_data_types as datatype
 from ib.ext.Contract import Contract
-from ib.ext.EWrapper import EWrapper
-#import monitor
-#from classes.monitor_plotly import Monit_stream
-#from algos.ZscoreEventDriven import Zscore
 from multiprocessing import Event, Lock
 import concurrent.futures
 import sys
@@ -28,18 +19,19 @@ import numpy as np
 import talib as ta
 from math import sqrt
 import pytz
+
+from classes.ib_util import IBUtil
+from classes.ml_api_call import MLcall
 from algos.execution_handler2 import ExecutionHandler
+from params import settings
+import params.ib_data_types as datatype
+
 
 if os.path.exists(os.path.join(os.path.curdir,"log.txt")):
     os.remove(os.path.join(os.path.curdir,"log.txt"))
 
-print "Clearing lOgger"
+print "Clearing logger"
 logging.getLogger('').handlers = []
-#logging.basicConfig(filename=os.path.normpath(os.path.join(os.path.curdir,"log.txt")),level=logging.DEBUG, format='%(asctime)s %(message)s')
-#logging.basicConfig(format='%s(asctime)s %(message)s')
-#test_logger = logging.getLogger('hftModelLogger')
-
-#this will need be checked
 
 
 
@@ -51,59 +43,40 @@ class HFTModel:
         logging.basicConfig(format='%(asctime)s %(message)s')
         self.test_logger = logging.getLogger('hftModelLogger')
         self.test_logger.setLevel(logging.INFO)
-        #logging.warning("TEst Log")
-
-
         self.test = test
         self.tz = pytz.timezone('Singapore')
         self.moving_window_period = moving_window_period
         self.ib_util = IBUtil()
-
-
-        #self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
         self.symbols = None  # List of current symbols
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
         self.ohlc = None # I need another store for minute data (I think)
         self.buffer = list()
         self.trade_qty = 0
-
-        #self.lock = Lock()
         self.traffic_light = Event()
         self.ohlc_ok = Lock()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
         self.timekeeper = None
         self.parser = None
         self.execution = None
-
         self.handler = None
-
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
-
-        #range/trend flag
         self.flag = None
         self.event_market_on = Event()
         self.ml = MLcall()
         self.last_trim = None
         self.last_ml_call = None
-        # self.last_trade = None
-        # self.last_bid = None
-        # self.last_ask = None
-        # self.cur_mean = None
-        # self.cur_sd = None
-        # self.cur_zscore = None
 
 
         # Use ibConnection() for TWS, or create connection for API Gateway
         self.conn = Connection.create(host=host, port=port, clientId=client_id)
-        #self.thread = threading.Thread(target=self.spawn())
-        #self.thread.start()
+
         if not self.test:
             self.handler = ExecutionHandler(self.conn)
 
 
-        #
+
         #third handler should register properly si Dieu veut
         if self.test:
             self.__register_data_handlers(self.null_handler,
@@ -114,9 +87,9 @@ class HFTModel:
                                           self.__event_handler,
                                           self.handler._reply_handler)
         if self.test:
-            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201606", "USD")
+            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201612", "USD")
         else:
-            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201606", "USD")#todo duplicate with execution handler
+            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201612", "USD")#todo duplicate with execution handler
         self.signal = None
         self.state = None
 
@@ -144,7 +117,7 @@ class HFTModel:
 
 
     def time_keeper(self):
-        #self.traffic_light.wait()
+
         while True:
 
 
@@ -268,8 +241,6 @@ class HFTModel:
                                datatype.SNAPSHOT_NONE)
 #            time.sleep(5)
 
-        # Stream account updates DEACTIVATED FOR NOW
-        #ib_conn.reqAccountUpdates(True, self.account_code)
 
     def __request_historical_data(self, ib_conn, initial=True):
         """ the same method can be used for scheduled calls"""
@@ -291,26 +262,6 @@ class HFTModel:
 
 
 
-#     def __on_portfolio_update(self, msg):
-#         for key, stock_data in self.stocks_data.iteritems():
-#             if stock_data.contract.m_symbol == msg.contract.m_symbol:
-#                 if dt.datetime.now(self.tz) > self.last_trim + self.moving_window_period:
-#                     stock_data.update_position(msg.position,
-#                                                msg.marketPrice,
-#                                                msg.marketValue)
-# #                                           ,
-#                                           msg.averageCost,
-#                                           msg.unrealizedPNL,
-#                                           msg.realizedPNL,
-#                                           msg.accountName)
-                return
-
-#    def __calculate_pnls(self):
-#        upnl, rpnl = 0, 0
-#        for key, stock_data in self.stocks_data.iteritems():
-#            upnl += stock_data.unrealized_pnl
-#            rpnl += stock_data.realized_pnl
-#        return upnl, rpnl
 
     def __event_handler(self, msg):
         if msg.typeName == datatype.MSG_TYPE_HISTORICAL_DATA:
@@ -319,7 +270,7 @@ class HFTModel:
 
 
         elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
-
+            pass
             #self.__on_portfolio_update(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
@@ -354,7 +305,6 @@ class HFTModel:
         self.__run_indicators(self.ohlc)
         self.ohlc.to_csv(self.ohlc_path)
 
-#        self.ohlc.to_pickle("/Users/maxime_back/Documents/avocado/ohlc.pickle")
 
 
     def __add_historical_data(self, ticker_index, msg):
@@ -393,8 +343,7 @@ class HFTModel:
 
 
     def update_norm_params(self):
-#        print " updating feeder params for zscore"
-        
+
         try:
             prices = self.handler.prices["price"]
         except:
@@ -407,13 +356,13 @@ class HFTModel:
             #prices.to_pick  (os.path.join(os.path.curdir,"prices_f_norm.csv"))
         except:
             self.test_logger.error("prices localization failed - update norm/hft")
-    #        print " got prices"
+    #
         try:
             prices = prices.dropna()
         except:
             self.test_logger.error("dropna failed - update norm/hft")
 
-        #self.test_logger.info("last trim was: " + self.last_trim)
+
 
         try:
             if prices.index.max()-prices.index.min() > dt.timedelta(seconds=60) and self.last_trim is not None:
@@ -431,9 +380,7 @@ class HFTModel:
                 self.handler.cur_mean = round(np.mean(prices),2)
             except:
                 self.test_logger.error("mean update failed- update norm/hft")
-            #logging.debug("updated mean")
 
-            #print last_price
             try:
                 prices = prices.diff()
                 prices = prices.dropna()
@@ -453,17 +400,19 @@ class HFTModel:
             try:
 
                 self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
-                self.last_trim = self.now
+
             except:
                 self.test_logger.error("StDev udpate failed - update norm/hft")
-                self.handler.cur_sd = settings.STOP_OFFSET  # in case the stdev failed
+                self.handler.cur_sd = 2 * settings.STOP_OFFSET  # in case the stdev failed
 
         self.test_logger.error("update norm parameters completed - update norm/hft")
+        self.last_trim = self.now
+
     def __cancel_market_data_request(self):
 
         self.conn.cancelMktData(1)
         time.sleep(1)
-    #recycling zscore spawn to thread the handler
+
     def spawn(self):
         print "execution thread spawned"
 
@@ -500,12 +449,7 @@ class HFTModel:
             self.handler.flag = self.flag  # this is stupid
             time.sleep(3)
             print "I believe we will "+ self.flag
-            # if self.test:
-            #     print self.ohlc
-            #     time.sleep(60)
-            #     print "now calling for update"
-            #     self.__request_historical_data(self.conn,initial=False)
-            #     print self.ohlc
+
             self.test_logger.info("Spawn concurrent processes")
 
             self.timekeeper = self.executor.submit(self.time_keeper)

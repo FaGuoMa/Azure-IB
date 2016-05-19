@@ -263,9 +263,10 @@ class ExecutionHandler(object):
                             #execute the main order
                             self.main_order["active"] = True
                             self.execute_order(self.main_order["order"])
+                            self.main_order["timeout"] = dt.datetime.now()
 
                             time.sleep(x_delay)
-                            self.main_order["timeout"] = dt.datetime.now()
+
                             print "FROM SPAWN, NOT EXEC:"
                             print "main:"
                             #logging.debug(str(self.main_order))
@@ -285,6 +286,7 @@ class ExecutionHandler(object):
                         try:
                             self.main_order["active"] = False
                             self.cancel_order(self.main_order["id"])
+                            self.reset_trading_pos()
                             time.sleep(x_delay)
 
                         except:
@@ -304,6 +306,7 @@ class ExecutionHandler(object):
                         # print "last trade at :" +str(self.last_trade)
 
                         if action == "BUY":
+
                             try:
                                 self.watermark = max(self.last_trade, self.watermark)
                                 # print "new watermark is:" + str(self.watermark)
@@ -402,42 +405,43 @@ class ExecutionHandler(object):
         """
         Deals with fills
         """
-        print "I'm looking for these ids:" + str(self.main_order["id"]) + " or " +str(self.stop_order["id"])
-        print "I have this one:" + str(msg.orderId)
-        # print "as-is matching:"
-        # print int(msg.orderId) == self.main_order["id"]
+        if self.main_order["order"] is not None or self.stop_order["order"] is not None or self.profit_order["order"] is not None:
+            print "I'm looking for these ids:" + str(self.main_order["id"]) + " or " +str(self.stop_order["id"])
+            print "I have this one:" + str(msg.orderId)
+            # print "as-is matching:"
+            # print int(msg.orderId) == self.main_order["id"]
 
 
-        if len(self.fill_dict) == 0 or msg.permId != self.fill_dict[-1][4]:
-            print "time to do something with the fill"
-            if self.main_order["id"] == int(msg.orderId):
-                self.main_order["filled"] = True
-                type = "main"
-                direction = self.main_order["order"].m_action
-            elif self.stop_order["id"] == int(msg.orderId) and self.stop_profit == "stop":
-                self.stop_order["filled"] = True
-                type = "stop"
-                direction = self.stop_order["order"].m_action
-                time.sleep(1)
-                self.reset_trading_pos()
-            elif self.profit_order["id"] == int(msg.orderId) and self.stop_profit == "profit":
-                self.profit_order["filled"] = True
-                type = "profit"
-                direction = self.profit_order["order"].m_action
-                time.sleep(1)
-                self.reset_trading_pos()#TODO I suspect something fishy here. Maybe the time.sleep will help
-            else:
-                print "uh, oh .. fill didn't match"
-                type = "other"
-                direction = "neutralize/unsure"
-            print "last fill at " + str(float(msg.avgFillPrice))
-            self.last_fill = [dt.datetime.now(), float(msg.avgFillPrice),type, direction, msg.permId]
-            self.monitor.update_fills(self.last_fill)
-            self.fill_dict.append(self.last_fill)
-            #write to csv
-            fd = open(self.csv, 'a')
-            fd.write(dt.datetime.strftime(self.last_fill[0], format ="%Y-%m-%d %H:%M:%S") + "," + str(self.last_fill[1]) + "," + self.last_fill[2] + "," + self.last_fill[3] + "," +str(self.last_fill[4]) + "\r")
-            fd.close()
+            if len(self.fill_dict) == 0 or msg.permId != self.fill_dict[-1][4]:
+                print "time to do something with the fill"
+                if self.main_order["id"] == int(msg.orderId):
+                    self.main_order["filled"] = True
+                    type = "main"
+                    direction = self.main_order["order"].m_action
+                elif self.stop_order["id"] == int(msg.orderId) and self.stop_profit == "stop":
+                    self.stop_order["filled"] = True
+                    type = "stop"
+                    direction = self.stop_order["order"].m_action
+                    time.sleep(1)
+                    self.reset_trading_pos()
+                elif self.profit_order["id"] == int(msg.orderId) and self.stop_profit == "profit":
+                    self.profit_order["filled"] = True
+                    type = "profit"
+                    direction = self.profit_order["order"].m_action
+                    time.sleep(1)
+                    self.reset_trading_pos()#TODO I suspect something fishy here. Maybe the time.sleep will help
+                else:
+                    print "uh, oh .. fill didn't match"
+                    type = "other"
+                    direction = "neutralize/unsure"
+                print "last fill at " + str(float(msg.avgFillPrice))
+                self.last_fill = [dt.datetime.now(), float(msg.avgFillPrice),type, direction, msg.permId]
+                self.monitor.update_fills(self.last_fill)
+                self.fill_dict.append(self.last_fill)
+                #write to csv
+                fd = open(self.csv, 'a')
+                fd.write(dt.datetime.strftime(self.last_fill[0], format ="%Y-%m-%d %H:%M:%S") + "," + str(self.last_fill[1]) + "," + self.last_fill[2] + "," + self.last_fill[3] + "," +str(self.last_fill[4]) + "\r")
+                fd.close()
 
 
 
