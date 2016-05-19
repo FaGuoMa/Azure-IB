@@ -67,6 +67,8 @@ class HFTModel:
         self.ml = MLcall()
         self.last_trim = None
         self.last_ml_call = None
+        self.cur_mean = None
+        self.cur_sd = None
 
 
         # Use ibConnection() for TWS, or create connection for API Gateway
@@ -87,9 +89,9 @@ class HFTModel:
                                           self.__event_handler,
                                           self.handler._reply_handler)
         if self.test:
-            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201612", "USD")
+            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201607", "USD")
         else:
-            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201612", "USD")#todo duplicate with execution handler
+            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201607", "USD")#todo duplicate with execution handler
         self.signal = None
         self.state = None
 
@@ -377,7 +379,8 @@ class HFTModel:
         if len(prices) !=0:
             last_price = prices.iloc[-1]
             try:
-                self.handler.cur_mean = round(np.mean(prices),2)
+                my_cur_mean = round(np.mean(prices),2)
+                self.handler.cur_mean = my_cur_mean
             except:
                 self.test_logger.error("mean update failed- update norm/hft")
 
@@ -399,7 +402,8 @@ class HFTModel:
                 self.test_logger.error("time diffs creation failed - update norm/hft")
             try:
 
-                self.handler.cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+                my_cur_sd = round(sqrt(sum(prices * tdiffs)/len(prices)), 2)
+                self.handler.cur_sd = my_cur_sd
 
             except:
                 self.test_logger.error("StDev udpate failed - update norm/hft")

@@ -45,7 +45,7 @@ class ExecutionHandler(object):
         self.ib_conn = ib_conn
         self.valid_id = None
         self.position = None
-        self.contract = self.create_contract("CL",'FUT', 'NYMEX', '201606','USD')
+        self.contract = self.create_contract("CL",'FUT', 'NYMEX', '201607','USD')
         self.is_trading = False
         #will need  a test for pickle existence TODO panda the pickle or something
         self.zscore = None
@@ -84,7 +84,7 @@ class ExecutionHandler(object):
         self.stop_offset = settings.STOP_OFFSET
         self.stop = 0
         self.shelflife = 3
-        self.stop_profit = None
+        #self.stop_profit = None
         #fill dict as a list
         self.fill_dict = []
         #store fills in CSV for post-mortem
@@ -184,9 +184,14 @@ class ExecutionHandler(object):
                 # print str(self.cur_mean)
                 # print str(self.cur_sd)
                 # print str(self.flag)
-
+                #print msg["value"]
                 if self.cur_mean is not None  and self.cur_sd is not None and self.flag is not None:
-                    self.monitor.update_data_point(msg,self.cur_mean,self.cur_sd,self.flag)
+                    try:
+                     self.monitor.update_data_point(msg,self.cur_mean,self.cur_sd,self.flag)
+                    except:
+                        self.exec_logger.error("update plotly failed - parser")
+                        traceback.print_exc()
+
 
             if msg["type"] == "ask_price":
                 self.last_ask = msg["value"]
@@ -301,7 +306,7 @@ class ExecutionHandler(object):
                         if action == "SELL":
                             offset = self.stop_offset
                         if self.stop == 0:
-                            self.stop = self.fill_dict[-1][1] + offset
+                            self.stop = self.last_trade + offset
                         # print "stop at " + str(self.stop)
                         # print "last trade at :" +str(self.last_trade)
 
@@ -312,7 +317,7 @@ class ExecutionHandler(object):
                                 # print "new watermark is:" + str(self.watermark)
                                 if self.last_trade <= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
                                     self.exec_logger.error("executing stop order buy- exec")
-                                    self.stop_profit = "stop"
+                                    #self.stop_profit = "stop"
                                     self.stop_order["active"] = True
                                     self.execute_order(self.stop_order["order"])
                                     time.sleep(x_delay)
@@ -325,7 +330,7 @@ class ExecutionHandler(object):
                                     if self.last_trade <= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
                                         self.profit_order["active"] = True
                                         self.execute_order(self.profit_order["order"])
-                                        self.stop_profit = "profit"
+                                        #self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order buy/trends - exec")
                                         time.sleep(x_delay)
                                 except:
@@ -338,7 +343,7 @@ class ExecutionHandler(object):
                                 if self.last_trade >= self.stop and not self.profit_order["active"] and not self.stop_order["active"]:
                                     self.stop_order["active"] = True
                                     self.execute_order(self.stop_order["order"])
-                                    self.stop_profit = "stop"
+                                    #self.stop_profit = "stop"
                                     time.sleep(x_delay)
                                     self.exec_logger.error("executing stop order sell- exec")
                             except:
@@ -350,7 +355,7 @@ class ExecutionHandler(object):
                                     if self.last_trade >= self.watermark + offset and not self.profit_order["active"] and not self.stop_order["active"]:
                                         self.profit_order["active"] = True
                                         self.execute_order(self.profit_order["order"])
-                                        self.stop_profit = "profit"
+                                        #self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order sell/trend - exec")
                                         time.sleep(x_delay)
                                 except:
@@ -365,7 +370,7 @@ class ExecutionHandler(object):
                             try:
                                 self.profit_order["active"] = True
                                 self.execute_order(self.profit_order["order"])
-                                self.stop_profit = "profit"
+                                #self.stop_profit = "profit"
                                 self.exec_logger.error("executing profit order, range mean revert target - exec")
                                 time.sleep(x_delay)
 
@@ -406,25 +411,25 @@ class ExecutionHandler(object):
         Deals with fills
         """
         if self.main_order["order"] is not None or self.stop_order["order"] is not None or self.profit_order["order"] is not None:
-            print "I'm looking for these ids:" + str(self.main_order["id"]) + " or " +str(self.stop_order["id"])
+            print "I'm looking for these ids:" + str(self.main_order["id"]) + " or " +str(self.stop_order["id"]) +" or "+str(self.profit_order["id"])
             print "I have this one:" + str(msg.orderId)
             # print "as-is matching:"
             # print int(msg.orderId) == self.main_order["id"]
 
 
             if len(self.fill_dict) == 0 or msg.permId != self.fill_dict[-1][4]:
-                print "time to do something with the fill"
+
                 if self.main_order["id"] == int(msg.orderId):
                     self.main_order["filled"] = True
                     type = "main"
                     direction = self.main_order["order"].m_action
-                elif self.stop_order["id"] == int(msg.orderId) and self.stop_profit == "stop":
+                elif self.stop_order["id"] == int(msg.orderId):
                     self.stop_order["filled"] = True
                     type = "stop"
                     direction = self.stop_order["order"].m_action
                     time.sleep(1)
                     self.reset_trading_pos()
-                elif self.profit_order["id"] == int(msg.orderId) and self.stop_profit == "profit":
+                elif self.profit_order["id"] == int(msg.orderId):
                     self.profit_order["filled"] = True
                     type = "profit"
                     direction = self.profit_order["order"].m_action
@@ -442,6 +447,7 @@ class ExecutionHandler(object):
                 fd = open(self.csv, 'a')
                 fd.write(dt.datetime.strftime(self.last_fill[0], format ="%Y-%m-%d %H:%M:%S") + "," + str(self.last_fill[1]) + "," + self.last_fill[2] + "," + self.last_fill[3] + "," +str(self.last_fill[4]) + "\r")
                 fd.close()
+        print msg
 
 
 
@@ -459,8 +465,8 @@ class ExecutionHandler(object):
         # order goes through!
         time.sleep(1)
 
-        # Increment the order ID TODO I'm skipping order numbers, but shouldn't be an issue
-        self.valid_id += 1
+        # Increment the order ID
+        #self.valid_id += 1
 
     def cancel_order(self,id):
         self.ib_conn.cancelOrder(id)
@@ -505,6 +511,7 @@ class ExecutionHandler(object):
 
 #TODO register on HFT class
     def on_tick_event(self, msg):
+        #print "tick"
         ticker_id = msg.tickerId
         field_type = msg.field
         #        print field_type
@@ -683,12 +690,24 @@ class Monit_stream:
         :param flag:
         :return:
         """
-        now = msg["time"]
-        last_price = msg["value"]
-        self.stream1.write(dict(x=now, y=last_price))
-        self.stream2.write(dict(x=now, y=last_mean+settings.Z_THRESH*last_sd))
-        self.stream3.write(dict(x=now, y=last_mean-settings.Z_THRESH*last_sd))
+        #print str(last_mean)
+        #print str(last_sd)
+        try:
+            now = msg["time"]
+            last_price = msg["value"]
+        except Exception as e:
+            print "msg capture error" + e
 
+        try:
+            # self.exec_logger.error("last fill" + str(last_mean))
+            # self.exec_logger.error("last fill" + str(last_sd))
+            self.stream1.write(dict(x=now, y=last_price))
+            self.stream2.write(dict(x=now, y=last_mean+settings.Z_THRESH*last_sd))
+            self.stream3.write(dict(x=now, y=last_mean-settings.Z_THRESH*last_sd))
+            # self.exec_logger.error("last fill" + str(last_mean))
+            # self.exec_logger.error("last fill" + str(last_sd))
+        except Exception as e:
+            print e + "streams failed"
         if flag == "range":
             self.stream4.write(dict(x=now, y=last_price))
 
