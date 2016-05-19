@@ -466,7 +466,7 @@ class ExecutionHandler(object):
         time.sleep(1)
 
         # Increment the order ID
-        #self.valid_id += 1
+        self.valid_id += 1
 
     def cancel_order(self,id):
         self.ib_conn.cancelOrder(id)
