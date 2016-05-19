@@ -9,7 +9,7 @@ from ib.opt import Connection
 import datetime as dt
 import time
 from classes.ib_util import IBUtil
-from classes.stock_data import StockData
+#from classes.stock_data import StockData
 #import our ML class call (btw, API key in clear = not smart)
 from classes.ml_api_call import MLcall
 from params import settings
@@ -60,7 +60,7 @@ class HFTModel:
         self.ib_util = IBUtil()
 
 
-        self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
+        #self.stocks_data = {}  # Dictionary storing StockData objects.REFACTOR
         self.symbols = None  # List of current symbols
         self.account_code = ""
         self.prices = None  # Store last prices in a DataFrame
@@ -240,7 +240,7 @@ class HFTModel:
 #Now I have only one "symbol"      TODO: clean that stuff
         stock_symbol = self.symbols
         contract = self.ib_util.create_stock_contract(stock_symbol)
-        self.stocks_data[stock_symbol] = StockData(contract)
+        #self.stocks_data[stock_symbol] = StockData(contract)
 
     #this is redundant but required to scaffold/test
     def create_contract(self, symbol, sec_type, exch, expiry, curr):
@@ -291,14 +291,14 @@ class HFTModel:
 
 
 
-    def __on_portfolio_update(self, msg):
-        for key, stock_data in self.stocks_data.iteritems():
-            if stock_data.contract.m_symbol == msg.contract.m_symbol:
-                if dt.datetime.now(self.tz) > self.last_trim + self.moving_window_period:
-                    stock_data.update_position(msg.position,
-                                               msg.marketPrice,
-                                               msg.marketValue)
-#                                           ,
+#     def __on_portfolio_update(self, msg):
+#         for key, stock_data in self.stocks_data.iteritems():
+#             if stock_data.contract.m_symbol == msg.contract.m_symbol:
+#                 if dt.datetime.now(self.tz) > self.last_trim + self.moving_window_period:
+#                     stock_data.update_position(msg.position,
+#                                                msg.marketPrice,
+#                                                msg.marketValue)
+# #                                           ,
 #                                           msg.averageCost,
 #                                           msg.unrealizedPNL,
 #                                           msg.realizedPNL,
@@ -320,7 +320,7 @@ class HFTModel:
 
         elif msg.typeName == datatype.MSG_TYPE_UPDATE_PORTFOLIO:
 
-            self.__on_portfolio_update(msg)
+            #self.__on_portfolio_update(msg)
 
         elif msg.typeName == datatype.MSG_TYPE_MANAGED_ACCOUNTS:
             pass
