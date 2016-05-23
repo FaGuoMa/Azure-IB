@@ -55,10 +55,11 @@ class HFTModel:
         self.trade_qty = 0
         self.traffic_light = Event()
         self.ohlc_ok = Lock()
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=6)
         self.timekeeper = None
         self.parser = None
         self.execution = None
+        self.strategy = None
         self.handler = None
         self.data_path = os.path.normpath(os.path.join(os.path.curdir,"data.csv"))
         self.ohlc_path = os.path.normpath(os.path.join(os.path.curdir,"ohlc.csv"))
@@ -89,9 +90,17 @@ class HFTModel:
                                           self.__event_handler,
                                           self.handler._reply_handler)
         if self.test:
-            self.order_template = self.create_contract("CL", "FUT", "NYMEX", "201607", "USD")
+            self.order_template = self.create_contract(settings.SYMBOL,
+                                                       settings.SECURITY,
+                                                       settings.EXCHANGE,
+                                                       settings.EXPIRY,
+                                                       settings.CURRENCY)
         else:
-            self.order_template = self.handler.create_contract("CL", "FUT", "NYMEX", "201607", "USD")#todo duplicate with execution handler
+            self.order_template = self.handler.create_contract(settings.SYMBOL,
+                                                       settings.SECURITY,
+                                                       settings.EXCHANGE,
+                                                       settings.EXPIRY,
+                                                       settings.CURRENCY)
         self.signal = None
         self.state = None
 
@@ -133,6 +142,8 @@ class HFTModel:
             if self.now > self.last_trim + dt.timedelta(minutes=1):
                 if self.parser.running():
                     self.test_logger.error("parser thread is alive - timekeeper")
+                if self.strategy.running():
+                    self.test_logger.error("strategy thread is alive - timekeeper")
                 if self.execution.running():
                     self.test_logger.error("execution thread is alive - timekeeper")
                 else:
@@ -466,9 +477,11 @@ class HFTModel:
             self.update_norm_params()
             self.test_logger.info("First normalized parameters passed")
             time.sleep(5)
-            self.test_logger.info("Spawning execution handler")
+            self.test_logger.info("Spawning strategy handler")
 
-            self.execution = self.executor.submit(self.handler.trading_loop)
+            self.strategy = self.executor.submit(self.handler.trading_loop)
+            self.test_logger.info("Spawning execution handler")
+            self.execution = self.executor.submit(self.handler.order_execution)
 
 
 
