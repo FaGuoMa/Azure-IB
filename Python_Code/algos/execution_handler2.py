@@ -3,7 +3,7 @@ import datetime as dt
 import time
 import pickle
 import os
-from multiprocessing import Queue, Process, log_to_stderr, Value
+from multiprocessing import Queue, Event
 import concurrent.futures
 import sys
 import ib.ext
@@ -214,10 +214,13 @@ class ExecutionHandler(object):
                            "filled": False,
                            "active": False}
         self.trade = None
+
         #trade data management. in a Value class #TODO I dont have Noneinitial type, but 0, so..
         self.mkt_data_queue = Queue()
         self.message_q = Queue()
         self.order_q = Queue()
+        self.trading = Event()
+        self.trading.set()
         #trading values
         self.last_trade = None#todo this is not thread safe
         self.last_bid = None
@@ -396,7 +399,7 @@ class ExecutionHandler(object):
         x_delay = 0.5#todo not sure if still required
         while True:
             try:
-
+                self.trading.wait()
                 if self.cur_mean is not None and self.cur_sd is not None and self.last_trade is not None:
 
                     try:
@@ -585,6 +588,7 @@ class ExecutionHandler(object):
         while True:
             if not self.order_q.empty():
                 msg = self.order_q.get()
+                self.trading.clear()
 
 
                 self.exec_logger.info("order execution thread - got msg")
@@ -627,6 +631,7 @@ class ExecutionHandler(object):
                     self.exec_logger.error("filled dict failed - exec")  # todo this will fail on cancel
                 self.flush_q_orders()
                 self.valid_id += 1
+                self.trading.set()
                 self.trade = None
 
     def flush_q_orders(self):
