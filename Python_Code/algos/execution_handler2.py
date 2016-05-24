@@ -423,7 +423,7 @@ class ExecutionHandler(object):
 
 
                     if abs(zscore) >= self.zscore_thresh and \
-                                    abs(zscore) <= self.settings.Z_THRESH + settings.Z_THRESH_UP and \
+                                    abs(zscore) <= settings.Z_THRESH + settings.Z_THRESH_UP and \
                                     self.trade is None and \
                             (self.fill_dict == [] or self.fill_dict[-1]["type"] != "main"):
                         self.exec_logger.info("signal for main detected - strategy")
