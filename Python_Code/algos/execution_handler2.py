@@ -17,6 +17,7 @@ from ib.opt import ibConnection, Connection, message as ib_message_type
 import pandas as pd
 from params import settings
 import logging
+from csv import DictWriter
 
 # (*) To communicate with Plotly's server, sign in with credentials file
 import plotly.plotly as py
@@ -67,18 +68,7 @@ class Trade:
         self.exec_logger = logging.getLogger('execution_logger')
         self.exec_logger.setLevel(logging.INFO)
 
-        try:
-            self.execute()
-        except:
-            self.exec_logger.error("execute order failed - Trade")
-            traceback.print_exc()
-        try:
-            self.filled = self.wait_for_ack(queue_ack)
-        except:
-            self.exec_logger.error("wait for ack failed - Trade")
-            traceback.print_exc()
-        self.valid_id += 1
-        print self.fill_dict
+
 
 
 
@@ -139,7 +129,7 @@ class Trade:
     def return_dict(self):
         return dict(t_signal=self.t_signal,
              t_x=self.t_x,
-             test_ack=self.t_ack,
+             t_ack=self.t_ack,
              signal_at=self.signal_at,
              type=self.type,
              action=self.action,
@@ -155,7 +145,7 @@ class Trade:
         print self.type
         while not self.filled:
             #time.sleep(0.5)
-            print self.t_x
+            #print self.t_x
 
             if self.t_x + dt.timedelta(seconds=self.cntdwn) < dt.datetime.now():
                 self.timedout = True
@@ -167,6 +157,7 @@ class Trade:
                 if self.type == "stop" or self.type == "profit":
                     print "change order from LMT to MKT"
                     self.change("MKT")
+
 
             if not queue_ack.empty():
                 ack = queue_ack.get()
@@ -182,7 +173,7 @@ class Trade:
                     print ack
                     if ack["id"] == self.id:
                         print "confirmed ack id: " + str(ack["id"])
-                        if ack["fill"] != 0:
+                        if ack["fill"] != 0 and (self.fill_dict == [] or self.fill_dict[-1]["id"] != ack["id"]):
                             self.fill_price = ack["fill_price"]
                             self.t_ack = dt.datetime.now()
                             self.filled = True
@@ -222,7 +213,7 @@ class ExecutionHandler(object):
                            "action": None,
                            "filled": False,
                            "active": False}
-
+        self.trade = None
         #trade data management. in a Value class #TODO I dont have Noneinitial type, but 0, so..
         self.mkt_data_queue = Queue()
         self.message_q = Queue()
@@ -370,14 +361,14 @@ class ExecutionHandler(object):
                 self.last_bid = msg["value"]
 
     def make_order_q_message(self,type,action):
-        naction = None
-        if action == "BUY":
-            naction == "SELL"
-        if action == "SELL":
-            naction == "BUY"
-
-        if type != "main":
-            action = naction
+        # naction = None
+        # if action == "BUY":
+        #     naction == "SELL"
+        # if action == "SELL":
+        #     naction == "BUY"
+        #
+        # if type != "main":
+        #     action = naction
         dict_message = dict(t_signal=dt.datetime.now(),
                     t_x= None,
                     t_ack= None,
@@ -392,6 +383,7 @@ class ExecutionHandler(object):
                     last_bid = self.last_bid
 
                     )
+
         self.order_q.put(dict_message)
         #print dict_message
 
@@ -401,7 +393,7 @@ class ExecutionHandler(object):
 
         """
 
-        x_delay = 0.1#todo not sure if still required
+        x_delay = 0.5#todo not sure if still required
         while True:
             try:
 
@@ -416,22 +408,24 @@ class ExecutionHandler(object):
                         self.hist_flag = self.flag
                         self.exec_logger.error("set hist flag in trading loop - strategy")
                     #check change of state and kill positions TODO this is simplistic
-                    try:
-                        if self.hist_flag != self.flag and self.current_order["filled"] and self.current_order["main"]:
-                            self.exec_logger.error("killing pos for change of flag - strategy")
-                            #logging.debug("exec - change of state, killing position")
-                            self.make_order_q_message("stop",self.opp_action(self.fill_dict[-1]["action"]))
-                            self.current_order["active"] == True
-                            self.current_order["main"] == False
-                            #self.execute_order(self.stop_order["order"])
-                            #self.make_order_q_message("stop",naction) todo not sure this goes here
-                            self.hist_flag = self.flag
+                    # try:
+                    #     if self.hist_flag != self.flag and self.trade is not None and self.trade.type == "main":
+                    #         self.exec_logger.error("killing pos for change of flag - strategy")
+                    #         #logging.debug("exec - change of state, killing position")
+                    #         self.make_order_q_message("stop",self.opp_action(self.fill_dict[-1]["action"]))
+                    #
+                    #         #self.execute_order(self.stop_order["order"])
+                    #         #self.make_order_q_message("stop",naction) todo not sure this goes here
+                    #         self.hist_flag = self.flag
+                    #
+                    # except:
+                    #     self.exec_logger.error("market in change of trend failed - strategy")
 
-                    except:
-                        self.exec_logger.error("market in change of trend failed - strategy")
 
-
-                    if abs(zscore) >= self.zscore_thresh and self.current_order["main"] and not self.current_order["active"] and abs(zscore) <= self.zscore_thresh + settings.Z_THRESH_UP:
+                    if abs(zscore) >= self.zscore_thresh and \
+                                    abs(zscore) <= self.settings.Z_THRESH + settings.Z_THRESH_UP and \
+                                    self.trade is None and \
+                            (self.fill_dict == [] or self.fill_dict[-1]["type"] != "main"):
                         self.exec_logger.info("signal for main detected - strategy")
                         try:
 
@@ -469,9 +463,8 @@ class ExecutionHandler(object):
                             #self.main_order["active"] = True
                             try:
                                 self.make_order_q_message("main", action)
-                                self.current_order["main"] = True
-                                self.current_order["active"] = True
-                                self.current_order["action"] = action
+                                time.sleep(x_delay)
+
                             except:
                                 self.exec_logger.error("push main order to queue failed - strategy")
                             #self.execute_order(self.main_order["order"])
@@ -491,27 +484,20 @@ class ExecutionHandler(object):
                             print self.position
                         except:
                             self.exec_logger.error("main order failed - strategy")
-#timeout now amanged in the order handler
-                    # if self.main_order["active"] \
-                    #         and not self.main_order["filled"] \
-                    #         and (dt.datetime.now() - self.main_order["timeout"]).total_seconds() > self.shelflife:
-                    #     try:
-                    #         self.main_order["active"] = False
-                    #         self.cancel_order(self.main_order["id"])
-                    #         self.reset_trading_pos()
-                    #         time.sleep(x_delay)
-                    #
-                    #     except:
-                    #
-                    #         self.exec_logger.error("timeout of main order failed - strategy")
 
-                    if len(self.fill_dict) >0 and self.fill_dict[-1]["type"] == "main" and self.fill_dict[-1]["filled"]:
-                        # print "stop/profit loop active"
+                    if self.trade is None and \
+                                    len(self.fill_dict) >0 and \
+                                    self.fill_dict[-1]["type"] == "main" \
+                            and self.fill_dict[-1]["filled"]:
+
+                        #print "stop/profit loop active"
                         action = self.fill_dict[-1]["action"]
                         if action == "BUY":
                             offset = -self.stop_offset
+                            naction = "SELL"
                         if action == "SELL":
                             offset = self.stop_offset
+                            naction = "BUY"
                         if self.stop == 0:
                             self.stop = self.fill_dict[-1]["fill_price"] + offset
                         # print "stop at " + str(self.stop)
@@ -522,11 +508,10 @@ class ExecutionHandler(object):
                             try:
                                 self.watermark = max(self.last_trade, self.watermark)
                                 # print "new watermark is:" + str(self.watermark)
-                                if self.last_trade <= self.stop and not self.current_order["active"]:
+                                if self.last_trade <= self.stop and self.trade is None:
                                     self.exec_logger.error("executing stop order buy- strategy")
                                     #self.stop_profit = "stop"
-                                    self.current_order["active"] = True
-                                    self.current_order["main"] = False
+
                                     self.make_order_q_message("stop",naction)
                                     #self.execute_order(self.stop_order["order"])
                                     time.sleep(x_delay)
@@ -536,12 +521,12 @@ class ExecutionHandler(object):
 
                             if self.flag == "trend":
                                 try:
-                                    if self.last_trade <= self.watermark + offset and not self.current_order["active"]:
+                                    if self.last_trade <= self.watermark + offset and self.trade is None:
 
                                         #self.execute_order(self.profit_order["order"])
                                         self.make_order_q_message("profit",naction)
-                                        self.current_order["active"] = True
-                                        self.current_order["main"] = False
+
+
                                         #self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order buy/trends - strategy")
                                         time.sleep(x_delay)
@@ -552,12 +537,12 @@ class ExecutionHandler(object):
                         if action == "SELL":
                             try:
                                 self.watermark = min(self.last_trade, self.watermark)
-                                if self.last_trade >= self.stop and not self.current_order["active"]:
+                                if self.last_trade >= self.stop and self.trade is None:
 
                                     #self.execute_order(self.stop_order["order"])
                                     self.make_order_q_message("stop",naction)
-                                    self.current_order["active"] = True
-                                    self.current_order["main"] = False
+
+
                                     #self.stop_profit = "stop"
                                     time.sleep(x_delay)
                                     self.exec_logger.error("executing stop order sell- strategy")
@@ -567,12 +552,11 @@ class ExecutionHandler(object):
 
                             if self.flag == "trend":
                                 try:
-                                    if self.last_trade >= self.watermark + offset and not self.current_order["active"]:
+                                    if self.last_trade >= self.watermark + offset and self.trade is None:
                                         # self.profit_order["active"] = True
                                         #self.execute_order(self.profit_order["order"])
                                         self.make_order_q_message("profit",naction)
-                                        self.current_order["active"] = True
-                                        self.current_order["main"] = False
+
                                         #self.stop_profit = "profit"
                                         self.exec_logger.error("executing profit order sell/trend - strategy")
                                         time.sleep(x_delay)
@@ -586,8 +570,7 @@ class ExecutionHandler(object):
                         # print str(abs(zscore))
                         if self.flag == "range" and abs(zscore) <= settings.Z_TARGET:
                             try:
-                                self.current_order["active"] = True
-                                self.current_order["main"] = False
+
                                 self.make_order_q_message("profit",naction)
                                 #self.stop_profit = "profit"
                                 self.exec_logger.error("executing profit order, range mean revert target - strategy")
@@ -603,27 +586,52 @@ class ExecutionHandler(object):
             if not self.order_q.empty():
                 msg = self.order_q.get()
 
+
                 self.exec_logger.info("order execution thread - got msg")
                 try:
-                    trade = Trade(msg, self.message_q, self.fill_dict, self.ib_conn,self.contract,self.valid_id)
+                    self.trade = Trade(msg, self.message_q, self.fill_dict, self.ib_conn,self.contract,self.valid_id)
                     print "order exec: executing {0} order at {1}".format(msg["action"], msg["signal_at"])
+
+                    self.trade.execute()
+
+
                 except:
-                    self.exec_logger.error("Trade class spawn error - exec")
+                    self.exec_logger.error("execute order failed - Trade")
                     traceback.print_exc()
                 try:
-                    if trade.type != "main" or trade.timedout:
+                    self.trade.filled = self.trade.wait_for_ack(self.message_q)
+                except:
+                    self.exec_logger.error("wait for ack failed - Trade")
+                    traceback.print_exc()
+
+                print self.fill_dict
+
+                try:
+                    if self.trade.type != "main" or self.trade.timedout:
                         self.reset_trading_pos()
-                    else:
-                        self.current_order["filled"] = True
+
                 except:
                     self.exec_logger.error("monitor update fill failed - exec")
                 try:
-                    if trade.filled:
+                    if self.trade.filled:
                         self.monitor.update_fills(self.fill_dict)
                 except:
-                    self.exec_logger.error("monitor update fill failed - exec")#todo this will fail on cancel
+                    self.exec_logger.error("monitor update fill failed - exec")
+                try:
+                    fd = open(self.csv, 'a')
+                    fieldnames = ["t_signal", "t_x", "t_ack", "signal_at", "flag", "fill_price", "action", "type", "id","filled"]
+                    writer = DictWriter(fd, fieldnames=fieldnames)
+                    writer.writerow(self.fill_dict[-1])
+                    fd.close()
+                except:
+                    self.exec_logger.error("filled dict failed - exec")  # todo this will fail on cancel
+                self.flush_q_orders()
                 self.valid_id += 1
+                self.trade = None
 
+    def flush_q_orders(self):
+        while not self.order_q.empty():
+            self.order_q.get_nowait()
 
     def reset_trading_pos(self):
         self.current_order = {"main": True,
@@ -950,10 +958,10 @@ class Monit_stream:
     def update_fills(self, fill_dict):
         #now=dt.datetime.now()
         if fill_dict is not None:
-            if fill_dict["action"] == "BUY":
+            if fill_dict[-1]["action"] == "BUY":
                 self.stream5.write(dict(x=fill_dict[-1]["t_ack"], y=fill_dict[-1]["fill_price"]))
 
-            if fill_dict["action"] == "SELL":
+            if fill_dict[-1]["action"] == "SELL":
                 self.stream6.write(dict(x=fill_dict[-1]["t_ack"], y=fill_dict[-1]["fill_price"]))
 
     def close_stream(self):
