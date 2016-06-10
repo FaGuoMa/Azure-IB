@@ -130,7 +130,9 @@ class HFTModel:
     def time_keeper(self):
 
         while True:
-
+            print "executing and trading flag set?"
+            print self.handler.executing.is_set()
+            print self.handler.trading.is_set()
 
 
             self.now = pytz.timezone('Singapore').localize(dt.datetime.now())
@@ -147,7 +149,6 @@ class HFTModel:
                 if self.execution.running():
                     self.test_logger.error("execution thread is alive - timekeeper")
                 else:
-                    #self.rekindle_execution()
                     self.test_logger.error("!!!execution thread  is DEAD- timekeeper")
 
                 self.test_logger.error("timekeeper minute call")
